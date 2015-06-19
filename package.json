@@ -10,7 +10,8 @@
   "dependencies": {
     "underscore": "^1.7.0",
     "colors": "^1.1.2",
-    "log4js": "^0.6.21"
+    "log4js": "^0.6.21",
+    "htmlparser2": "^3.8.3"
   },
   "publishConfig": {
     "registry": "http://sinopia.app.s/"

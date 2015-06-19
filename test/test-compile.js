@@ -1,16 +1,13 @@
-var VueRender = require('vue-html-render');
-var server = new VueRender();
+var vueServer = require('../index');
+var Server = new vueServer.renderer();
 
-var VueCompile = require('vue-html-compile');
+var VueCompile = vueServer.compiler;
 var tpl = VueCompile([
-    '<commonmodule object="{{go}}"></commonmodule>',
-    '<astemplate object="{{go}}"></astemplate>'
+    '<common-module object="{{go}}"></common-module>',
+    '<as-template object="{{go}}"></as-template>'
 ].join(''));
 
-
-
-
-var vm = new server({
+var vm = new Server({
     template: tpl,
     data: {
         go: {
@@ -20,20 +17,18 @@ var vm = new server({
     },
 
     components: {
-        'commonmodule': {
-            props: ['object'],
+        'common-module': {
+            paramAttributes: ['object'],
             template: VueCompile('<pre>{{object | json}}</pre>'),
         },
-        'astemplate': {
+        'as-template': {
             replace: true,
-            props: ['object'],
+            paramAttributes: ['object'],
             template: VueCompile('<div>Now we can use inherited values: <pre>{{object | json}}</pre></div>'),
         }
     }
 })
 
 vm.$on('vueServer.htmlReady', function(html) {
-    console.log('')
     console.log(html);
-    console.log('')
 });
