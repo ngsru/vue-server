@@ -1,0 +1,26 @@
+.sas-dropdown {
+	padding: 12px 15px 14px;
+	background: #fff;
+	border: 1px solid #c4c4c4;
+	box-shadow: 0 0 15px rgba(0,0,0,0.15);
+	@include box-sizing;
+	@include border-radius(2px);
+}
+
+
+
+
+.dd-select-list {
+	@include text-format;
+	font-size: 15px;
+}
+
+
+	.dd-select-list__item {
+		cursor: pointer;
+		white-space: nowrap;
+		
+		& + & {
+			margin-top: 10px;
+		}
+	}

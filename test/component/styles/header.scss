@@ -1,0 +1,23 @@
+.header {
+	background: #ededed;
+}
+
+
+	.header__inner {
+		@include site-content;
+		@include cf;
+	}
+
+
+		.header__left {
+			float: left;
+		}
+
+
+		.header__right {
+			float: right;
+			margin-top: 21px;
+			margin-right: 1px;
+			border-right: 2px solid #fff;
+			border-left: 2px solid #fff;
+		}

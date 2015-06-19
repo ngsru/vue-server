@@ -1,0 +1,1 @@
+window.VueServer = require('vue-server');

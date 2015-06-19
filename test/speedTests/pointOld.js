@@ -1,0 +1,1 @@
+window.VueServerRepeat1 = require('vue-server');
