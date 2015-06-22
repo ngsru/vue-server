@@ -146,7 +146,7 @@ var scope = {
 
         scope.onParamAttributes(vm, function(props) {
             props.forEach(function (name) {
-                vm[name] = null;
+                vm[common.toCamelCase(name)] = null;
             });
         });
 
@@ -419,7 +419,7 @@ var scope = {
                 name = props[i];
                 value = vm.$el.attribs[name];
                 if (value) {
-                    vm[name] = common.getValue(vm.$parent, value, true);
+                    vm[common.toCamelCase(name)] = common.getValue(vm.$parent, value, true);
                     vm.$el.attribs[name] = undefined;
                 }
             }

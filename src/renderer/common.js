@@ -231,6 +231,13 @@ var common = {
         }
 
         return newNames;
+    },
+
+
+    toCamelCase: function(value) {
+        return value.replace(/-(\w)/g, function(a, b){
+            return b.toUpperCase();
+        });
     }
 }
 
