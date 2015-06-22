@@ -445,6 +445,7 @@ var Compile = function(template) {
     },
     {
         // xmlMode: true
+        lowerCaseTags: false
     });
     parser.write(template);
     parser.end();
