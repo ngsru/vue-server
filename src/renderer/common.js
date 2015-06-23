@@ -30,12 +30,15 @@ var excludeInstanceOptions = {
 };
 
 var common = {
-    getValue: function(vm, value, disableEscaping) {
+    getValue: function(vm, value, disableEscaping, activateCleaning) {
         var result;
 
         if (typeof value === 'function') {
             if (disableEscaping) {
                 vm.$compiler.isEscapeActive = false;
+            }
+            if (activateCleaning) {
+                vm.$compiler.isCleanActive = true;
             }
             try {
                 result = value.call(vm);
@@ -47,6 +50,7 @@ var common = {
                 vm.$logger.warn('Error executing expression [end]');
             } 
             vm.$compiler.isEscapeActive = true;
+            vm.$compiler.isCleanActive = false;
         } else {
             result = value;
         }
@@ -55,8 +59,7 @@ var common = {
     },
 
     getCleanedValue: function(vm, value) {
-        var result = common.getValue(vm, value);
-        return common.cleanValue(result);
+        return common.getValue(vm, value, false, true);
     },
 
     cleanValue: function(value) {

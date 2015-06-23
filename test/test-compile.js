@@ -3,13 +3,14 @@ var Server = new vueServer.renderer();
 
 var VueCompile = vueServer.compiler;
 var tpl = VueCompile([
-    '<common-module object="{{go}}"></common-module>',
+    '<common-module object="{{go}}" gfdgd="{{gfdgd}}"></common-module>',
     '<as-template object="{{go}}"></as-template>'
 ].join(''));
 
 var vm = new Server({
     template: tpl,
     data: {
+        gfdgd: 'gfdgdfgd<div></div>',
         go: {
             display: 'inline',
             position: 'absolute'
@@ -18,8 +19,8 @@ var vm = new Server({
 
     components: {
         'common-module': {
-            paramAttributes: ['object'],
-            template: VueCompile('<pre>{{object | json}}</pre>'),
+            paramAttributes: ['object', 'gfdgd'],
+            template: VueCompile('<pre>{{{gfdgd}}}||{{object | json}}</pre>'),
         },
         'as-template': {
             replace: true,

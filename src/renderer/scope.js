@@ -203,6 +203,7 @@ var scope = {
 
         vm.$compiler = {
             isEscapeActive: true,
+            isCleanActive: false,
             getOption: function(option, value) {
                 var filter = vm.$options.filters[value];
                 var replacement = function(v) {
@@ -241,6 +242,7 @@ var scope = {
         vm.$get = function(keypath, mode) {
             var result = utils.get(this, keypath);
             var isSelf = true;
+            var value;
 
             if (this._isRepeat && !this._isComponent) {
                 isSelf = false;
@@ -249,14 +251,20 @@ var scope = {
             var type = typeof result;
 
             if (type === 'function') {
-                return utils.bind(result, isSelf ? this : this.$parent);
+                value = utils.bind(result, isSelf ? this : this.$parent);
             } else {
                 if (mode === 'html' || !this.$compiler.isEscapeActive) {
-                    return result;
+                    value = result;
+                } else {
+                    value = this.$compiler.escapeHtml(result);
                 }
-
-                return this.$compiler.escapeHtml(result);
             }
+
+            if (this.$compiler.isCleanActive) {
+                return common.cleanValue(value);
+            }
+
+            return value;
         };
 
         vm.$addChild = function(options) {

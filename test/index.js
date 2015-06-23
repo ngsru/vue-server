@@ -2,7 +2,7 @@ var express = require('express');
 var app = express();
 var _ = require('underscore');
 
-var VueServer = require('vue-server');
+var VueServer = require('../index.js');
 var VueCompile = VueServer.compiler;
 var VueRender = VueServer.renderer;
 
