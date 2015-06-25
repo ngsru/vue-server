@@ -287,7 +287,7 @@ var scope = {
             } else {
                 options.element._components = presentVm.$el._components;
                 presentVm.$el = options.element;
-                // scope.buildWithedData(presentVm, options);
+                scope.buildWithedData(presentVm, options);
                 scope.resetVmInstance(presentVm);
                 newVm = presentVm;
             }
