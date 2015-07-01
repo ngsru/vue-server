@@ -177,16 +177,16 @@ var scope = {
                         // переданные через v-with из контентного компонента к дочерним, изменённые в процессе
                         // отработки хука compiled начнут автоматически просасываться внутрь.
                         // Но мне страшно
-                        // scope.buildWithedData(vm, contexts);
+                        scope.buildWithedData(vm, contexts);
                         scope.resetVmInstance(vm);
                     });
                 } else {
                     // Её одна страшная опция. Не буду пока включать. Немного понижает производительность
-                    // if (vm.$options.compiledBe && vm !== vm.$root) {
-                        // scope.resetVmInstance(vm);
-                    // } else {
+                    if (vm.$options.compiledBe && vm !== vm.$root) {
+                        scope.resetVmInstance(vm);
+                    } else {
                         vm._isReady = true;
-                    // }
+                    }
                 }
             });
         });
