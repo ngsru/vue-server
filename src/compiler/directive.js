@@ -215,6 +215,16 @@ Directive.parse = function (str) {
             var tokens = exp.match(FILTER_TOKEN_RE)
             filter.name = tokens[0]
             filter.args = tokens.length > 1 ? tokens.slice(1) : null
+
+            // Превращаем веб-символы в обычные символы
+            if (filter.args) {
+                filter.args = filter.args.map(function(value) {
+                    return value
+                        .replace(/\&nbsp;/g, ' ')
+                        .replace(/\&ndash;/g, '–')
+                        .replace(/\&mdash;/g, '—');
+                });
+            }
         }
         if (filter) {
             (dir.filters = dir.filters || []).push(filter)

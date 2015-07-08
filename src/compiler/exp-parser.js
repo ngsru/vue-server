@@ -159,20 +159,8 @@ exports.parse = function (exp, compiler, data) {
         var c = path.charAt(0)
         path = path.slice(1)
 
-        var html = false,
-            val;
+        var val = 'this.$get("' + path + '")'
 
-        path = path.replace(/^(__HTML__)/, function(m1, m2) {
-            html = true;
-            return '';
-        });
-
-        if (html) {
-            val = 'this.$get("' + path + '", "html")'
-        } else {
-            val = 'this.$get("' + path + '")'
-        }
-        
         if (!has[path]) {
             accessors += val + ';'
             has[path] = 1

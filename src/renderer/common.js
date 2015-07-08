@@ -34,9 +34,6 @@ var common = {
         var result;
 
         if (typeof value === 'function') {
-            if (disableEscaping) {
-                vm.$compiler.isEscapeActive = false;
-            }
             if (activateCleaning) {
                 vm.$compiler.isCleanActive = true;
             }
@@ -49,7 +46,6 @@ var common = {
                 vm.$logger.warn(value.toString());
                 vm.$logger.warn('Error executing expression [end]');
             } 
-            vm.$compiler.isEscapeActive = true;
             vm.$compiler.isCleanActive = false;
         } else {
             result = value;

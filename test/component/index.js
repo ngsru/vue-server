@@ -16,6 +16,10 @@ module.exports = {
             get: function() {
                 return this.computed.tobePlused + 5000;
             }
+        },
+
+        getUndefined: function() {
+            return;
         }
     },
 
@@ -56,6 +60,10 @@ module.exports = {
         forVIfHide: function() {
             return this.vIf.hide;
         },
+
+        getFnUndefined: function() {
+            return;
+        }
     },
     compiledBe: function () {
         this.plain = {
@@ -65,7 +73,11 @@ module.exports = {
 
             number: 3,
 
-            html: '<span>WATWG<sup>2</sup></span>'
+            html: '<span>WATWG<sup>2</sup></span>',
+
+            data: {
+                value: '<span>WATWG<sup>2</sup></span>'
+            }
         };
 
 
@@ -158,6 +170,7 @@ module.exports = {
 
         this.vModel = {
             input: 'some value there',
+            none: null,
             select: 2,
             selectMulti: [2, 3],
             selectOptions: [
@@ -445,6 +458,10 @@ module.exports = {
 
         'void': {
 
+        },
+
+        'nothing': function(value) {
+            return value;
         }
     }
 

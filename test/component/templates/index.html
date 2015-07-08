@@ -30,7 +30,12 @@
 
                 <div class="html">{{{plain.html}}}</div>
                 <div class="html-stripped">{{plain.html}}</div>
+                <div class="html-mixed">{{{plain.html}}} {{plain.html}}</div>
 
+
+                <div class="filter-html">{{{plain.html | nothing}}}</div>
+                <div class="filter-html-stripped">{{plain.html | nothing}}</div>
+                <div class="filter-json-stripped">{{plain.data | json}}</div>
 
 
                 <div class="computed1">{{aDouble}}</div>
@@ -38,6 +43,20 @@
 
 
                 <div class="undefined">{{itsNotDefined}}</div>
+                <div class="computed-undefined">{{getUndefined}}</div>
+                <div class="fn-undefined">{{getFnUndefined()}}</div>
+
+                <div class="html-undefined">{{{itsNotDefined}}}</div>
+                <div class="html-computed-undefined">{{{getUndefined}}}</div>
+                <div class="html-fn-undefined">{{{getFnUndefined()}}}</div>
+
+                <div class="filter-undefined">{{itsNotDefined | nothing}}</div>
+                <div class="filter-computed-undefined">{{getUndefined | nothing}}</div>
+                <div class="filter-fn-undefined">{{getFnUndefined() | nothing}}</div>
+
+                <div class="filter-html-undefined">{{{itsNotDefined | nothing}}}</div>
+                <div class="filter-html-computed-undefined">{{{getUndefined | nothing}}}</div>
+                <div class="filter-html-fn-undefined">{{{getFnUndefined() | nothing}}}</div>
             </section>
     
 
@@ -210,6 +229,7 @@
             <!-- v-model -->
             <section id="v-model">
                 <input class="input" type="text" v-model="vModel.input">
+                <input class="input-none" type="text" v-model="vModel.none">
                 <!-- <input class="pick-up-value" type="text" value="value from attribute" v-model="vModel.input"> -->
 
                 <textarea class="textarea" v-model="vModel.textarea1"></textarea>

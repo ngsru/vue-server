@@ -202,7 +202,6 @@ var scope = {
         common.extend(vm, events);
 
         vm.$compiler = {
-            isEscapeActive: true,
             isCleanActive: false,
             getOption: function(option, value) {
                 var filter = vm.$options.filters[value];
@@ -212,7 +211,7 @@ var scope = {
 
                 if (!filter) {
                     filter = replacement;
-                    this.$logger.debug( 'Unknown filter "' + value + '"' + common.getVmPath(vm) );
+                    vm.$logger.warn( 'Unknown filter "' + value + '":', common.getVmPath(vm) );
                 }
 
                 if (typeof filter === 'function') {
@@ -223,14 +222,25 @@ var scope = {
 
             },
 
+            cleanValue: function(value) {
+                if (this.isCleanActive) {
+                    return common.cleanValue(value);    
+                } else {
+                    return value;
+                }
+                
+            },
+
             // Brand new strip function
             // Better than any "replace" version;
             escapeHtml: function(str) {
                 if (typeof str !== 'string') {
-                    return str;
+                    return this.cleanValue(str);
                 }
 
-                return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                return this.cleanValue(
+                    str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                );
             }
         };
 
@@ -253,15 +263,7 @@ var scope = {
             if (type === 'function') {
                 value = utils.bind(result, isSelf ? this : this.$parent);
             } else {
-                if (mode === 'html' || !this.$compiler.isEscapeActive) {
-                    value = result;
-                } else {
-                    value = this.$compiler.escapeHtml(result);
-                }
-            }
-
-            if (this.$compiler.isCleanActive) {
-                return common.cleanValue(value);
+                value = result;
             }
 
             return value;

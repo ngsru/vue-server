@@ -176,18 +176,18 @@ var Compile = function(template) {
 
                     if (name === 'v-if') {
                         element.dirs.if = {
-                            value: compileExpr('{{' + attribs['v-if'] + '}}')
+                            value: compileExpr('{{{{' + attribs['v-if'] + '}}}}')
                         };
                     }
 
                     if (name === 'v-model') {
                         element.dirs.model = {
-                            value: compileExpr('{{' + attribs['v-model'] + '}}'),
+                            value: compileExpr('{{{{' + attribs['v-model'] + '}}}}'),
                             options: {}
                         };
 
                         if (attribs['options']) {
-                            element.dirs.model.options.options = compileExpr('{{' + attribs['options'] + '}}');
+                            element.dirs.model.options.options = compileExpr('{{{{' + attribs['options'] + '}}}}');
                         }
                     }
 
@@ -230,7 +230,7 @@ var Compile = function(template) {
 
                         element.dirs.with.value.forEach(function (item) {
                             delete item.expression;
-                            item.key = compileExpr('{{' + item.key + '}}');
+                            item.key = compileExpr('{{{{' + item.key + '}}}}');
                         });
                     }
 
@@ -239,7 +239,7 @@ var Compile = function(template) {
                          
                         if (vClassDir[0].arg) {
                             vClassDir.forEach(function(item) {
-                                item.key = compileExpr('{{' + item.key + '}}');
+                                item.key = compileExpr('{{{{' + item.key + '}}}}');
                                 delete item.expression;
                             });
 
@@ -257,7 +257,7 @@ var Compile = function(template) {
 
                     if (name === 'v-show') {
                         element.dirs.show = {
-                            value: compileExpr('{{' + attribs['v-show'] + '}}'),
+                            value: compileExpr('{{{{' + attribs['v-show'] + '}}}}'),
                             order: attribsCounter
                         };
                     }
@@ -266,10 +266,10 @@ var Compile = function(template) {
                         var vStyleDir = tools.directive.parse(attribs['v-style']);
 
                         if (!vStyleDir[0].arg) {
-                            vStyleDir = compileExpr('{{' + vStyleDir[0].key + '}}');
+                            vStyleDir = compileExpr('{{{{' + vStyleDir[0].key + '}}}}');
                         } else {
                             vStyleDir.forEach(function(item) {
-                                item.key = compileExpr('{{' + item.key + '}}');
+                                item.key = compileExpr('{{{{' + item.key + '}}}}');
                                 delete item.expression;
                             });
                         }
@@ -321,7 +321,7 @@ var Compile = function(template) {
                 // Кишки от директивы v-attr
                 if (element.dirs.attr) {
                     element.dirs.attr.value.forEach(function(item) {
-                        element.attribs[item.arg] = compileExpr('{{' + item.key + '}}');
+                        element.attribs[item.arg] = compileExpr('{{{{' + item.key + '}}}}');
                     });
                 }
 

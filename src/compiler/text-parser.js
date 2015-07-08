@@ -9,7 +9,7 @@ exports.Regex = buildInterpolationRegex()
 function buildInterpolationRegex () {
     var open = escapeRegex(openChar),
         end  = escapeRegex(endChar)
-    return new RegExp(open + open + open + '?(.+?)' + end + '?' + end + end)
+    return new RegExp(open + open + open + '?' + open + '?(.+?)' + end + '?' + end + '?' + end + end)
 }
 
 function escapeRegex (str) {
@@ -42,6 +42,9 @@ function parse (text) {
         token.html =
             match.charAt(2) === openChar &&
             match.charAt(match.length - 3) === endChar
+        token.sys =
+            match.charAt(3) === openChar &&
+            match.charAt(match.length - 4) === endChar
         tokens.push(token)
         text = text.slice(i + m[0].length)
     }
@@ -67,7 +70,7 @@ function parseAttr (attr) {
         token = tokens[i]
         res.push(
             token.key
-                ? inlineFilters(token.key, token.html)
+                ? inlineFilters(token.key, token.html, token.sys)
                 : ('"' + token + '"')
         )
     }
@@ -80,26 +83,27 @@ function parseAttr (attr) {
  *  Inlines any possible filters in a binding
  *  so that we can combine everything into a huge expression
  */
-function inlineFilters (key, html) {
+function inlineFilters (key, html, sys) {
     if (key.indexOf('|') > -1) {
         var dirs = Directive.parse(key),
             dir = dirs && dirs[0]
 
         if (dir && dir.filters) {
-            if (html) {
-                dir.key = '__HTML__' + dir.key;
-            }
-
             key = Directive.inlineFilters(
                 dir.key,
                 dir.filters
             )
         }
-    } else if (html) {
-        key = '__HTML__' + key;
     }
 
-    return '(' + key + ')';
+    if (sys) {
+        return '(' + key + ')';
+    } else if (html) {
+        return 'this.$compiler.cleanValue(' + key + ')';
+    } else {
+        return 'this.$compiler.escapeHtml(' + key + ')';
+    }
+    
 }
 
 exports.parse         = parse

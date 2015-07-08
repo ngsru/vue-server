@@ -34,6 +34,26 @@ describe("In plain templating", function() {
         expect( $('#plain .html-stripped').text() ).toEqual('<span>WATWG<sup>2</sup></span>');
     });
 
+    it("should be able to escape and not to escape html in one row", function() {
+        expect( $('#plain .html-mixed').text() ).toEqual('WATWG2 <span>WATWG<sup>2</sup></span>');
+    });
+
+
+    
+    describe("with a filter", function() {
+        it("should be able to print html", function() {
+            expect( $('#plain .filter-html').html() ).toEqual('<span>WATWG<sup>2</sup></span>');
+        });
+
+        it("should be able to escape html", function() {
+            expect( $('#plain .filter-html-stripped').html() ).not.toEqual('<span>WATWG<sup>2</sup></span>');
+        }); 
+
+        it("should be able to escape html from json filter", function() {
+            expect( $('#plain .filter-json-stripped').html() ).not.toMatch(/<span>WATWG<sup>2<\/sup><\/span>/);
+        }); 
+    });
+
     it("should display computed properties", function() {
         expect( $('#plain .computed1').text() ).toEqual('100');
         expect( $('#plain .computed2').text() ).toEqual('20000');
@@ -41,6 +61,58 @@ describe("In plain templating", function() {
 
     it("should display nothing if value is undefined", function() {
         expect( $('#plain .undefined').text() ).toEqual('');
+    });
+
+    it("should display nothing if computed value is undefined", function() {
+        expect( $('#plain .computed-undefined').text() ).toEqual('');
+    });
+
+    it("should display nothing if function returned value is undefined", function() {
+        expect( $('#plain .fn-undefined').text() ).toEqual('');
+    });
+
+
+    describe("as unescaped", function() {
+        it("should display nothing if value is undefined", function() {
+            expect( $('#plain .html-undefined').text() ).toEqual('');
+        });
+
+        it("should display nothing if computed value is undefined", function() {
+            expect( $('#plain .html-computed-undefined').text() ).toEqual('');
+        });
+
+        it("should display nothing if function returned value is undefined", function() {
+            expect( $('#plain .html-fn-undefined').text() ).toEqual('');
+        });
+    });
+
+    describe("with a filter", function() {
+        it("should display nothing if value is undefined", function() {
+            expect( $('#plain .filter-undefined').text() ).toEqual('');
+        });
+
+        it("should display nothing if computed value is undefined", function() {
+            expect( $('#plain .filter-computed-undefined').text() ).toEqual('');
+        });
+
+        it("should display nothing if function returned value is undefined", function() {
+            expect( $('#plain .filter-fn-undefined').text() ).toEqual('');
+        });
+
+
+        describe("as unescaped", function() {
+            it("should display nothing if value is undefined", function() {
+                expect( $('#plain .filter-html-undefined').text() ).toEqual('');
+            });
+
+            it("should display nothing if computed value is undefined", function() {
+                expect( $('#plain .filter-html-computed-undefined').text() ).toEqual('');
+            });
+
+            it("should display nothing if function returned value is undefined", function() {
+                expect( $('#plain .filter-html-fn-undefined').text() ).toEqual('');
+            });
+        });
     });
 });
 
@@ -510,6 +582,11 @@ describe("v-model", function() {
     it("should set input's value", function() {
         expect( $('#v-model .input').val() ).toEqual( 'some value there' );
     });
+
+    it("should leave empty input's value if null/undefined", function() {
+        expect( $('#v-model .input-none').val() ).toEqual( '' );
+    });
+
 
     // it("should pick up value from 'value' attribute if it's present", function() {
     //     expect( $('#v-model .pick-up-value').val() ).toEqual( 'value from attribute' );
