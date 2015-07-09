@@ -221,6 +221,7 @@ Directive.parse = function (str) {
                 filter.args = filter.args.map(function(value) {
                     return value
                         .replace(/\&nbsp;/g, ' ')
+                        .replace(/\&thinsp;/g, ' ')
                         .replace(/\&ndash;/g, '–')
                         .replace(/\&mdash;/g, '—');
                 });
