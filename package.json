@@ -1,6 +1,6 @@
 {
   "name": "vue-server",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "Vue.js server side version",
   "main": "index.js",
   "author": {
@@ -8,10 +8,11 @@
     "email": "a.solodovnikov@office.ngs.ru"
   },
   "dependencies": {
-    "underscore": "^1.7.0",
     "colors": "^1.1.2",
+    "html-entities": "^1.1.2",
+    "htmlparser2": "^3.8.3",
     "log4js": "^0.6.21",
-    "htmlparser2": "^3.8.3"
+    "underscore": "^1.7.0"
   },
   "publishConfig": {
     "registry": "http://sinopia.app.s/"

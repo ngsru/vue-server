@@ -1,3 +1,6 @@
+var Entities = require('html-entities').AllHtmlEntities;
+entities = new Entities();
+
 var dirId           = 1,
     ARG_RE          = /^[\w\$-]+$/,
     FILTER_TOKEN_RE = /[^\s'"]+|'[^']+'|"[^"]+"/g,
@@ -219,11 +222,7 @@ Directive.parse = function (str) {
             // Превращаем веб-символы в обычные символы
             if (filter.args) {
                 filter.args = filter.args.map(function(value) {
-                    return value
-                        .replace(/\&nbsp;/g, ' ')
-                        .replace(/\&thinsp;/g, ' ')
-                        .replace(/\&ndash;/g, '–')
-                        .replace(/\&mdash;/g, '—');
+                    return entities.decode(value);
                 });
             }
         }
