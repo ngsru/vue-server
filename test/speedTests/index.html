@@ -1,7 +1,6 @@
 <meta charset="utf-8">
 
 <script src="underscore-min.js"></script>
-<script src="vue-original-server-bundle.js"></script>
 <script src="vue-repeat1-server-bundle.js"></script>
 <script src="vue-server-bundle.js"></script>
 <script src="benchmark.js"></script>
@@ -82,11 +81,6 @@
     }
     
 
-    var OriginalVueCompile = window.OriginalVueServer.compiler;
-    var OriginalVueRender = window.OriginalVueServer.renderer;
-    var OriginalVueData = cloneFull(data);
-    prepareTemplates(OriginalVueData, OriginalVueCompile);
-
     var VueCompileRepeat1 = window.VueServerRepeat1.compiler;
     var VueRenderRepeat1 = window.VueServerRepeat1.renderer;
     var VueDataRepeat1 = cloneFull(data);
@@ -110,13 +104,6 @@
     }
     // add tests
     suite
-    .add('Original VueRender', {
-        defer: true,
-        fn: function(deferred) {
-            new OriginalVueRender(OriginalVueData).render();
-            deferred.resolve();
-        }
-    })
     .add('VueRender Old', {
         defer: true,
         fn: function(deferred) {
@@ -124,7 +111,16 @@
 
             // Vue.config.silent = true;
 
-            var vm = new Vue(VueDataRepeat1);
+            var vm = new Vue({
+                data: {
+                    dynamic: 'content'
+                },
+                template: VueCompile('<div v-component="{{dynamic}}" wait-for="loaded"></div>'),
+
+                components: {
+                    content: VueDataRepeat1
+                }
+            });
                 
             vm.$on('vueServer.htmlReady', function(html) {
                 deferred.resolve();
@@ -140,8 +136,17 @@
 
             // Vue.config.silent = true;
 
-            var vm = new Vue(VueData);
-                
+            var vm = new Vue({
+                data: {
+                    dynamic: 'content'
+                },
+                template: VueCompile('<div v-component="{{dynamic}}" wait-for="loaded"></div>'),
+
+                components: {
+                    content: VueData
+                }
+            });
+            
             vm.$on('vueServer.htmlReady', function(html) {
                 deferred.resolve();
             });

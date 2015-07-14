@@ -1,1 +1,1 @@
-window.VueServerRepeat1 = require('vue-server');
+window.VueServerRepeat1 = require('./../../index.js');
