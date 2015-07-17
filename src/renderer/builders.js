@@ -75,15 +75,18 @@ var builders = {
 
                 // v-if
                 if (element.dirs.if) {
-                    if ( !common.getValue(vm, element.dirs.if.value) ) {
-                        // element.dirs.if = undefined;
+                    var vIfResult = common.execute({
+                        vm: vm,
+                        value: element.dirs.if.value,
+                        isEscape: false,
+                        isClean: false
+                    });
+
+                    if (!vIfResult) {
                         elements.splice(i, 1);
                         builders.buildElements(vm, elements, i);
                         break;
-                    } 
-                    // else {
-                        // element.dirs.if = undefined;
-                    // }
+                    }
                 } 
 
 
@@ -263,7 +266,7 @@ var builders = {
             isComponent: true
         }, options);
 
-        var componentName = common.getValue(vm, element.dirs.component.value);
+        var componentName = common.getValNew(vm, element.dirs.component.value);
         var component = vm.$options.components[componentName];
 
         // Такой компонент есть

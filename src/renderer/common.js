@@ -54,6 +54,87 @@ var common = {
         return result;
     },
 
+    getValNew: function(vm, value) {
+        var result;
+
+        if (typeof value === 'function') {
+            try {
+                result = value(vm);
+            } catch(e) {
+                vm.$logger.warn('Error executing expression [begin]');
+                vm.$logger.warn(common.getVmPath(vm));
+                vm.$logger.warn(e.toString());
+                vm.$logger.warn(value.toString());
+                vm.$logger.warn('Error executing expression [end]');
+            } 
+        } else {
+            result = value;
+        }
+
+        return result;
+    },
+
+    execute: function(config) {
+        var value = this.getValNew(config.vm, config.value.get);
+
+
+        if (config.value.filters) {
+            for (var i = 0; i < config.value.filters.length; i++) {
+                value = this.useFilter( config.vm, config.value.filters[i], value );
+            };
+        }
+
+        if (config.isEscape) {
+            value = this.escapeHtml(value);
+        }
+
+        if (config.isClean) {
+            value = this.cleanValue(value);
+        }
+
+        return value;
+    },
+
+    useFilter: function(vm, meta, value) {
+        var filter = vm.$options.filters[meta.name];
+        var replacement = function(v) {
+            return v;
+        };
+
+        if (!filter) {
+            vm.$logger.warn( 'Unknown filter "' + value.name + '":', common.getVmPath(vm) );
+        }
+
+        if (typeof filter !== 'function') {
+            filter = filter.read || replacement;
+        }
+
+        var args = [value];
+
+        if (meta.args) {
+            for (var i = 0; i < meta.args.length; i++) {
+                if (!meta.args[i].dynamic) {
+                    args.push( meta.args[i].value );
+                } else {
+                    args.push( vm.$get(meta.args[i].value) );
+                }
+            };
+        }
+
+        return filter.apply(vm, args);
+    },
+
+
+    // Brand new strip function
+    // Better than any "replace" version;
+    escapeHtml: function(str) {
+        if (typeof str === 'string') {
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+
+        return str;
+    },
+
     getCleanedValue: function(vm, value) {
         return common.getValue(vm, value, false, true);
     },

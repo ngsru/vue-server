@@ -27,6 +27,67 @@ var tools = {
 
 
 
+var parsers = {
+    directive: require('./parsers/directive'),
+    expression: require('./parsers/expression'),
+    path: require('./parsers/path'),
+    text: require('./parsers/text')
+};
+
+
+
+var compileExpr = function(text) {
+    text = text.replace(/\n|\r|\t/g, ' ');
+    var expr = tools.text.parseAttr(text);
+    var fn;
+
+    if (expr) {
+        fn = tools.exp.parse(expr);
+    }
+
+    if (!fn) {
+        fn = new Function('return "' + text + '";');
+    }
+
+    return fn;
+};
+
+
+var makeTxtNode = function(current, value) {
+    if (value) {
+        current.inner.push({
+            'type': 'text',
+            'text': value.match(/\{\{.+\}\}/g) ? compileExpr(value) : value
+        });
+    }
+};
+
+
+var tokensToFn = function(tokens) {
+    var expr = parsers.text.tokensToExp(tokens);
+    return parsers.expression.parse(expr).get;
+};
+
+
+var textToFn = function(text) {
+    var tokens = parsers.text.parse(text);
+    var expr = parsers.text.tokensToExp(tokens);
+    return parsers.expression.parse(expr).get;
+};
+
+
+var parseDirective = function(value) {
+    var result = parsers.directive.parse(value);
+
+    result.forEach(function(item) {
+        item.get = parsers.expression.parse(item.expression).get
+        delete item.raw;
+    });
+
+    return result;
+}
+
+
 
 // Конвертируем голый HTML в специальное дерево массивов-объектов
 var Compile = function(template) {
@@ -51,49 +112,7 @@ var Compile = function(template) {
     var repeatItems = [];
 
 
-    var compileExpr = function(text) {
-        text = text.replace(/\n|\r|\t/g, ' ');
-        var expr = tools.text.parseAttr(text);
-        var fn;
 
-        if (expr) {
-            fn = tools.exp.parse(expr);
-        }
-
-        if (!fn) {
-            fn = new Function('return "' + text + '";');
-        }
-
-        return fn;
-    }
-
-
-    var makeTxtNode = function(value) {
-        if (value) {
-            current.inner.push({
-                'type': 'text',
-                'text': value.match(/\{\{.+\}\}/g) ? compileExpr(value) : value
-            });
-        }
-    }
-
-
-    // Препаратор значения аттрибута style для интеграции в директивы
-    var prepareStyleSource = function(styleValue) {
-        var result;
-
-        // Аттрибут может придти как в виде выражения (если в нём были "усы"),
-        // так и в виде простой строки. нужно 2 разных поведения
-        if (typeof styleValue == 'function') {
-            result = '(' + styleValue.toString() + ').call(this)';
-
-        // Если атрибут style пришёл в виде обычной строки
-        } else {
-            result = '"' + styleValue + '"';
-        }
-
-        return result;
-    }
 
 
     var parser = new htmlparser.Parser({
@@ -164,47 +183,51 @@ var Compile = function(template) {
                 _.each(attribs, function(value, name) {
                     if (name === 'v-text') {
                         element.dirs.text = {
-                            value: compileExpr('{{' + attribs['v-text'] + '}}')
+                            value: parseDirective(attribs['v-text'])[0]
                         };
                     }
 
                     if (name === 'v-html') {
                         element.dirs.html = {
-                            value: compileExpr('{{{' + attribs['v-html'] + '}}}')
+                            value: parseDirective(attribs['v-html'])[0]
                         };
                     }
 
                     if (name === 'v-if') {
                         element.dirs.if = {
-                            value: compileExpr('{{{{' + attribs['v-if'] + '}}}}')
+                            value: parseDirective(attribs['v-if'])[0]
                         };
                     }
 
                     if (name === 'v-model') {
                         element.dirs.model = {
-                            value: compileExpr('{{{{' + attribs['v-model'] + '}}}}'),
+                            value: parseDirective(attribs['v-model'])[0],
                             options: {}
                         };
 
                         if (attribs['options']) {
-                            element.dirs.model.options.options = compileExpr('{{{{' + attribs['options'] + '}}}}');
+                            element.dirs.model.options.options = parseDirective(attribs['options'])[0];
                         }
                     }
 
                     if (name === 'v-component') {
-                        element.dirs.component = {
-                            options: {}
-                        };
+                        (function() {
+                            element.dirs.component = {
+                                options: {}
+                            };
 
-                        if ( attribs['v-component'].match(/\{\{.+\}\}/g) ) {
-                            element.dirs.component.value = compileExpr( attribs['v-component'] );
-                        } else {
-                            element.dirs.component.value = attribs['v-component'].trim();
-                        }
+                            var tokens = parsers.text.parse(attribs['v-component']);
 
-                        if (attribs['wait-for']) {
-                            element.dirs.component.options.waitFor = attribs['wait-for'];
-                        }
+                            if (!tokens) {
+                                element.dirs.component.value = attribs['v-component'].trim();
+                            } else {
+                                element.dirs.component.value = tokensToFn(tokens);
+                            }
+
+                            if (attribs['wait-for']) {
+                                element.dirs.component.options.waitFor = attribs['wait-for'];
+                            }
+                        })();
                     }
 
                     if (name === 'v-partial') {
@@ -356,7 +379,7 @@ var Compile = function(template) {
                 // Ищем партиалы, создаём для них специальные ноды, разбивая один кусок текста на несколько нод
                 text.replace(/\{\{\s*>\s*(.+?)\s*\}\}/g, function(match, name, pos) {
                     var txtNode = text.substring(caret, pos);
-                    makeTxtNode(txtNode);
+                    makeTxtNode(current, txtNode);
 
                     current.inner.push({
                         'type': 'tag',
@@ -375,7 +398,7 @@ var Compile = function(template) {
                     caret = pos + match.length;
                 });
 
-                makeTxtNode( text.substring(caret, text.length) );
+                makeTxtNode( current, text.substring(caret, text.length) );
             }
 
         },

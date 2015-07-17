@@ -84,13 +84,30 @@ var compilers = {
 
             // v-text
             if (element.dirs.text) {
-                compilers._setInnerText(vm, element, element.dirs.text.value);
+                compilers._setInnerText2(
+                    element,
+                    common.execute({
+                        vm: vm,
+                        value: element.dirs.text.value,
+                        isEscape: true,
+                        isClean: true
+                    })
+                );
+                
             }
 
 
             // v-html
             if (element.dirs.html) {
-                compilers._setInnerText(vm, element, element.dirs.html.value);
+                compilers._setInnerText2(
+                    element,
+                    common.execute({
+                        vm: vm,
+                        value: element.dirs.html.value,
+                        isEscape: false,
+                        isClean: true
+                    })
+                );
             }
 
 
@@ -113,6 +130,13 @@ var compilers = {
         }];
     },
 
+
+    _setInnerText2: function(element, text) {
+        element.inner = [{
+            'type': 'text',
+            'text': text
+        }];
+    },
 
     _compileAttributeDirectives: function(vm, element) {
         // v-class
@@ -190,7 +214,12 @@ var compilers = {
             return;
         }
 
-        vModelValue = common.getValue(vm, element.dirs.model.value);
+        vModelValue = common.execute({
+            vm: vm,
+            value: element.dirs.model.value,
+            isEscape: false,
+            isClean: false
+        });
 
         if (element.name === 'input') {
 
@@ -215,7 +244,12 @@ var compilers = {
             selectValueMap = {};
 
             if (element.dirs.model.options.options) {
-                selectOptions = common.getValue(vm, element.dirs.model.options.options);
+                selectOptions = common.execute({
+                    vm: vm,
+                    value: element.dirs.model.options.options,
+                    isEscape: false,
+                    isClean: false
+                });
 
                 // Перетираем любое внутренее содержимое тега <select>
                 element.inner = [];
