@@ -59,7 +59,19 @@ var compilers = {
 
         // Текстовая нода
         if (element.type === 'text') {
-            element.text = common.getCleanedValue(vm, element.text);
+
+            if (typeof element.text === 'object') {
+                (function() {
+                    var attrValue = element.text;
+                    element.text = '';
+
+                    for (var i = 0; i < attrValue.length; i++) {
+                        attrValue[i].vm = vm;
+                        element.text += common.execute( attrValue[i] );
+                    };
+                })();
+            }
+
         }
 
 
@@ -113,7 +125,17 @@ var compilers = {
 
             // Компилируем аттрибуты тега
             for (var key in element.attribs) {
-                element.attribs[key] = common.getValue( vm, element.attribs[key] );
+                if (typeof element.attribs[key] === 'object') {
+                    (function() {
+                        var attrValue = element.attribs[key];
+                        element.attribs[key] = '';
+
+                        for (var i = 0; i < attrValue.length; i++) {
+                            attrValue[i].vm = vm;
+                            element.attribs[key] += common.execute( attrValue[i] );
+                        };
+                    })();
+                }
             }
 
             compilers._compileAttributeDirectives(vm, element);
@@ -121,15 +143,6 @@ var compilers = {
             element.compiled = true;
         }
     },
-
-
-    _setInnerText: function(vm, element, text) {
-        element.inner = [{
-            'type': 'text',
-            'text': common.getCleanedValue(vm, text)
-        }];
-    },
-
 
     _setInnerText2: function(element, text) {
         element.inner = [{
@@ -143,6 +156,7 @@ var compilers = {
         if (element.dirs.class) {
             var classList;
             var vClassVm = element.dirs.class.vm ? element.dirs.class.vm : vm;
+            var vClassItem;
 
             if (element.attribs.class) {
                 classList = element.attribs.class.split(' ');
@@ -153,11 +167,26 @@ var compilers = {
                 classList = [];
             }
 
-            element.dirs.class.value.forEach(function (item) {
-                if ( common.getValue(vClassVm, item.key) ) {
-                    classList.push(item.arg);
+            // Когда классы прописаны в самой директиве
+            if (Array.isArray(element.dirs.class.value)) {
+                for (var i = 0; i < element.dirs.class.value.length; i++) {
+                    vClassItem = element.dirs.class.value[i];
+
+                    if ( common.execute({vm: vClassVm, value: vClassItem}) ) {
+                        classList.push(vClassItem.arg);
+                    }
+                };
+
+            // Когда переданы объектом
+            } else {
+                var vClassItem = common.execute({vm: vClassVm, value: element.dirs.class.value});
+
+                for (var name in vClassItem) {
+                    if (vClassItem[name]) {
+                        classList.push(vClassItem[name]);
+                    }
                 }
-            });
+            }
 
             element.attribs.class = _.uniq(classList).join(' ');
         }
@@ -265,7 +294,7 @@ var compilers = {
                             }
                         }
 
-                        compilers._setInnerText(vm, optionItem, selectOptions[i].text);
+                        compilers._setInnerText2(optionItem, selectOptions[i].text);
                         element.inner.push(optionItem);
                     }
                 }
@@ -302,7 +331,7 @@ var compilers = {
         }
 
         if (element.name === 'textarea') {
-            compilers._setInnerText(vm, element, vModelValue);
+            compilers._setInnerText2(element, vModelValue);
         }
     },
 
@@ -314,10 +343,10 @@ var compilers = {
 
         if ( Array.isArray(element.dirs.style.value) ) {
             element.dirs.style.value.forEach(function (item) {
-                styleObject[item.arg] = common.getValue(vStyleVm, item.key);
+                styleObject[item.arg] = common.getValNew(vStyleVm, item.get);
             });
         } else {
-            styleObject = common.getValue(vStyleVm, element.dirs.style.value);
+            styleObject = common.getValNew(vStyleVm, element.dirs.style.value.get);
         }
 
         return styleObject;
@@ -332,8 +361,8 @@ var compilers = {
         if (element.attribs.style) {
             elStyles = cssParser.parse(element.attribs.style);
         }
-        
-        var isToShow = common.getValue(vShowVm, element.dirs.show.value);
+
+        var isToShow = common.getValNew(vShowVm, element.dirs.show.value.get);
         if (isToShow && elStyles.display === 'none') {    
             elStyles.display = '';
         }

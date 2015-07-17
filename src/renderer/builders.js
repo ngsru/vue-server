@@ -110,7 +110,7 @@ var builders = {
                 // v-repeat
                 if (element.dirs.repeat) {
 
-                    if (!element.dirs.repeat.compiled) {
+                    if (!element.dirs.repeat.isCompiled) {
                         elements.splice(i, 1);
 
                         repeatElements = builders.buildRepeatElements(vm, elements, element, i);
@@ -143,7 +143,7 @@ var builders = {
 
     getPartial: function(meta) {
         var vm = meta.vm;
-        var partialName = common.getValue(vm, meta.partialName);
+        var partialName = common.getValNew(vm, meta.partialName);
         var partial = vm.$options.partials[partialName];
         var logMsg;
 
@@ -161,23 +161,11 @@ var builders = {
     },
 
 
-    getRepeatData: function(vm, directive) {
-        var repeatData = vm.$get(directive.key);
+    getRepeatData: function(vm, dir) {
+        var value = vm.$get(dir.expression);
+        value = common.applyFilters(vm, dir.filters, value);
 
-        // Обрабатываем фильтры, применяемые в директиве v-repeat
-        // Приходится делать это ручками, т.к. текущий движок выражений не умеет
-        // компилять неймспейсы в нужный вид
-        if (directive.filters) {
-            for (var i = 0, l = directive.filters.length; i < l; i++) {
-                var item = directive.filters[i];
-                var args = item.args ? item.args.slice() : [];
-
-                args.unshift(repeatData);
-                repeatData = vm.$compiler.getOption('filters', item.name).apply(vm, args);
-            }
-        }
-
-        return repeatData;
+        return value;
     },
 
 
@@ -226,7 +214,7 @@ var builders = {
 
                 // Создаём клон псевдо-dom элемента
                 repeatElement = cloneElement();
-                repeatElement.dirs.repeat.compiled = true;
+                repeatElement.dirs.repeat.isCompiled = true;
                 repeatElements.push(repeatElement);
 
 
@@ -296,7 +284,7 @@ var builders = {
                 // например v-with="cat", то контекст данных компонента полностью определяется данной директивой,
                 // т.е. у компонента будут только данные, содержащиеся в "cat" родителя
                 if (element.dirs.with.value.length === 1 && !element.dirs.with.value[0].arg ) {
-                    options.withReplaceData = element.dirs.with.value[0].key;
+                    options.withReplaceData = element.dirs.with.value[0].get;
                 } else {
                     options.withData = element.dirs.with.value;
                 }

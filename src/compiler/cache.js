@@ -78,6 +78,7 @@ p.shift = function () {
  */
 
 p.get = function (key, returnEntry) {
+  return null;
   var entry = this._keymap[key]
   if (entry === undefined) return
   if (entry === this.tail) {

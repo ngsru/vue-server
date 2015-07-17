@@ -77,12 +77,7 @@ var common = {
     execute: function(config) {
         var value = this.getValNew(config.vm, config.value.get);
 
-
-        if (config.value.filters) {
-            for (var i = 0; i < config.value.filters.length; i++) {
-                value = this.useFilter( config.vm, config.value.filters[i], value );
-            };
-        }
+        value = this.applyFilters(config.vm, config.value.filters, value);
 
         if (config.isEscape) {
             value = this.escapeHtml(value);
@@ -95,14 +90,25 @@ var common = {
         return value;
     },
 
-    useFilter: function(vm, meta, value) {
+    applyFilters: function(vm, filters, value) {
+        if (filters) {
+            for (var i = 0; i < filters.length; i++) {
+                value = this.applyFilter( vm, filters[i], value );
+            };
+        }
+
+        return value;
+    },
+
+    applyFilter: function(vm, meta, value) {
         var filter = vm.$options.filters[meta.name];
         var replacement = function(v) {
             return v;
         };
 
         if (!filter) {
-            vm.$logger.warn( 'Unknown filter "' + value.name + '":', common.getVmPath(vm) );
+            vm.$logger.warn( 'Unknown filter "' + meta.name + '":', common.getVmPath(vm) );
+            filter = replacement;
         }
 
         if (typeof filter !== 'function') {

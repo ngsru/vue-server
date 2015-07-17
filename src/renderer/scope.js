@@ -413,14 +413,14 @@ var scope = {
 
                 delete vm[key];
             }
-            withReplaceData = common.getValue(vm.$parent, contexts.withReplaceData, true);
+            withReplaceData = common.getValNew(vm.$parent, contexts.withReplaceData);
             common.extend(vm, withReplaceData);
         }
 
         if (contexts.withData) {
             for (var i = 0, l = contexts.withData.length; i < l; i++) {
                 item = contexts.withData[i];
-                vm[item.arg] = common.getValue(vm.$parent, item.key, true);
+                vm[item.arg] = common.getValNew(vm.$parent, item.get);
             }
         }
 
@@ -429,7 +429,7 @@ var scope = {
                 name = props[i];
                 value = vm.$el.attribs[name];
                 if (value) {
-                    vm[common.toCamelCase(name)] = common.getValue(vm.$parent, value, true);
+                    vm[common.toCamelCase(name)] = common.getValNew(vm.$parent, value);
                     vm.$el.attribs[name] = undefined;
                 }
             }

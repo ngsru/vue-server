@@ -26,7 +26,7 @@
 
                 <div class="text-filter">{{plain.value | uppercase}}</div>
                 <div class="text-filter-multiple">{{plain.value | uppercase | lowercase}}</div>
-                <div class="text-filter-arguments">{{plain.number | argumentsTesting and 4}}</div>
+                <div class="text-filter-arguments">{{plain.number | argumentsTesting 'and' 4}}</div>
 
                 <div class="html">{{{plain.html}}}</div>
                 <div class="html-stripped">{{plain.html}}</div>
@@ -148,7 +148,7 @@
                 </ul>
 
 
-                <ul class="array-filter-by">
+<!--                 <ul class="array-filter-by">
                     <li v-repeat="vRepeat.arrayForFilter | filterBy vRepeat.searchText in name">
                         <span class="age">{{age}}</span>
                     </li>
@@ -160,7 +160,7 @@
                         <span class="age">{{age}}</span>
                     </li>
                 </ul>
-
+ -->
 
                 <ul class="object">
                     <li class="value" v-repeat="vRepeat.object">{{value}}</li>

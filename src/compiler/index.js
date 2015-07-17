@@ -53,16 +53,6 @@ var compileExpr = function(text) {
 };
 
 
-var makeTxtNode = function(current, value) {
-    if (value) {
-        current.inner.push({
-            'type': 'text',
-            'text': value.match(/\{\{.+\}\}/g) ? compileExpr(value) : value
-        });
-    }
-};
-
-
 var tokensToFn = function(tokens) {
     var expr = parsers.text.tokensToExp(tokens);
     return parsers.expression.parse(expr).get;
@@ -86,6 +76,57 @@ var parseDirective = function(value) {
 
     return result;
 }
+
+
+var getMetaValue = function(value) {
+    var result = [];
+    var tokens = parsers.text.parse(value);
+
+    if (tokens) {
+        tokens.forEach(function(token) {
+            if (token.tag) {
+                var parsedToken = parsers.directive.parse(token.value)[0];
+                var exp = parsers.expression.parse(parsedToken.expression);
+                var item = {
+                    value: {
+                        get: exp.get
+                    },
+                    isEscape: token.html ? false : true,
+                    isClean: true
+                }
+
+                if (parsedToken.filters) {
+                    item.value.filters = parsedToken.filters;
+                }
+                result.push(item);
+            } else {
+                result.push({
+                    value: {
+                        get: token.value
+                    },
+                    isEscape: false,
+                    isClean: false
+                });
+            }
+        });
+    } else {
+        return value;
+    }
+
+    return result;
+}
+
+var makeTxtNode = function(current, value) {
+    if (value) {
+        current.inner.push({
+            'type': 'text',
+            'text': getMetaValue(value)
+        });
+    }
+};
+
+
+
 
 
 
@@ -231,45 +272,48 @@ var Compile = function(template) {
                     }
 
                     if (name === 'v-partial') {
-                        element.dirs.partial = {};
-                        if ( attribs['v-partial'].match(/\{\{.+\}\}/g) ) {
-                            element.dirs.partial.value = compileExpr( attribs['v-partial'] );
-                        } else {
-                            element.dirs.partial.value = attribs['v-partial'].trim();
-                        }
+                        (function() {
+                            element.dirs.partial = {};
+
+                            var tokens = parsers.text.parse(attribs['v-partial']);
+
+                            if (!tokens) {
+                                element.dirs.partial.value = attribs['v-partial'].trim();
+                            } else {
+                                element.dirs.partial.value = tokensToFn(tokens);
+                            }
+                        })();
                     }
 
                     if (name === 'v-repeat') {
                         element.dirs.repeat = {
-                            value: tools.directive.parse(attribs['v-repeat'])[0]
+                            value: parseDirective(attribs['v-repeat'])[0]
                         };
+
                         repeatItems.push(element);
                     }
 
                     if (name === 'v-with') {
                         element.dirs.with = {
-                            value: tools.directive.parse(attribs['v-with'])
+                            value: parseDirective(attribs['v-with'])
                         };
-
-                        element.dirs.with.value.forEach(function (item) {
-                            delete item.expression;
-                            item.key = compileExpr('{{{{' + item.key + '}}}}');
-                        });
                     }
 
                     if (name === 'v-class') {
-                        var vClassDir = tools.directive.parse(attribs['v-class']);
-                         
-                        if (vClassDir[0].arg) {
-                            vClassDir.forEach(function(item) {
-                                item.key = compileExpr('{{{{' + item.key + '}}}}');
-                                delete item.expression;
-                            });
+                        var vClassDir = parseDirective(attribs['v-class'])
 
-                            element.dirs.class = {
-                                value: vClassDir
-                            };
-                        } 
+                        element.dirs.class = {
+                            value: null
+                        };
+
+                        // Когда классы в самой директивы
+                        if (vClassDir[0].arg) {
+                            element.dirs.class.value = vClassDir;
+
+                        // Когда в директиву передаём объект
+                        } else {
+                            element.dirs.class.value = parsers.expression.parse(vClassDir[0].expression);
+                        }
                     }
 
                     if (name === 'v-attr') {
@@ -280,21 +324,25 @@ var Compile = function(template) {
 
                     if (name === 'v-show') {
                         element.dirs.show = {
-                            value: compileExpr('{{{{' + attribs['v-show'] + '}}}}'),
+                            value: parseDirective(attribs['v-show'])[0],
                             order: attribsCounter
                         };
                     }
 
                     if (name === 'v-style') {
-                        var vStyleDir = tools.directive.parse(attribs['v-style']);
+                        var vStyleDir = parseDirective(attribs['v-style'])
 
-                        if (!vStyleDir[0].arg) {
-                            vStyleDir = compileExpr('{{{{' + vStyleDir[0].key + '}}}}');
+                        element.dirs.class = {
+                            value: null
+                        };
+
+                        // Когда классы в самой директивы
+                        if (vStyleDir[0].arg) {
+                            element.dirs.class.value = vStyleDir;
+
+                        // Когда в директиву передаём объект
                         } else {
-                            vStyleDir.forEach(function(item) {
-                                item.key = compileExpr('{{{{' + item.key + '}}}}');
-                                delete item.expression;
-                            });
+                            element.dirs.class.value = parsers.expression.parse(vStyleDir[0].expression);
                         }
 
                         element.dirs.style = {
@@ -328,15 +376,7 @@ var Compile = function(template) {
                         ( !name.match(/^v-/) || name.match(/^v-cloak$/) ) &&
                         !attribsForExclude[name]
                     ) {
-                        // Если в значениях аттрибутов были выражения - компилируем их в функции
-                        if (value.match(/\{\{.+\}\}/g)) {
-                            element.attribs[name] = compileExpr(value);
-
-                        // Если нет, то записываем как обычную строку
-                        } else {
-                            element.attribs[name] = value;
-                        }
-                        
+                        element.attribs[name] = getMetaValue(value);
                     }
                 })
 
@@ -344,7 +384,7 @@ var Compile = function(template) {
                 // Кишки от директивы v-attr
                 if (element.dirs.attr) {
                     element.dirs.attr.value.forEach(function(item) {
-                        element.attribs[item.arg] = compileExpr('{{{{' + item.key + '}}}}');
+                        element.attribs[item.arg] = getMetaValue('{{{' + item.key + '}}}');
                     });
                 }
 
