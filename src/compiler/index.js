@@ -77,6 +77,19 @@ var parseDirective = function(value) {
     return result;
 }
 
+// var parseDirWithFilters = function(value) {
+//     var result = {};
+
+//     var exp = parsers.text.tokensToExp([{tag: true, value: value}]);
+//     var dir = parsers.directive.parse(value)[0];
+//     result.get = parsers.expression.parse(exp).get;
+//     result.expression = dir.expression;
+//     if (dir.arg) {
+//         result.arg = dir.arg;
+//     }
+
+//     return result;
+// }
 
 var getMetaValue = function(value) {
     var result = [];
@@ -85,25 +98,32 @@ var getMetaValue = function(value) {
     if (tokens) {
         tokens.forEach(function(token) {
             if (token.tag) {
+                // var exp = parsers.text.tokensToExp([token]);
+                // var parsedExp = parsers.expression.parse(exp);
+                // var item = {
+                //     value: {
+                //         get: parsedExp.get
+                //     },
+                //     isEscape: token.html ? false : true,
+                //     isClean: true
+                // }
+
+                
                 var parsedToken = parsers.directive.parse(token.value)[0];
                 var exp = parsers.expression.parse(parsedToken.expression);
                 var item = {
-                    value: {
-                        get: exp.get
-                    },
+                    value: exp.get,
                     isEscape: token.html ? false : true,
                     isClean: true
                 }
 
                 if (parsedToken.filters) {
-                    item.value.filters = parsedToken.filters;
+                    item.filters = parsedToken.filters;
                 }
                 result.push(item);
             } else {
                 result.push({
-                    value: {
-                        get: token.value
-                    },
+                    value: token.value,
                     isEscape: false,
                     isClean: false
                 });
@@ -111,6 +131,10 @@ var getMetaValue = function(value) {
         });
     } else {
         return value;
+    }
+
+    if (result.length === 1) {
+        return result[0];
     }
 
     return result;

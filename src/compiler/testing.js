@@ -12,16 +12,38 @@ var text = require('./../parsers/text');
 
 // console.log(text.tokensToExp(text.parse('{{fdsfsdf + 1 | fdsfs}}')))
 
-var value = 'gfdg {{{vvcxcvx + 1 | GDF}}}';
+var value = '{{gdfgdfgd | filterBy in jopa}}';
+
+
+var expr = text.parse(value);
+
+// var go = directive.parse(value);
+// console.log(text.parse(go))
+
+
+
+console.log(directive.parse('vRepeat.arrayForFilter | filterBy vRepeat.searchText in name')[0].filters[0])
+
+
+
+
+
+
 var getMetaValue = function(value) {
     var result = [];
     var tokens = text.parse(value);
+
+    var exp = text.tokensToExp([tokens[1]]);
+    console.log(expression.parse(exp).get.toString());
+
+    return
 
     if (tokens) {
         tokens.forEach(function(token) {
             if (token.tag) {
                 var parsedToken = directive.parse(token.value)[0];
                 var exp = expression.parse(parsedToken.expression);
+
 
                 result.push({
                     value: {
@@ -58,4 +80,3 @@ var getMetaValue = function(value) {
     return result;
 }
 
-var go = getMetaValue(value)

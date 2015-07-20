@@ -59,19 +59,7 @@ var compilers = {
 
         // Текстовая нода
         if (element.type === 'text') {
-
-            if (typeof element.text === 'object') {
-                (function() {
-                    var attrValue = element.text;
-                    element.text = '';
-
-                    for (var i = 0; i < attrValue.length; i++) {
-                        attrValue[i].vm = vm;
-                        element.text += common.execute( attrValue[i] );
-                    };
-                })();
-            }
-
+            element.text = common.execute(vm, element.text);
         }
 
 
@@ -98,9 +86,9 @@ var compilers = {
             if (element.dirs.text) {
                 compilers._setInnerText2(
                     element,
-                    common.execute({
-                        vm: vm,
-                        value: element.dirs.text.value,
+                    common.execute(vm, {
+                        value: element.dirs.text.value.get,
+                        filters: element.dirs.text.value.filters,
                         isEscape: true,
                         isClean: true
                     })
@@ -113,9 +101,9 @@ var compilers = {
             if (element.dirs.html) {
                 compilers._setInnerText2(
                     element,
-                    common.execute({
-                        vm: vm,
-                        value: element.dirs.html.value,
+                    common.execute(vm, {
+                        value: element.dirs.html.value.get,
+                        filters: element.dirs.html.value.filters,
                         isEscape: false,
                         isClean: true
                     })
@@ -125,17 +113,7 @@ var compilers = {
 
             // Компилируем аттрибуты тега
             for (var key in element.attribs) {
-                if (typeof element.attribs[key] === 'object') {
-                    (function() {
-                        var attrValue = element.attribs[key];
-                        element.attribs[key] = '';
-
-                        for (var i = 0; i < attrValue.length; i++) {
-                            attrValue[i].vm = vm;
-                            element.attribs[key] += common.execute( attrValue[i] );
-                        };
-                    })();
-                }
+                element.attribs[key] = common.execute(vm, element.attribs[key]);
             }
 
             compilers._compileAttributeDirectives(vm, element);
@@ -172,14 +150,14 @@ var compilers = {
                 for (var i = 0; i < element.dirs.class.value.length; i++) {
                     vClassItem = element.dirs.class.value[i];
 
-                    if ( common.execute({vm: vClassVm, value: vClassItem}) ) {
+                    if ( common.execute(vClassVm, {value: vClassItem.get}) ) {
                         classList.push(vClassItem.arg);
                     }
                 };
 
             // Когда переданы объектом
             } else {
-                var vClassItem = common.execute({vm: vClassVm, value: element.dirs.class.value});
+                var vClassItem = common.execute(vClassVm, {value: element.dirs.class.value.get});
 
                 for (var name in vClassItem) {
                     if (vClassItem[name]) {
@@ -243,9 +221,9 @@ var compilers = {
             return;
         }
 
-        vModelValue = common.execute({
-            vm: vm,
-            value: element.dirs.model.value,
+        vModelValue = common.execute(vm, {
+            value: element.dirs.model.value.get,
+            filters: element.dirs.model.value.filters,
             isEscape: false,
             isClean: false
         });
@@ -273,9 +251,9 @@ var compilers = {
             selectValueMap = {};
 
             if (element.dirs.model.options.options) {
-                selectOptions = common.execute({
-                    vm: vm,
-                    value: element.dirs.model.options.options,
+                selectOptions = common.execute(vm, {
+                    value: element.dirs.model.options.options.get,
+                    filters: element.dirs.model.options.options.filters,
                     isEscape: false,
                     isClean: false
                 });
@@ -343,10 +321,10 @@ var compilers = {
 
         if ( Array.isArray(element.dirs.style.value) ) {
             element.dirs.style.value.forEach(function (item) {
-                styleObject[item.arg] = common.getValNew(vStyleVm, item.get);
+                styleObject[item.arg] = common.getValue(vStyleVm, item.get);
             });
         } else {
-            styleObject = common.getValNew(vStyleVm, element.dirs.style.value.get);
+            styleObject = common.getValue(vStyleVm, element.dirs.style.value.get);
         }
 
         return styleObject;
@@ -362,7 +340,7 @@ var compilers = {
             elStyles = cssParser.parse(element.attribs.style);
         }
 
-        var isToShow = common.getValNew(vShowVm, element.dirs.show.value.get);
+        var isToShow = common.getValue(vShowVm, element.dirs.show.value.get);
         if (isToShow && elStyles.display === 'none') {    
             elStyles.display = '';
         }

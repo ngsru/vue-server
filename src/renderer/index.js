@@ -1,7 +1,7 @@
 var _ = require('underscore');
 var log4js = require('log4js');
 
-var filtersGlobal = require('./filters');
+var filtersGlobal = require('./../filters');
 
 var scope = require('./scope.js');
 var compilers = require('./compilers.js');
@@ -20,7 +20,7 @@ var VueRender = function(logger) {
         this.logger = this._initLogger(this.config, this._logger);
 
         this.components = {};
-        this.filters = filtersGlobal();
+        this.filters = filtersGlobal;
         this.partials = {};
 
         if (!instance) {

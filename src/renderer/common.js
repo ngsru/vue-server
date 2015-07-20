@@ -29,13 +29,26 @@ var excludeInstanceOptions = {
     'name': true
 };
 
+var Path = require('./../parsers/path');
+
 var common = {
-    getValNew: function(vm, value) {
+    // getKeypath: function(vm, keypath) {
+    //     var result;
+    //     try {
+    //         result = Path.get(vm, keypath);
+    //     } catch(e) {
+    //         vm.$logger.warn('Error when evaluating expression "' + keypath + '"');
+    //         vm.$logger.warn(e);
+    //     }
+    //     return result;
+    // },
+
+    getValue: function(vm, value) {
         var result;
 
         if (typeof value === 'function') {
             try {
-                result = value(vm);
+                result = value.call(vm, vm);
             } catch(e) {
                 vm.$logger.warn('Error executing expression [begin]');
                 vm.$logger.warn(common.getVmPath(vm));
@@ -50,10 +63,27 @@ var common = {
         return result;
     },
 
-    execute: function(config) {
-        var value = this.getValNew(config.vm, config.value.get);
+    execute: function(vm, value) {
+        var result = '';
 
-        value = this.applyFilters(config.vm, config.value.filters, value);
+        if (typeof value === 'object') {
+            if (Array.isArray(value)) {
+                for (var i = 0; i < value.length; i++) {
+                    result += this.executeSingle(vm, value[i]);
+                };
+                return result;
+            } else {
+                return this.executeSingle(vm, value);
+            }
+        } else {
+            return this.getValue(vm, value);
+        }
+    },
+
+    executeSingle: function(vm, config) {
+        var value = this.getValue(vm, config.value);
+
+        value = this.applyFilters(vm, config.filters, value);
 
         if (config.isEscape) {
             value = this.escapeHtml(value);
@@ -63,8 +93,25 @@ var common = {
             value = this.cleanValue(value);
         }
 
-        return value;
+        return value; 
     },
+
+
+    // execute: function(config) {
+    //     var value = this.getValue(config.vm, config.value);
+
+    //     value = this.applyFilters(config.vm, config.filters, value);
+
+    //     if (config.isEscape) {
+    //         value = this.escapeHtml(value);
+    //     }
+
+    //     if (config.isClean) {
+    //         value = this.cleanValue(value);
+    //     }
+
+    //     return value;
+    // },
 
     applyFilters: function(vm, filters, value) {
         if (filters) {

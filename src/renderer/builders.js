@@ -75,9 +75,8 @@ var builders = {
 
                 // v-if
                 if (element.dirs.if) {
-                    var vIfResult = common.execute({
-                        vm: vm,
-                        value: element.dirs.if.value,
+                    var vIfResult = common.execute(vm, {
+                        value: element.dirs.if.value.get,
                         isEscape: false,
                         isClean: false
                     });
@@ -143,7 +142,7 @@ var builders = {
 
     getPartial: function(meta) {
         var vm = meta.vm;
-        var partialName = common.getValNew(vm, meta.partialName);
+        var partialName = common.getValue(vm, meta.partialName);
         var partial = vm.$options.partials[partialName];
         var logMsg;
 
@@ -163,7 +162,11 @@ var builders = {
 
     getRepeatData: function(vm, dir) {
         var value = vm.$get(dir.expression);
-        value = common.applyFilters(vm, dir.filters, value);
+        try {
+            value = common.applyFilters(vm, dir.filters, value);    
+        } catch(e) {
+            vm.$logger.warn(e);
+        }
 
         return value;
     },
@@ -254,7 +257,7 @@ var builders = {
             isComponent: true
         }, options);
 
-        var componentName = common.getValNew(vm, element.dirs.component.value);
+        var componentName = common.getValue(vm, element.dirs.component.value);
         var component = vm.$options.components[componentName];
 
         // Такой компонент есть

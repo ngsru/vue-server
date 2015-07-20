@@ -144,11 +144,7 @@ var scope = {
 
         vm._isCreated = true;
 
-        scope.onParamAttributes(vm, function(props) {
-            props.forEach(function (name) {
-                vm[common.toCamelCase(name)] = null;
-            });
-        });
+        scope.pullPropsData(vm);
 
         // серверный Created
         if (vm.$options.createdBe) {
@@ -254,19 +250,21 @@ var scope = {
             var isSelf = true;
             var value;
 
-            if (this._isRepeat && !this._isComponent) {
-                isSelf = false;
-            }
+            // if (this._isRepeat && !this._isComponent) {
+            //     isSelf = false;
+            // }
 
-            var type = typeof result;
+            // var type = typeof result;
 
-            if (type === 'function') {
-                value = utils.bind(result, isSelf ? this : this.$parent);
-            } else {
-                value = result;
-            }
+            // console.log(4343, result)
 
-            return value;
+            // if (type === 'function') {
+            //     value = utils.bind(result, isSelf ? this : this.$parent);
+            // } else {
+            //     value = result;
+            // }
+
+            return result;
         };
 
         vm.$addChild = function(options) {
@@ -312,7 +310,6 @@ var scope = {
                     this.$el._components[options.component.name] = newVm;
                 }
             }
-
         };
     },
 
@@ -413,27 +410,18 @@ var scope = {
 
                 delete vm[key];
             }
-            withReplaceData = common.getValNew(vm.$parent, contexts.withReplaceData);
+            withReplaceData = common.getValue(vm.$parent, contexts.withReplaceData);
             common.extend(vm, withReplaceData);
         }
 
         if (contexts.withData) {
             for (var i = 0, l = contexts.withData.length; i < l; i++) {
                 item = contexts.withData[i];
-                vm[item.arg] = common.getValNew(vm.$parent, item.get);
+                vm[item.arg] = common.getValue(vm.$parent, item.get);
             }
         }
 
-        scope.onParamAttributes(vm, function(props) {
-            for (var i = 0, l = props.length; i < l; i++) {
-                name = props[i];
-                value = vm.$el.attribs[name];
-                if (value) {
-                    vm[common.toCamelCase(name)] = common.getValNew(vm.$parent, value);
-                    vm.$el.attribs[name] = undefined;
-                }
-            }
-        });
+        scope.pullPropsData(vm);
     },
 
 
@@ -571,10 +559,17 @@ var scope = {
     },
 
 
-    onParamAttributes: function(vm, callback) {
-        var props = vm.$options.paramAttributes || vm.$options.props;
+    pullPropsData: function(vm) {
+        var props = vm.$options.props;
         if (props && Array.isArray(props)) {
-            callback(props);
+            for (var i = 0, l = props.length; i < l; i++) {
+                name = props[i];
+                value = vm.$el.attribs[name];
+                if (value) {
+                    vm[common.toCamelCase(name)] = common.execute(vm.$parent, value);
+                    vm.$el.attribs[name] = undefined;
+                }
+            }
         }
     }
 };

@@ -8,10 +8,12 @@ function stringify(obj) {
             if (typeof source === 'function' || typeof source === 'boolean' || typeof source === 'number') {
                 result += source;
 
+            } else if (source === undefined) {
+                result += 'undefined';
             // String
             } else {
                 result += '"' + source.replace(/"/g, '\\"') + '"';
-            }
+            } 
         } else {
             // Array
             if (source instanceof Array) {
