@@ -325,20 +325,6 @@ var Compile = function(template) {
                         })();
                     }
 
-                    if (name === 'v-partial') {
-                        (function() {
-                            element.dirs.partial = {};
-
-                            var tokens = parsers.text.parse(attribs['v-partial']);
-
-                            if (!tokens) {
-                                element.dirs.partial.value = attribs['v-partial'].trim();
-                            } else {
-                                element.dirs.partial.value = tokensToFn(tokens);
-                            }
-                        })();
-                    }
-
                     if (name === 'v-repeat') {
                         var vRepeatDir = parseDirective(attribs['v-repeat']);
                         if (vRepeatDir) {
@@ -479,34 +465,6 @@ var Compile = function(template) {
                 current.text += text;
 
             } else {
-                // Координата символа, на котором было последнее отрезание текст-ноды
-                caret = 0;
-
-                // Костылик для реализации вывода JSON через выражение {{* variable}}
-                // text = text.replace(/\{\{\s*\*\s*(.+?)\s*\}\}/g, '{{__JSON__$1}}');
-
-                // Ищем партиалы, создаём для них специальные ноды, разбивая один кусок текста на несколько нод
-                text.replace(/\{\{\s*>\s*(.+?)\s*\}\}/g, function(match, name, pos) {
-                    var txtNode = text.substring(caret, pos);
-                    makeTxtNode(current, txtNode);
-
-                    current.inner.push({
-                        'type': 'tag',
-                        'name': 'template',
-                        'attribs': {},
-                        'inner': [],
-                        'dirs': {
-                            'partial': {
-                                'value': name
-                            }
-                        },
-                        'close': true,
-                        'pre': false
-                    });
-
-                    caret = pos + match.length;
-                });
-
                 makeTxtNode( current, text.substring(caret, text.length) );
             }
 

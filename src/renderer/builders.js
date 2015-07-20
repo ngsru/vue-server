@@ -89,11 +89,11 @@ var builders = {
                 } 
 
 
-                // v-partial
-                if (element.dirs.partial) {
+                // partial
+                if (element.name === 'partial') {
                     builders.getPartial({
                         'vm': vm,
-                        'partialName': element.dirs.partial.value,
+                        'partialName': common.execute(vm, element.attribs.name, {isEscape: false, isClean: false}),
                         'onDoesExist': function(partial) {
                             element.inner = partial();
                         },
@@ -101,8 +101,6 @@ var builders = {
                             element.inner = [];
                         }
                     });
-
-                    // element.dirs.partial = undefined;
                 }
 
 

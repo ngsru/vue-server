@@ -12,7 +12,7 @@ var renders = {
             element = elements[i];
 
             if (element.type === 'tag') {
-                if (element.name == 'template') {
+                if (element.name === 'template' || element.name === 'partial') {
                     html += renders.renderTemplate(element.inner);
                 } else {
                     html += renders.renderTag(element);
