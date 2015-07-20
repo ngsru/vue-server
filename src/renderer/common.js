@@ -63,27 +63,31 @@ var common = {
         return result;
     },
 
-    execute: function(vm, value) {
+    execute: function(vm, value, options) {
         var result = '';
 
         if (typeof value === 'object') {
             if (Array.isArray(value)) {
                 for (var i = 0; i < value.length; i++) {
-                    result += this.executeSingle(vm, value[i]);
+                    result += this.executeSingle(vm, value[i], options);
                 };
                 return result;
             } else {
-                return this.executeSingle(vm, value);
+                return this.executeSingle(vm, value, options);
             }
         } else {
             return this.getValue(vm, value);
         }
     },
 
-    executeSingle: function(vm, config) {
+    executeSingle: function(vm, config, options) {
         var value = this.getValue(vm, config.value);
 
         value = this.applyFilters(vm, config.filters, value);
+
+        if (options) {
+            this.extend(config, options);
+        }
 
         if (config.isEscape) {
             value = this.escapeHtml(value);

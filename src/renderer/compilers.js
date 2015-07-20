@@ -113,7 +113,10 @@ var compilers = {
 
             // Компилируем аттрибуты тега
             for (var key in element.attribs) {
-                element.attribs[key] = common.execute(vm, element.attribs[key]);
+                element.attribs[key] = common.execute(vm, element.attribs[key], {
+                    isEscape: false,
+                    isClean: false
+                });
             }
 
             compilers._compileAttributeDirectives(vm, element);

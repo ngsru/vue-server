@@ -2,6 +2,8 @@ var htmlparser = require('htmlparser2');
 var _ = require('underscore');
 var utils = require('../utils');
 var strFnObj = require('../serializer');
+var log4js = require('log4js');
+var logger = log4js.getLogger('[VueServer Compile]');
 
 var noCloseTags = {
     input: true,
@@ -70,7 +72,13 @@ var parseDirective = function(value) {
     var result = parsers.directive.parse(value);
 
     result.forEach(function(item) {
-        item.get = parsers.expression.parse(item.expression).get
+        var parsedExp = parsers.expression.parse(item.expression);
+        if (!parsedExp) {
+            logger.warn('Invalid expression: "' + item.expression + '"');
+            result = false;
+            return;
+        }
+        item.get = parsedExp.get;
         delete item.raw;
     });
 
@@ -111,6 +119,12 @@ var getMetaValue = function(value) {
                 
                 var parsedToken = parsers.directive.parse(token.value)[0];
                 var exp = parsers.expression.parse(parsedToken.expression);
+
+                if (!exp) {
+                    logger.warn('Invalid expression: "' + parsedToken.expression + '"');
+                    result = undefined;
+                    return;
+                }
                 var item = {
                     value: exp.get,
                     isEscape: token.html ? false : true,
@@ -129,15 +143,16 @@ var getMetaValue = function(value) {
                 });
             }
         });
+
+        if (result && result.length === 1) {
+            return result[0];
+        } else {
+            return result;
+        }
+
     } else {
         return value;
     }
-
-    if (result.length === 1) {
-        return result[0];
-    }
-
-    return result;
 }
 
 var makeTxtNode = function(current, value) {
@@ -247,31 +262,46 @@ var Compile = function(template) {
 
                 _.each(attribs, function(value, name) {
                     if (name === 'v-text') {
-                        element.dirs.text = {
-                            value: parseDirective(attribs['v-text'])[0]
-                        };
+                        var vTextDir = parseDirective(attribs['v-text']);
+                        if (vTextDir) {
+                            element.dirs.text = {
+                                value: vTextDir[0]
+                            };
+                        }
                     }
 
                     if (name === 'v-html') {
-                        element.dirs.html = {
-                            value: parseDirective(attribs['v-html'])[0]
-                        };
+                        var vHtmlDir = parseDirective(attribs['v-html']);
+                        if (vHtmlDir) {
+                            element.dirs.html = {
+                                value: vHtmlDir[0]
+                            };
+                        }
                     }
 
                     if (name === 'v-if') {
-                        element.dirs.if = {
-                            value: parseDirective(attribs['v-if'])[0]
-                        };
+                        var vIfDir = parseDirective(attribs['v-if']);
+                        if (vIfDir) {
+                            element.dirs.if = {
+                                value: vIfDir[0]
+                            };
+                        }
                     }
 
                     if (name === 'v-model') {
-                        element.dirs.model = {
-                            value: parseDirective(attribs['v-model'])[0],
-                            options: {}
-                        };
+                        var vModelDir = parseDirective(attribs['v-model']);
+                        if (vModelDir) {
+                            element.dirs.model = {
+                                value: vModelDir[0],
+                                options: {}
+                            };
 
-                        if (attribs['options']) {
-                            element.dirs.model.options.options = parseDirective(attribs['options'])[0];
+                            if (attribs['options']) {
+                                var vModelDirOptions = parseDirective(attribs['options']);
+                                if (vModelDirOptions) {
+                                    element.dirs.model.options.options = vModelDirOptions[0];
+                                }
+                            }
                         }
                     }
 
@@ -310,69 +340,82 @@ var Compile = function(template) {
                     }
 
                     if (name === 'v-repeat') {
-                        element.dirs.repeat = {
-                            value: parseDirective(attribs['v-repeat'])[0]
-                        };
-
-                        repeatItems.push(element);
+                        var vRepeatDir = parseDirective(attribs['v-repeat']);
+                        if (vRepeatDir) {
+                            element.dirs.repeat = {
+                                value: vRepeatDir[0]
+                            };
+                            repeatItems.push(element);
+                        }
                     }
 
                     if (name === 'v-with') {
-                        element.dirs.with = {
-                            value: parseDirective(attribs['v-with'])
-                        };
+                        var vWithDir = parseDirective(attribs['v-with']);
+                        if (vWithDir) {
+                            element.dirs.with = {
+                                value: vWithDir
+                            };
+                        }
                     }
 
                     if (name === 'v-class') {
                         var vClassDir = parseDirective(attribs['v-class'])
 
-                        element.dirs.class = {
-                            value: null
-                        };
+                        if (vClassDir) {
+                            element.dirs.class = {
+                                value: null
+                            };
 
-                        // Когда классы в самой директивы
-                        if (vClassDir[0].arg) {
-                            element.dirs.class.value = vClassDir;
+                            // Когда классы в самой директивы
+                            if (vClassDir[0].arg) {
+                                element.dirs.class.value = vClassDir;
 
-                        // Когда в директиву передаём объект
-                        } else {
-                            element.dirs.class.value = parsers.expression.parse(vClassDir[0].expression);
+                            // Когда в директиву передаём объект
+                            } else {
+                                element.dirs.class.value = parsers.expression.parse(vClassDir[0].expression);
+                            }
                         }
                     }
 
-                    if (name === 'v-attr') {
-                        element.dirs.attr = {
-                            value: tools.directive.parse(attribs['v-attr'])
-                        };
-                    }
-
-                    if (name === 'v-show') {
-                        element.dirs.show = {
-                            value: parseDirective(attribs['v-show'])[0],
-                            order: attribsCounter
-                        };
-                    }
 
                     if (name === 'v-style') {
                         var vStyleDir = parseDirective(attribs['v-style'])
 
-                        element.dirs.class = {
-                            value: null
-                        };
+                        if (vStyleDir) {
+                            element.dirs.style = {
+                                value: null,
+                                order: attribsCounter
+                            };
 
-                        // Когда классы в самой директивы
-                        if (vStyleDir[0].arg) {
-                            element.dirs.class.value = vStyleDir;
+                            // Когда классы в самой директивы
+                            if (vStyleDir[0].arg) {
+                                element.dirs.style.value = vStyleDir;
 
-                        // Когда в директиву передаём объект
-                        } else {
-                            element.dirs.class.value = parsers.expression.parse(vStyleDir[0].expression);
+                            // Когда в директиву передаём объект
+                            } else {
+                                element.dirs.style.value = parsers.expression.parse(vStyleDir[0].expression);
+                            }
                         }
+                    }
 
-                        element.dirs.style = {
-                            value: vStyleDir,
-                            order: attribsCounter
-                        };
+
+                    if (name === 'v-attr') {
+                        var vAttrDir = parseDirective(attribs['v-attr']);
+                        if (vAttrDir) {
+                            element.dirs.attr = {
+                                value: vAttrDir
+                            };
+                        }
+                    }
+
+                    if (name === 'v-show') {
+                        var vShowDir = parseDirective(attribs['v-show']);
+                        if (vShowDir) {
+                            element.dirs.show = {
+                                value: vShowDir[0],
+                                order: attribsCounter
+                            };
+                        }
                     }
 
                     if (name === 'v-ref') {
@@ -408,7 +451,9 @@ var Compile = function(template) {
                 // Кишки от директивы v-attr
                 if (element.dirs.attr) {
                     element.dirs.attr.value.forEach(function(item) {
-                        element.attribs[item.arg] = getMetaValue('{{{' + item.key + '}}}');
+                        element.attribs[item.arg] = {
+                            value: item.get
+                        }
                     });
                 }
 

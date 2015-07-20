@@ -23,7 +23,7 @@ module.exports = {
    * @type {Boolean}
    */
 
-  silent: false,
+  silent: true,
 
   /**
    * Whether allow observer to alter data objects'

@@ -22,11 +22,31 @@ var expr = text.parse(value);
 
 
 
-console.log(directive.parse('vRepeat.arrayForFilter | filterBy vRepeat.searchText in name')[0].filters[0])
+// console.log(directive.parse('vRepeat.arrayForFilter | filterBy vRepeat.searchText in name')[0].filters[0])
 
 
 
 
+var parseDirective = function(value) {
+    var result = directive.parse(value);
+
+    result.forEach(function(item) {
+        var parsedExp = expression.parse(item.expression);
+        if (!parsedExp) {
+            logger.warn('Invalid expression: "' + item.expression + '"');
+            result = false;
+            return;
+        }
+        item.get = parsedExp.get;
+        delete item.raw;
+    });
+
+    return result;
+}
+
+
+
+console.log(3424324, parseDirective('key: value, key2: value2'))
 
 
 var getMetaValue = function(value) {

@@ -566,7 +566,10 @@ var scope = {
                 name = props[i];
                 value = vm.$el.attribs[name];
                 if (value) {
-                    vm[common.toCamelCase(name)] = common.execute(vm.$parent, value);
+                    vm[common.toCamelCase(name)] = common.execute(vm.$parent, value, {
+                        isEscape: false,
+                        isClean: false
+                    });
                     vm.$el.attribs[name] = undefined;
                 }
             }
