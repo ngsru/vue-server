@@ -30,30 +30,6 @@ var excludeInstanceOptions = {
 };
 
 var common = {
-    getValue: function(vm, value, disableEscaping, activateCleaning) {
-        var result;
-
-        if (typeof value === 'function') {
-            if (activateCleaning) {
-                vm.$compiler.isCleanActive = true;
-            }
-            try {
-                result = value.call(vm);
-            } catch(e) {
-                vm.$logger.warn('Error executing expression [begin]');
-                vm.$logger.warn(common.getVmPath(vm));
-                vm.$logger.warn(e.toString());
-                vm.$logger.warn(value.toString());
-                vm.$logger.warn('Error executing expression [end]');
-            } 
-            vm.$compiler.isCleanActive = false;
-        } else {
-            result = value;
-        }
-
-        return result;
-    },
-
     getValNew: function(vm, value) {
         var result;
 
@@ -139,10 +115,6 @@ var common = {
         }
 
         return str;
-    },
-
-    getCleanedValue: function(vm, value) {
-        return common.getValue(vm, value, false, true);
     },
 
     cleanValue: function(value) {

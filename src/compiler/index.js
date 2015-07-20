@@ -28,10 +28,10 @@ var tools = {
 
 
 var parsers = {
-    directive: require('./parsers/directive'),
-    expression: require('./parsers/expression'),
-    path: require('./parsers/path'),
-    text: require('./parsers/text')
+    directive: require('./../parsers/directive'),
+    expression: require('./../parsers/expression'),
+    path: require('./../parsers/path'),
+    text: require('./../parsers/text')
 };
 
 

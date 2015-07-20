@@ -1,7 +1,7 @@
-var directive = require('./parsers/directive');
-var expression = require('./parsers/expression');
-var path = require('./parsers/path');
-var text = require('./parsers/text');
+var directive = require('./../parsers/directive');
+var expression = require('./../parsers/expression');
+var path = require('./../parsers/path');
+var text = require('./../parsers/text');
 
 
 
@@ -59,5 +59,3 @@ var getMetaValue = function(value) {
 }
 
 var go = getMetaValue(value)
-
-console.log(go)
