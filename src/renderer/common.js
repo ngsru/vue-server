@@ -32,17 +32,6 @@ var excludeInstanceOptions = {
 var Path = require('./../parsers/path');
 
 var common = {
-    // getKeypath: function(vm, keypath) {
-    //     var result;
-    //     try {
-    //         result = Path.get(vm, keypath);
-    //     } catch(e) {
-    //         vm.$logger.warn('Error when evaluating expression "' + keypath + '"');
-    //         vm.$logger.warn(e);
-    //     }
-    //     return result;
-    // },
-
     getValue: function(vm, value) {
         var result;
 
@@ -83,8 +72,12 @@ var common = {
     executeSingle: function(vm, config, options) {
         var value = this.getValue(vm, config.value);
 
-        value = this.applyFilters(vm, config.filters, value);
-
+        try {
+            value = this.applyFilters(vm, config.filters, value);
+        } catch(e) {
+            vm.$logger.warn('Error executing filter:', e.toString());
+        } 
+        
         if (options) {
             this.extend(config, options);
         }
@@ -100,22 +93,6 @@ var common = {
         return value; 
     },
 
-
-    // execute: function(config) {
-    //     var value = this.getValue(config.vm, config.value);
-
-    //     value = this.applyFilters(config.vm, config.filters, value);
-
-    //     if (config.isEscape) {
-    //         value = this.escapeHtml(value);
-    //     }
-
-    //     if (config.isClean) {
-    //         value = this.cleanValue(value);
-    //     }
-
-    //     return value;
-    // },
 
     applyFilters: function(vm, filters, value) {
         if (filters) {

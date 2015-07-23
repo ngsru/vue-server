@@ -70,11 +70,17 @@ var textToFn = function(text) {
 
 var parseDirective = function(value) {
     var result = parsers.directive.parse(value);
+    var error = false;
 
     result.forEach(function(item) {
+        if (error) {
+            return;
+        }
+
         var parsedExp = parsers.expression.parse(item.expression);
         if (!parsedExp) {
             logger.warn('Invalid expression: "' + item.expression + '"');
+            error = true;
             result = false;
             return;
         }
@@ -102,9 +108,14 @@ var parseDirective = function(value) {
 var getMetaValue = function(value) {
     var result = [];
     var tokens = parsers.text.parse(value);
+    var error = false;
 
     if (tokens) {
         tokens.forEach(function(token) {
+            if (error) {
+                return;
+            }
+            
             if (token.tag) {
                 // var exp = parsers.text.tokensToExp([token]);
                 // var parsedExp = parsers.expression.parse(exp);
@@ -122,7 +133,8 @@ var getMetaValue = function(value) {
 
                 if (!exp) {
                     logger.warn('Invalid expression: "' + parsedToken.expression + '"');
-                    result = undefined;
+                    error = true;
+                    result = false;
                     return;
                 }
                 var item = {
