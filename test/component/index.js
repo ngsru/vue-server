@@ -195,7 +195,14 @@ module.exports = {
 
                 text: 'Some kind Of Text',
                 number: 3
-            }
+            },
+
+            props: {
+                value: 'sell',
+                list: [
+                    {text: 'Купить', value: 'sell'}
+                ]
+            },           
         };
 
         this.vAttr = {

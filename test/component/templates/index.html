@@ -266,7 +266,12 @@
                 <select class="select-dyn-empty-v-model" options="vModel.selectOptions" v-model="gg">
                 </select>
                 
-                
+                <div class="radio-in-repeat-dyn" v-repeat="item: vModel.props.list">
+                    <input type="radio" value="{{item.value}}" v-model="vModel.props.value">
+                </div>
+
+
+
                 <section id="v-model-v-filter">
                     <input class="plain-input" type="text" v-model="vModel.vFilter.plain | plain">
                     <div class="plain-value">{{vModel.vFilter.plain}}</div>

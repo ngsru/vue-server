@@ -177,30 +177,33 @@ var compilers = {
     // v-model
     _compileDirectiveModel: function(vm, element) {
         var selectOptions;
-        var value;
+        var vModelValue;
+        var attrValue;
         var selectValueMap;
 
 
+        attrValue = common.getValue(vm, element.attribs.value);
+
         // Если у тега был задан value, то он пересиливает значение из v-model
         // поэтому прерываем выполнение кода выставляющего value через v-model
-        if (element.attribs.value && element.attribs.type == 'text') {
+        if (attrValue && element.attribs.type == 'text') {
             return;
         }
 
-        value = common.getValue(vm, element.dirs.model.value);
-
+        vModelValue = common.getValue(vm, element.dirs.model.value);
 
         if (element.name === 'input') {
+
             if (element.attribs.type === 'text' || !element.attribs.type) {
-                element.attribs.value = common.cleanValue(value);
+                element.attribs.value = common.cleanValue(vModelValue);
             }
 
-            if (element.attribs.type === 'checkbox' && value) {
+            if (element.attribs.type === 'checkbox' && vModelValue) {
                 element.attribs.checked = 'checked';
             }
 
             if (element.attribs.type === 'radio') {
-                if (element.attribs.value == value) {
+                if (attrValue == vModelValue) {
                     element.attribs.checked = 'checked';
                 } else {
                    delete element.attribs.checked;
@@ -238,22 +241,22 @@ var compilers = {
             // Значения select multiple приходят в виде массива
             // Создаём карту значений, чтобы не бегать по массиву 100500 раз
             if (element.attribs.multiple != undefined) {
-                if (value) {
-                    for (var i = 0, l = value.length; i < l; i++) {
-                        selectValueMap[value[i]] = true;
+                if (vModelValue) {
+                    for (var i = 0, l = vModelValue.length; i < l; i++) {
+                        selectValueMap[vModelValue[i]] = true;
                     }
                 }
 
             // Селект с единственным выбранным значение (не multiple)
             } else {
-                selectValueMap[value] = true;
+                selectValueMap[vModelValue] = true;
             }
 
             for (var i = 0, l = element.inner.length; i < l; i++) {
                 var item = element.inner[i];
 
                 if (item.name === 'option') {
-                    if (selectValueMap[item.attribs.value]) {
+                    if (selectValueMap[common.getValue(vm, item.attribs.value)]) {
                         item.attribs.selected = "selected";
                     } else {
                         // На всякий случай, чтобы удалить нежелательные selected,
@@ -265,7 +268,7 @@ var compilers = {
         }
 
         if (element.name === 'textarea') {
-            compilers._setInnerText(vm, element, value);
+            compilers._setInnerText(vm, element, vModelValue);
         }
     },
 
