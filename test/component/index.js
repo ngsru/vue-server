@@ -392,7 +392,7 @@ module.exports = {
             template: '' +
                 '<h1>Inheritor</h1>' +
                 '<div v-component="compon1"></div>' +
-                '<div v-partial="part1"></div>' +
+                '<partial name="part1"></partial>' +
                 '<span class="filter">{{vComponent.componentName | inheritIndicator}}</span>'
         },
 

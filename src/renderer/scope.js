@@ -30,8 +30,6 @@ var scope = {
                 rawVm = contexts.component.rawVm;
             }
 
-            data = scope.initData(options);
-
         // Наследуем данные в контексты элементов v-repeat
         } else if (contexts.isRepeat) {
             for (var key in contexts.parent) {
@@ -72,7 +70,6 @@ var scope = {
 
         // "Инициализируем" контекст
         var vm = common.extend(rawVm, data);
-
 
         if (contexts.isRepeat) {
             vm._isRepeat = true;
@@ -142,9 +139,11 @@ var scope = {
 
         scope.markKeyElement(vm);
 
-        vm._isCreated = true;
-
+        // Подтягиваем данные по props
         scope.pullPropsData(vm);
+
+        // Инициализируем личные данные компонента (data)
+        common.extend(vm, scope.initData(vm));
 
         // серверный Created
         if (vm.$options.createdBe) {
@@ -174,6 +173,7 @@ var scope = {
                         // отработки хука compiled начнут автоматически просасываться внутрь.
                         // Но мне страшно
                         scope.buildWithedData(vm, contexts);
+                        scope.pullPropsData(vm, true);
                         scope.resetVmInstance(vm);
                     });
                 } else {
@@ -247,23 +247,6 @@ var scope = {
 
         vm.$get = function(keypath, mode) {
             var result = utils.get(this, keypath);
-            var isSelf = true;
-            var value;
-
-            // if (this._isRepeat && !this._isComponent) {
-            //     isSelf = false;
-            // }
-
-            // var type = typeof result;
-
-            // console.log(4343, result)
-
-            // if (type === 'function') {
-            //     value = utils.bind(result, isSelf ? this : this.$parent);
-            // } else {
-            //     value = result;
-            // }
-
             return result;
         };
 
@@ -288,6 +271,7 @@ var scope = {
                 options.element._components = presentVm.$el._components;
                 presentVm.$el = options.element;
                 scope.buildWithedData(presentVm, options);
+                scope.pullPropsData(presentVm, true);
                 scope.resetVmInstance(presentVm);
                 newVm = presentVm;
             }
@@ -349,32 +333,32 @@ var scope = {
         if (tpl) {
             // Хитрый режим сочленения элементов
             if (vm.$options.replace) {
-                if (vm._isRepeat) {
-                    this.$logger.warn('"replace" option can\'t be used in v-repeat-ed component', vm.nestingPath);
-                    vm.$el.inner = tpl;
-                } else {
-                    for (var param in tpl[0]) {
-                        if (param === 'dirs') {
-                            for (var dir in tpl[0].dirs) {
-                                tpl[0].dirs[dir].vm = vm;
-                            }
-                            
-                            vm.$el.dirs = common.extend({}, tpl[0].dirs, vm.$el.dirs);
-                            continue;
+                for (var param in tpl[0]) {
+                    if (param === 'dirs') {
+                        for (var dir in tpl[0].dirs) {
+                            tpl[0].dirs[dir].vm = vm;
                         }
 
-                        if (param === 'attribs') {
-                            vm.$el.attribs = common.extend({}, tpl[0].attribs, vm.$el.attribs);
-                            continue;
+                        if (vm.$el.dirs.component && tpl[0].dirs.component) {
+                            vm.$logger.warn('Invalid v-component usage because of key elements merging');
                         }
+                        
+                        vm.$el.dirs = common.extend({}, tpl[0].dirs, vm.$el.dirs);
+                        continue;
+                    }
 
-                        vm.$el[param] = tpl[0][param];
+                    if (param === 'attribs') {
+                        vm.$el.attribs = common.extend({}, tpl[0].attribs, vm.$el.attribs);
+                        continue;
                     }
-                    if (tpl[1]) {
-                        this.$logger.warn('The component\'s template has more then one top level element. They won\'t be compiled properly', vm.nestingPath);
-                    }
-                    vm.$el.replaced = true;
+
+                    vm.$el[param] = tpl[0][param];
                 }
+
+                if (tpl[1]) {
+                    vm.$logger.warn('The component\'s template has more then one top level element. They won\'t be compiled properly', vm.nestingPath);
+                }
+                vm.$el.replaced = true;
             } else {
                 vm.$el.inner = tpl;
             }
@@ -420,8 +404,6 @@ var scope = {
                 vm[item.arg] = common.getValue(vm.$parent, item.get);
             }
         }
-
-        scope.pullPropsData(vm);
     },
 
 
@@ -453,25 +435,29 @@ var scope = {
 
 
     // Выставляем контекст данных с проверкой на валидность этих данных
-    initData: function(options) {
-        if (options.data) {
-            var dataType = typeof options.data;
+    initData: function(vm) {
+        var result = {};
+        if (vm.$options.data) {
+            var dataType = typeof vm.$options.data;
             if (
-                !options.parent &&
+                !vm.$parent &&
                 dataType === 'object' &&
-                options.data instanceof Array !== true
+                vm.$options.data instanceof Array !== true
             ) {
-                return options.data;
+                return vm.$options.data;
             }
 
             if (dataType !== 'function') {
-                this.$logger.warn( 'The "data" option type is not valid: ' + common.getVmPath(vm) );
+                vm.$logger.warn( 'The "data" option type is not valid: ' + common.getVmPath(vm) );
             } else {
-                return options.data() || {};
+                result = vm.$options.data.call(vm) || {};
+                vm.$options.dataNames = Object.keys(result);
+
+                return result;
             }
         }
 
-        return {};
+        return result;
     },
 
 
@@ -559,20 +545,109 @@ var scope = {
     },
 
 
-    pullPropsData: function(vm) {
+    pullPropsData: function(vm, excludeOwnDataProps) {
         var props = vm.$options.props;
-        if (props && Array.isArray(props)) {
-            for (var i = 0, l = props.length; i < l; i++) {
-                name = props[i];
-                value = vm.$el.attribs[name];
-                if (value) {
-                    vm[common.toCamelCase(name)] = common.execute(vm.$parent, value, {
-                        isEscape: false,
-                        isClean: false
-                    });
-                    vm.$el.attribs[name] = undefined;
+
+        if (typeof props === 'object') {
+            // Если props - массив
+            if (Array.isArray(props)) {
+                for (var i = 0, l = props.length; i < l; i++) {
+                    this.pullPropsDataItem(vm, props[i]);
+                }
+
+            // Если сложный вид объектом
+            } else {
+                for (var name in props) {
+                    this.pullPropsDataItem(vm, name, props[name]);
                 }
             }
+        }
+    },
+
+
+    pullPropsDataItem: function(vm, name, config) {
+        var ownDataPropsNames = vm.$options.dataNames;
+        var attrName = common.toDashCase(name);
+        var propName = common.toCamelCase(name);
+        var rawValue = vm.$el.attribs[attrName];
+        var descriptor;
+
+        // Чтобы не перетереть личные данные компонента при передёргивании компонентов через wait-for
+        if (ownDataPropsNames && ownDataPropsNames.indexOf(propName) !== -1) {
+            return;
+        }
+
+        // Сложный формат props (объектом)
+        if (config !== undefined) {
+            descriptor = {
+                type: null,
+                default: null,
+                required: false,
+                validator: null
+            };
+
+            if (config === null || config.constructor && config.name) {
+                descriptor.type = config;
+            } else {
+                common.extend(descriptor, config);
+            }       
+        }
+
+
+        vm.$el.attribs[attrName] = undefined;
+
+        var value = common.execute(vm.$parent, rawValue, {
+            isEscape: false,
+            isClean: false
+        });
+
+
+        if (descriptor) {
+            if (!rawValue) {
+                // Дефолтное значение
+                if (descriptor.default) {
+                    if (typeof descriptor.default === 'function') {
+                        value = descriptor.default();
+                    } else {
+                        value = descriptor.default;
+                    }
+                }
+
+                // Необходимое поле
+                if (descriptor.required) {
+                    vm.$logger.warn('Property"' + propName + '" is required');
+                    return;
+                }
+            } else {
+                // Типизация данных
+                if (descriptor.type) {
+                    if (!value || value.constructor != descriptor.type) {
+                        var type;
+                        if (value === null || value === undefined) {
+                            type = value;
+                        } else {
+                            type = value.constructor.name;
+                        }
+                        vm.$logger.warn('Invalid prop: type check failed for "' + propName + '". Expected ' + descriptor.type.name + ', got ' + type);
+                        return;
+                    }
+                }
+
+                // Валидация данных
+                if (rawValue && descriptor.validator && !descriptor.validator(value)) {
+                    vm.$logger.warn('Invalid prop: custom validator check failed for "' + propName + '"');
+                    return;
+                }
+            }
+        }
+
+
+
+        // Наследование колбеков от родителя
+        if (typeof value === 'function') {
+            vm[propName] = utils.bind(value, vm.$parent);
+        } else {
+            vm[propName] = value;
         }
     }
 };

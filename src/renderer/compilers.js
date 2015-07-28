@@ -84,7 +84,7 @@ var compilers = {
 
             // v-text
             if (element.dirs.text) {
-                compilers._setInnerText2(
+                compilers.setInnerText(
                     element,
                     common.execute(vm, {
                         value: element.dirs.text.value.get,
@@ -99,7 +99,7 @@ var compilers = {
 
             // v-html
             if (element.dirs.html) {
-                compilers._setInnerText2(
+                compilers.setInnerText(
                     element,
                     common.execute(vm, {
                         value: element.dirs.html.value.get,
@@ -113,10 +113,7 @@ var compilers = {
 
             // Компилируем аттрибуты тега
             for (var key in element.attribs) {
-                element.attribs[key] = common.execute(vm, element.attribs[key], {
-                    isEscape: false,
-                    isClean: false
-                });
+                element.attribs[key] = common.execute(vm, element.attribs[key]);
             }
 
             compilers._compileAttributeDirectives(vm, element);
@@ -125,7 +122,7 @@ var compilers = {
         }
     },
 
-    _setInnerText2: function(element, text) {
+    setInnerText: function(element, text) {
         element.inner = [{
             'type': 'text',
             'text': text
@@ -216,7 +213,7 @@ var compilers = {
         var selectValueMap;
 
 
-        attrValue = common.getValue(vm, element.attribs.value);
+        attrValue = common.execute(vm, element.attribs.value);
 
         // Если у тега был задан value, то он пересиливает значение из v-model
         // поэтому прерываем выполнение кода выставляющего value через v-model
@@ -275,7 +272,7 @@ var compilers = {
                             }
                         }
 
-                        compilers._setInnerText2(optionItem, selectOptions[i].text);
+                        compilers.setInnerText(optionItem, selectOptions[i].text);
                         element.inner.push(optionItem);
                     }
                 }
@@ -312,7 +309,7 @@ var compilers = {
         }
 
         if (element.name === 'textarea') {
-            compilers._setInnerText2(element, vModelValue);
+            compilers.setInnerText(element, vModelValue);
         }
     },
 

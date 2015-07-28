@@ -153,6 +153,14 @@ var common = {
         }
     },
 
+    isPresent: function(value) {
+        if (value === undefined || value === null) {
+            return false
+        }
+
+        return true;
+    },
+
     setElement: function(element) {
         // Перенастраиваем цикл из-за изменений в порядке элементов
         if (element) {
@@ -211,6 +219,26 @@ var common = {
             })();
         };
 
+
+
+
+
+
+        // var mixingParams = {
+        //     createdBe: true,
+        //     compiledBe: true
+        // };
+
+
+
+        // for (var name in mixingParams) {
+        //     if (options[name]) {
+        //         (function() {
+        //             var fn = options[name];
+        //             options[name] = [fn];
+        //         })();
+        //     }
+        // }
 
 
         // Реализация примесей
@@ -324,6 +352,10 @@ var common = {
         return value.replace(/-(\w)/g, function(a, b){
             return b.toUpperCase();
         });
+    },
+
+    toDashCase: function(value) {
+        return value.replace(/[A-Z]/g, function(a) { return '-' + a.toLowerCase() });
     }
 }
 

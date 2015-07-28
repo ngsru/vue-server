@@ -154,52 +154,29 @@ describe("v-text", function() {
 
 // partials - begin
 describe("partials", function() {
-    
-    describe("via mustache", function() {
-        it("should include partial", function() {
-            expect( $('#partials .simple .partial-wrap').length ).not.toBe( 0 );
-        });
 
-        it("should display context's data", function() {
-            expect( $('#partials .simple .value').text() ).toEqual( 'Should result some value' );
-        });
-
-        it("should display nothing if value is undefined", function() {
-            expect( $('#partials .undefined').text() ).toEqual( '' );
-        });
+    it("should include partial", function() {
+        expect( $('#partials .simple .partial-wrap').length ).not.toBe( 0 );
     });
 
-    describe("via v-partial directive", function() {
-        it("should remove element's content", function() {
-            expect( $('#partials .v-partial .not-to-be-here').length ).toEqual( 0 );
-        });
+    it("should display context's data", function() {
+        expect( $('#partials .simple .value').text() ).toEqual( 'Should result some value' );
+    });
 
-        it("should include", function() {
-            expect( $('#partials .v-partial .partial-wrap').length ).not.toBe( 0 );
-        });
+    it("should display nothing if value is undefined", function() {
+        expect( $('#partials .undefined').text() ).toEqual( '' );
+    });
 
-        it("should display context's data", function() {
-            expect( $('#partials .v-partial .value').text() ).toEqual( 'Should result some value' );
-        });
+    it("should include by a dynamic name", function() {
+        expect( $('#partials .dynamic .value').text() ).toEqual( 'Should result some value' );
+    });
 
-        it("should include by a dynamic name", function() {
-            expect( $('#partials .v-partial-dynamic .value').text() ).toEqual( 'Should result some value' );
-        });
+    it("should display nothing if data value is undefined", function() {
+        expect( $('#partials .dynamic-undefined').text() ).toEqual( '' );
+    });
 
-
-
-        it("should display nothing if partial is undefined", function() {
-            expect( $('#partials .undefined').text() ).toEqual( '' );
-        });
-
-        it("should display nothing if data value is undefined", function() {
-            expect( $('#partials .dynamic-undefined').text() ).toEqual( '' );
-        });
-
-        it("should display nothing if data value is empty", function() {
-            expect( $('#partials .dynamic-empty').text() ).toEqual( '' );
-        });
-
+    it("should display nothing if data value is empty", function() {
+        expect( $('#partials .dynamic-empty').text() ).toEqual( '' );
     });
 
 });
@@ -523,13 +500,6 @@ describe("v-repeat", function() {
             it("should display inherited with v-with data", function() {
                 var $items = $('#v-repeat .repeat-component-with2').find('li .comp-own-value');
                 expect( $items.eq(2).text() ).toEqual( 'Data there should be, omn.' );
-            });
-
-            describe("with 'inherit: true'", function() {
-                it("should display parent component's data values", function() {
-                    var $items = $('#v-repeat .repeat-component-with2-inherit').find('li .comp-parent-value');
-                    expect( $items.eq(2).text() ).toEqual( 'i\'m parent\'s value' );
-                });
             });
 
         });

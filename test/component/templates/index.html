@@ -77,15 +77,11 @@
 
             <!-- partials -->
             <section id="partials">
-                <div class="simple">{{> part1}}</div>
-                <div class="undefined">{{> itsNotDefined}}</div>
-                <div class="v-partial" v-partial="part1"><div class="not-to-be-here"></div></div>
-
-                <div class="v-partial-dynamic" v-partial="{{partial.partialName}}"></div>
-
-                <div class="undefined" v-partial="itsNotDefined">This should be removed</div>
-                <div class="dynamic-undefined" v-partial="{{itsNotDefined}}">This should be removed</div>
-                <div class="dynamic-empty" v-partial="{{partial.emptyName}}">This should be removed</div>
+                <div class="simple"><partial name="part1"></partial></div>
+                <div class="undefined"><partial name="itsNotDefined"></partial></div>
+                <div class="dynamic"><partial name="{{partial.partialName}}"></partial></div>
+                <div class="dynamic-undefined"><partial name="{{itsNotDefined}}"></partial></div>
+                <div class="dynamic-empty"><partial name="{{partial.emptyName}}"></partial></div>
             </section>
 
 

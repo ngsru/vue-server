@@ -91,20 +91,6 @@ var parseDirective = function(value) {
     return result;
 }
 
-// var parseDirWithFilters = function(value) {
-//     var result = {};
-
-//     var exp = parsers.text.tokensToExp([{tag: true, value: value}]);
-//     var dir = parsers.directive.parse(value)[0];
-//     result.get = parsers.expression.parse(exp).get;
-//     result.expression = dir.expression;
-//     if (dir.arg) {
-//         result.arg = dir.arg;
-//     }
-
-//     return result;
-// }
-
 var getMetaValue = function(value) {
     var result = [];
     var tokens = parsers.text.parse(value);
@@ -163,6 +149,16 @@ var getMetaValue = function(value) {
         }
 
     } else {
+        if (value === 'true') {
+            return true;
+        }
+        if (value === 'false') {
+            return false;
+        }
+        if (Number(value) == value && !(Number(value) === 0 && value !== '0')) {
+            return Number(value);
+        }
+
         return value;
     }
 }
