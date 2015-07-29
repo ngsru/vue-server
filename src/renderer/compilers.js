@@ -113,7 +113,13 @@ var compilers = {
 
             // Компилируем аттрибуты тега
             for (var key in element.attribs) {
-                element.attribs[key] = common.execute(vm, element.attribs[key]);
+                var vmForAttr;
+                if (element.attribsVmMap) {
+                    vmForAttr = element.attribsVmMap[key];
+                } else {
+                    vmForAttr = vm;
+                }
+                element.attribs[key] = common.execute(vmForAttr, element.attribs[key]);
             }
 
             compilers._compileAttributeDirectives(vm, element);

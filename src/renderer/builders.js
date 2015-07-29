@@ -77,6 +77,7 @@ var builders = {
                 if (element.dirs.if) {
                     var vIfResult = common.execute(vm, {
                         value: element.dirs.if.value.get,
+                        filters: element.dirs.if.value.filters,
                         isEscape: false,
                         isClean: false
                     });

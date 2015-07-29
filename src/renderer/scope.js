@@ -295,6 +295,13 @@ var scope = {
                 }
             }
         };
+
+        vm.$nextTick = function(cb) {
+            var self = this;
+            process.nextTick(function() {
+                cb.call(self)
+            });
+        };
     },
 
 
@@ -348,7 +355,23 @@ var scope = {
                     }
 
                     if (param === 'attribs') {
-                        vm.$el.attribs = common.extend({}, tpl[0].attribs, vm.$el.attribs);
+                        (function() {
+                            var elAttribs = vm.$el.attribs;
+                            vm.$el.attribs = {};
+                            vm.$el.attribsVmMap = {};
+
+                            // Сперва добавляем аттрибуты верхнего тего из шаблона комопонента
+                            for (var name in tpl[0].attribs) {
+                                vm.$el.attribs[name] = tpl[0].attribs[name];
+                                vm.$el.attribsVmMap[name] = vm;
+                            }
+
+                            // Потом добавляем аттрибуты ключевого элемента (на котором вызывался компонент)
+                            for (var name in elAttribs) {
+                                vm.$el.attribs[name] = elAttribs[name];
+                                vm.$el.attribsVmMap[name] = vm.$parent;
+                            }
+                        })();
                         continue;
                     }
 
@@ -569,8 +592,17 @@ var scope = {
         var ownDataPropsNames = vm.$options.dataNames;
         var attrName = common.toDashCase(name);
         var propName = common.toCamelCase(name);
-        var rawValue = vm.$el.attribs[attrName];
         var descriptor;
+
+        // Небольшой костыль, чтобы с точки входа контентного компонента
+        // не удалялись атрибуты, которые нужны для props, раньше времени
+        vm.$el.props = vm.$el.props || {};
+        if (vm.$el.attribs[attrName] !== undefined) {
+            vm.$el.props[attrName] = vm.$el.attribs[attrName];
+            vm.$el.attribs[attrName] = undefined;
+        }
+
+        var rawValue = vm.$el.props[attrName];
 
         // Чтобы не перетереть личные данные компонента при передёргивании компонентов через wait-for
         if (ownDataPropsNames && ownDataPropsNames.indexOf(propName) !== -1) {
@@ -593,8 +625,6 @@ var scope = {
             }       
         }
 
-
-        vm.$el.attribs[attrName] = undefined;
 
         var value = common.execute(vm.$parent, rawValue, {
             isEscape: false,
