@@ -94,8 +94,6 @@ var scope = {
         vm.$data = data;
         vm.$parent = contexts.parent;
         vm.$root = contexts.parent ? contexts.parent.$root : vm;
-        // vm.$components = vm.components = {};
-        vm.$components = {};
 
         // events bookkeeping
         vm._events = {};
@@ -254,11 +252,11 @@ var scope = {
             var newVm;
             var presentVm;
 
-            if (this.$el._componentsDetached && options.component && options.component.name) {
-                presentVm = this.$el._componentsDetached[options.component.name];
+            if (this.$el._componentsDetached && options.component) {
+                presentVm = this.$el._componentsDetached[options.element.id];
             }
 
-            if ( !presentVm || presentVm === 'stack' || presentVm._isRepeat ) {
+            if ( !presentVm ) {
                 newVm = scope.initViewModel(
                     common.extend({
                         parent: this,
@@ -277,22 +275,21 @@ var scope = {
             }
 
 
-            this._children = this._children || [];
-            this._children.push(newVm);
+            if (options.childIndex !== undefined) {
+                this._children[options.childIndex] = newVm;
+            } else {
+                this._children = this._children || [];
+                this._children.push(newVm);
+            }
+            
 
             if (options.ref) {
                 this.$[options.ref] = newVm;
             }
 
-            if (options.component && options.component.name) {
-                this.$components[options.component.name] = newVm;
-
+            if (options.component && !options.repeatData) {
                 this.$el._components = this.$el._components || {};
-                if (this.$el._components[options.component.name]) {
-                    this.$el._components[options.component.name] = 'stack';
-                } else {
-                    this.$el._components[options.component.name] = newVm;
-                }
+                this.$el._components[options.element.id] = newVm;
             }
         };
 
@@ -318,7 +315,6 @@ var scope = {
         vm._children = null;
         vm._childrenReady = 0;
         vm._isReady = false;
-        vm.$components = {};
         vm.$el._componentsDetached = vm.$el._components;
         vm.$el._components = {};
         var tpl = scope.initTemplate(vm);

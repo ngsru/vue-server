@@ -174,6 +174,12 @@ var makeTxtNode = function(current, value) {
 
 
 
+var getElementId = function() {
+    var result = '';
+    var time = process.hrtime();
+    result += String(time[0]).slice(5) + time[1];
+    return result;
+}
 
 
 
@@ -248,6 +254,7 @@ var Compile = function(template) {
 
                 // COMMON TAG - begin
                 element = {
+                    'id': getElementId(),
                     'type': 'tag',
                     'name': name,
                     'attribs': {},

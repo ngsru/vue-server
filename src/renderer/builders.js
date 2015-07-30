@@ -248,64 +248,99 @@ var builders = {
 
     // Обрабатываем элемент с v-component
     buildComponent: function(vm, element, options) {
-        options = common.extend({
-            element: element,
-            repeatData: null,
-            withData: null,
-            withReplaceData: null,
-            isComponent: true
-        }, options);
-
         var componentName = common.getValue(vm, element.dirs.component.value);
         var component = vm.$options.components[componentName];
 
         // Такой компонент есть
         if (component) {
-            if (!component.__composed) {
-                component.__composed = common.composeComponent(component);
+            options = common.extend({
+                element: element,
+                repeatData: null,
+                withData: null,
+                withReplaceData: null,
+                isComponent: true
+            }, options);
+
+            // Забиваем себе местечко под солнцем
+            vm._children = vm._children || [];
+            options.childIndex = vm._children.length;
+            vm._children.push({});
+
+            // Асинхронный компонент
+            if (typeof component === 'function') {
+                component(
+                    function(data) {
+                        vm.$options.components[componentName] = data;
+                        builders.buildComponentContent(vm, element, options, data, componentName);
+                    },
+                    function(error) {
+                        builders.logComponentResolveError(vm, element, componentName, error);
+                    }
+                );
+            } else {
+                builders.buildComponentContent(vm, element, options, component, componentName);
             }
-            
-            options.component = {
-                rawVm: common.extend({}, component.__composed.rawVm),
-                options: component.__composed.options
-            };
-
-            // Опция директивы wait-for (компонент ждёт срабатывания события перед тем как покажется)
-            if (element.dirs.component.options.waitFor) {
-                options.waitFor = element.dirs.component.options.waitFor;
-            }
-
-            if (element.dirs.ref) {
-                options.ref = element.dirs.ref.value;
-            }
-
-            options.component.name = componentName;
-
-            if (element.dirs.with) {
-                // Здесь интересный момент. Если значение в v-with прописано в формате одного аргумента
-                // например v-with="cat", то контекст данных компонента полностью определяется данной директивой,
-                // т.е. у компонента будут только данные, содержащиеся в "cat" родителя
-                if (element.dirs.with.value.length === 1 && !element.dirs.with.value[0].arg ) {
-                    options.withReplaceData = element.dirs.with.value[0].get;
-                } else {
-                    options.withData = element.dirs.with.value;
-                }
-            }
-
-            vm.$addChild(options);
 
         // Такого компонента нет
         } else {
-            var logMessage = 'Failed to resolve component: "' + componentName +'": ' + common.getVmPath(vm);
             element.inner = [];
+            builders.logComponentResolveError(vm, element, componentName);
+        }
 
-            if (componentName) {
-                vm.$logger.warn(logMessage, element);
+    },
+
+
+    // Собственно, кишки
+    buildComponentContent: function(vm, element, options, component, componentName) {
+        if (!component.__composed) {
+            component.__composed = common.composeComponent(component);
+        }
+        
+        options.component = {
+            rawVm: common.extend({}, component.__composed.rawVm),
+            options: component.__composed.options
+        };
+
+        // Опция директивы wait-for (компонент ждёт срабатывания события перед тем как покажется)
+        if (element.dirs.component.options.waitFor) {
+            options.waitFor = element.dirs.component.options.waitFor;
+        }
+
+        if (element.dirs.ref) {
+            options.ref = element.dirs.ref.value;
+        }
+
+        options.component.name = componentName;
+
+        if (element.dirs.with) {
+            // Здесь интересный момент. Если значение в v-with прописано в формате одного аргумента
+            // например v-with="cat", то контекст данных компонента полностью определяется данной директивой,
+            // т.е. у компонента будут только данные, содержащиеся в "cat" родителя
+            if (element.dirs.with.value.length === 1 && !element.dirs.with.value[0].arg ) {
+                options.withReplaceData = element.dirs.with.value[0].get;
             } else {
-                vm.$logger.debug(logMessage, element);
+                options.withData = element.dirs.with.value;
             }
-        } 
+        }
+
+        vm.$addChild(options); 
+    },
+
+
+    logComponentResolveError: function(vm, element, componentName, reason) {
+        var logMessage = 'Failed to resolve component: "' + componentName +'"  (parent: ' + common.getVmPath(vm) + ')';
+
+        if (reason) {
+            logMessage += '. Reason: ' + reason;
+        }
+
+        if (componentName) {
+            vm.$logger.warn(logMessage);
+        } else {
+            vm.$logger.debug(logMessage);
+        }
     }
+
 }
 
 
