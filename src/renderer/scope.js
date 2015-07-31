@@ -110,9 +110,6 @@ var scope = {
 
         // Инициализация ТОЛЬКО для компонентов
         if (vm._isComponent) {
-            // NESTING PATH
-            vm.nestingPath = scope.getNestingPath(vm);
-
             var tpl = scope.initTemplate(vm);
 
             if (vm.$parent) {
@@ -337,6 +334,9 @@ var scope = {
             // Хитрый режим сочленения элементов
             if (vm.$options.replace) {
                 for (var param in tpl[0]) {
+                    if (param === 'id') {
+                        continue;
+                    }
                     if (param === 'dirs') {
                         for (var dir in tpl[0].dirs) {
                             tpl[0].dirs[dir].vm = vm;
@@ -377,7 +377,7 @@ var scope = {
                 if (tpl[1]) {
                     vm.$logger.warn('The component\'s template has more then one top level element. They won\'t be compiled properly', vm.nestingPath);
                 }
-                vm.$el.replaced = true;
+                // vm.$el.replaced = true;
             } else {
                 vm.$el.inner = tpl;
             }
@@ -521,24 +521,6 @@ var scope = {
         }
 
         return this;
-    },
-
-
-    getNestingPath: function(vm) {
-        var str = vm.$options.name,
-            child;
-
-        if (vm.$parent) {
-            child = this.getNestingPath(vm.$parent);
-
-            if (child) {
-                str = child + '::' + str;
-            }
-        } else {
-            str = '';
-        }
-
-        return str;
     },
 
 
