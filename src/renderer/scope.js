@@ -50,24 +50,6 @@ var scope = {
             }
         }
 
-
-        if (contexts.repeatData) {
-            if (contexts.repeatIndex !== undefined) {
-                rawVm.$index = contexts.repeatIndex;
-            }
-
-            if (contexts.repeatKey !== undefined) {
-                rawVm.$key = contexts.repeatKey;
-            }
-
-            if (contexts.repeatValue !== undefined) {
-                rawVm.$value = contexts.repeatValue;
-            }
-
-            common.extend(data, contexts.repeatData);
-        }
-
-
         // "Инициализируем" контекст
         var vm = common.extend(rawVm, data);
 
@@ -139,6 +121,22 @@ var scope = {
 
         // Инициализируем личные данные компонента (data)
         common.extend(vm, scope.initData(vm));
+
+        if (contexts.repeatData) {
+            if (contexts.repeatIndex !== undefined) {
+                vm.$index = contexts.repeatIndex;
+            }
+
+            if (contexts.repeatKey !== undefined) {
+                vm.$key = contexts.repeatKey;
+            }
+
+            if (contexts.repeatValue !== undefined) {
+                vm.$value = contexts.repeatValue;
+            }
+
+            common.extend(vm, contexts.repeatData);
+        }
 
         // серверный Created
         if (vm.$options.createdBe) {
