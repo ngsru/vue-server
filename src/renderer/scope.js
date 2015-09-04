@@ -248,7 +248,7 @@ var scope = {
             var presentVm;
 
             if (this.$el._componentsDetached && options.component) {
-                presentVm = this.$el._componentsDetached[options.element.id];
+                presentVm = this.$el._componentsDetached[options.element.id + options.component.name];
             }
 
             if ( !presentVm ) {
@@ -284,7 +284,7 @@ var scope = {
 
             if (options.component && !options.repeatData) {
                 this.$el._components = this.$el._components || {};
-                this.$el._components[options.element.id] = newVm;
+                this.$el._components[options.element.id + options.component.name] = newVm;
             }
         };
 
