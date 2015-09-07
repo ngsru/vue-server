@@ -13,6 +13,7 @@ var excludeInstanceOptions = {
     'compiled': true,
     'compiledBe': true,
     'ready': true,
+    'readyBe': true,
     'attached': true,
     'detached': true,
     'beforeDestroy': true,

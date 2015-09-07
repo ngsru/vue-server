@@ -395,6 +395,13 @@ var scope = {
         vm.$on('_vueServer.stopBuilding', function () {
             vm.$el.__buildingInterrupted = true;
         });
+
+        vm.$on('_vueServer.readyToCompile', function () {
+            // серверный Created
+            if (vm.$options.readyBe) { 
+                vm.$options.readyBe.call(vm);
+            }
+        });
     },
 
 

@@ -55,6 +55,7 @@ var VueRender = function(logger) {
 
                     compileInProgress = true;
                     this.$emit('_vueServer.readyToCompile');
+                    this.$broadcast('_vueServer.readyToCompile');
 
                     // Инициализация стилей из компонентов
                     var styleStr = '';
