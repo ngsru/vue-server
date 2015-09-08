@@ -18,15 +18,15 @@ var builders = {
 
         builders.buildElements(vm, vm.$el.inner);
 
-        if (vm._children) {
+        if (vm.$children) {
             vm.$on('_vueServer.childVmReady', function() {
-                if (!vm._children) {
+                if (!vm.$children) {
                     vm.$logger.error( 'Something went wrong while building children VMs. Please report the error.' );
                     return;
                 }
-                vm._childrenReady++;
+                vm.$childrenReady++;
 
-                if (vm._childrenReady === vm._children.length) {
+                if (vm.$childrenReady === vm.$children.length) {
                     if (callback) {
                         callback();
                     }
@@ -161,6 +161,25 @@ var builders = {
 
     getRepeatData: function(vm, dir) {
         var value = vm.$get(dir.expression);
+        var array;
+
+        if (!value) {
+            return value;
+        } else {
+            if (!Array.isArray(value)) {
+                array = [];
+
+                for (var prop in value) {
+                    array.push({
+                        $key: prop,
+                        $value: value[prop]
+                    });
+                };
+
+                value = array;
+            }
+        }
+
         try {
             value = common.applyFilters(vm, dir.filters, value);    
         } catch(e) {
@@ -174,44 +193,53 @@ var builders = {
     // Создаём элементы по v-repeat
     buildRepeatElements: function(vm, elements, element) {
         var repeatData = builders.getRepeatData(vm, element.dirs.repeat.value);
-        var repeatDataIsArray = Array.isArray(repeatData);
-
+        // var repeatDataIsArray = Array.isArray(repeatData);
+        
         // Если есть данные по директиве
-        if ( !_.isEmpty(repeatData) ) {
+        if (repeatData && repeatData.length) {
             var repeatElements = [];
             var cloneElement = element.clone;
-            var index = 0;
 
             var item;
             var repeatElement;
             var repeatDataItem;
             var repeatOptions;
 
+
             // Проходим циклом по данным директивы
-            for (var key in repeatData) {
-                item = repeatData[key];
+            for (var i = 0; i < repeatData.length; i++) {
                 repeatDataItem = {};
-                repeatOptions = {
-                    isRepeat: true,
-                    repeatIndex: index,
-                    repeatValue: item
-                };
 
+                // Когда репитим объект
+                if (repeatData[i].$value) {
+                    item = repeatData[i].$value;
 
-                // Для специальных переменных $key, $value
-                // когда repeat пробегает по объекту
-                if (!repeatDataIsArray) {
-                    repeatOptions.repeatKey = key;
-                } 
-
+                // Когда просто массив
+                } else {
+                    item = repeatData[i];
+                }
 
                 // Случай с созданием неймспейса для данных вложенных в v-repeat
-                // например v-repeat="item:data"
+                // например v-repeat="item: data"
                 if (element.dirs.repeat.value.arg) {
                     repeatDataItem[element.dirs.repeat.value.arg] = item;
+
+                // Без неймспейса
                 } else {
-                    repeatDataItem = item;
+                    // Данные - объект
+                    if (typeof item === 'object' && !Array.isArray(item)) {
+                        repeatDataItem = item;
+
+                    // Данные - что-то другое
+                    } else {
+                        repeatDataItem.$value = item;
+                    }
                 }
+
+                if (repeatData[i].$key) {
+                    repeatDataItem.$key = repeatData[i].$key;
+                }
+                repeatDataItem.$index = i;
 
 
                 // Создаём клон псевдо-dom элемента
@@ -222,21 +250,17 @@ var builders = {
 
                 // Создаём контекст данных для элемента
                 if (!element.dirs.component) {
-                    vm.$addChild(
-                        common.extend(repeatOptions, {
-                            element: repeatElement,
-                            repeatData: repeatDataItem,
-                        })
-                    );
+                    vm.$addChild({
+                        isRepeat: true,
+                        element: repeatElement,
+                        repeatData: repeatDataItem,
+                    });
                 } else {
-                    builders.buildComponent(vm, repeatElement, 
-                        common.extend(repeatOptions, {
-                            repeatData: repeatDataItem,
-                        })
-                    );
+                    builders.buildComponent(vm, repeatElement, {
+                        isRepeat: true,
+                        repeatData: repeatDataItem,
+                    });
                 }
-
-                index++;
             }
 
             return repeatElements;
@@ -262,9 +286,9 @@ var builders = {
             }, options);
 
             // Забиваем себе местечко под солнцем
-            vm._children = vm._children || [];
-            options.childIndex = vm._children.length;
-            vm._children.push({});
+            vm.$children = vm.$children || [];
+            options.childIndex = vm.$children.length;
+            vm.$children.push({});
 
             // Асинхронный компонент
             if (typeof component === 'function') {

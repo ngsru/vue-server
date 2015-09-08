@@ -131,7 +131,7 @@ exports.$broadcast = function (event) {
   // if no child has registered for this event,
   // then there's no need to broadcast.
   if (!this._eventsCount[event]) return
-  var children = this._children
+  var children = this.$children
   if (children) {
     for (var i = 0, l = children.length; i < l; i++) {
       var child = children[i]

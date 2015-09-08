@@ -42,7 +42,11 @@ var renders = {
 
         // Проходим по аттибутам тега, собираем директивы vue
         for (var key in element.attribs) {
-            if (element.attribs[key] === undefined) {
+            if (
+                element.attribs[key] === undefined ||
+                element.attribs[key] === false ||
+                element.attribs[key] === null
+            ) {
                 continue;
             }
             tag += ' ' + key + '="' + element.attribs[key] + '"';

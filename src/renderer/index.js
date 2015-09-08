@@ -109,9 +109,9 @@ VueRender.prototype._checkVmsReady = function(vm) {
         return false;
     }
 
-    if (vm._children) {
-        for (var item in vm._children) {
-            if (!this._checkVmsReady(vm._children[item])) {
+    if (vm.$children) {
+        for (var item in vm.$children) {
+            if (!this._checkVmsReady(vm.$children[item])) {
                 return false;
             }
         }

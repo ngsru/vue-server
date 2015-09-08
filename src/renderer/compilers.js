@@ -15,10 +15,10 @@ var compilers = {
 
         compilers.compileElements(vm, [vm.$el]);
 
-        if (!vm._children) return;
+        if (!vm.$children) return;
 
-        for (var i = 0, l = vm._children.length; i < l; i++) {
-            childVm = vm._children[i];
+        for (var i = 0, l = vm.$children.length; i < l; i++) {
+            childVm = vm.$children[i];
             compilers.compileViewModels(childVm);
         }
     },

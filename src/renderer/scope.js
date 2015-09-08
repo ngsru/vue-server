@@ -82,8 +82,8 @@ var scope = {
         vm._eventsCount = {};
         vm._eventCancelled = false;
 
-        vm._children = null;
-        vm._childrenReady = 0;
+        vm.$children = null;
+        vm.$childrenReady = 0;
         vm._isCompiled = false;
         vm._isReady = false;
         vm.isServer = true;
@@ -123,18 +123,6 @@ var scope = {
         common.extend(vm, scope.initData(vm));
 
         if (contexts.repeatData) {
-            if (contexts.repeatIndex !== undefined) {
-                vm.$index = contexts.repeatIndex;
-            }
-
-            if (contexts.repeatKey !== undefined) {
-                vm.$key = contexts.repeatKey;
-            }
-
-            if (contexts.repeatValue !== undefined) {
-                vm.$value = contexts.repeatValue;
-            }
-
             common.extend(vm, contexts.repeatData);
         }
 
@@ -271,10 +259,10 @@ var scope = {
 
 
             if (options.childIndex !== undefined) {
-                this._children[options.childIndex] = newVm;
+                this.$children[options.childIndex] = newVm;
             } else {
-                this._children = this._children || [];
-                this._children.push(newVm);
+                this.$children = this.$children || [];
+                this.$children.push(newVm);
             }
             
 
@@ -307,8 +295,8 @@ var scope = {
         vm._eventsCount = {};
         vm._eventCancelled = false;
 
-        vm._children = null;
-        vm._childrenReady = 0;
+        vm.$children = null;
+        vm.$childrenReady = 0;
         vm._isReady = false;
         vm.$el._componentsDetached = vm.$el._components;
         vm.$el._components = {};
@@ -540,12 +528,12 @@ var scope = {
 
 
     eventBroadcast: function(vm, params) {
-        if (vm._children) {
-            for (var item in vm._children) {
-                if (vm._children[item]._isComponent) {
-                    vm._children[item].$emit.apply(vm._children[item], params);
+        if (vm.$children) {
+            for (var item in vm.$children) {
+                if (vm.$children[item]._isComponent) {
+                    vm.$children[item].$emit.apply(vm.$children[item], params);
                 }
-                this.eventBroadcast(vm._children[item], params);
+                this.eventBroadcast(vm.$children[item], params);
             }
         }
     },
