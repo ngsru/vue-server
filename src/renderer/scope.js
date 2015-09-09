@@ -237,6 +237,7 @@ var scope = {
 
             if (this.$el._componentsDetached && options.component) {
                 presentVm = this.$el._componentsDetached[options.element.id + options.component.name];
+                this.$el._componentsDetached[options.element.id + options.component.name] = undefined;
             }
 
             if ( !presentVm ) {
