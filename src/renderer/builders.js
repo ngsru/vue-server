@@ -73,6 +73,20 @@ var builders = {
                     };
                 }
 
+                // Конструкция <component is="{{name}}"></component>
+                if (element.name === 'component' && element.attribs.is) {
+                    element.dirs.component = {
+                        value: common.execute(vm, element.attribs.is),
+                        options: {}
+                    };
+                    element.attribs.is = undefined;
+
+                    if (element.attribs['wait-for']) {
+                        element.dirs.component.options.waitFor = element.attribs['wait-for'];
+                        element.attribs['wait-for'] = undefined;
+                    }
+                }
+
                 // v-if
                 if (element.dirs.if) {
                     var vIfResult = common.execute(vm, {

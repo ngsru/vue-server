@@ -217,6 +217,7 @@ var compilers = {
         var vModelValue;
         var attrValue;
         var selectValueMap;
+        var selectStaticOption;
 
 
         attrValue = common.execute(vm, element.attribs.value);
@@ -264,11 +265,20 @@ var compilers = {
                     isClean: false
                 });
 
+                // Запоминаем первый статичный элемент, есть он есть
+                if (element.inner[0] && element.inner[0].name === 'option') {
+                    selectStaticOption = element.inner[0];
+                }
+
                 // Перетираем любое внутренее содержимое тега <select>
                 element.inner = [];
 
+                // Вставляем первый статичный элемент обратно
+                if (selectStaticOption) {
+                    element.inner.push(selectStaticOption);
+                }
+
                 if (selectOptions) {
-                    // Пока ничего няшней не придумал. Хреначим прям тут теги (<option>)
                     for (var i = 0, l = selectOptions.length; i < l; i++) {
                         var optionItem = {
                             'type': 'tag',

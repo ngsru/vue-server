@@ -142,23 +142,21 @@ var scope = {
             builders.build(vm, function() {
                 vm._isCompiled = true;
 
+                if (contexts.waitFor) {
+                    vm.$on(contexts.waitFor, function() {
+                        scope.buildWithedData(vm, contexts);
+                        scope.pullPropsData(vm, true);
+                        scope.resetVmInstance(vm);
+                    });
+                }
+
                 // серверный Compiled
                 if (vm.$options.compiledBe) {
                     vm.$options.compiledBe.call(vm);
                 }
 
-                if (contexts.waitFor) {
-                    vm.$on(contexts.waitFor, function() {
-                        // Вообще, если раскомментить эту строчку, то произойдёт чудо и данные
-                        // переданные через v-with из контентного компонента к дочерним, изменённые в процессе
-                        // отработки хука compiled начнут автоматически просасываться внутрь.
-                        // Но мне страшно
-                        scope.buildWithedData(vm, contexts);
-                        scope.pullPropsData(vm, true);
-                        scope.resetVmInstance(vm);
-                    });
-                } else {
-                    // Её одна страшная опция. Не буду пока включать. Немного понижает производительность
+                if (!contexts.waitFor) {
+                    // Страшная опция.
                     if (vm.$options.compiledBe && vm !== vm.$root) {
                         scope.resetVmInstance(vm);
                     } else {

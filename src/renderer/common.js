@@ -2,7 +2,6 @@ var excludeInstanceOptions = {
     'data': true,
     'methods': true,
     'computed': true,
-    'paramAttributes': true,
     'props': true,
     'el': true,
     'template': true,

@@ -299,9 +299,9 @@ describe("v-component", function() {
             expect( $('#v-component .inherit-good-with .comp-own-value').text() ).toEqual( 'Component\'s 3 own value' );
         });
 
-        it("should display parent's values", function() {
-            expect( $('#v-component .inherit-good-with .comp-parent-value').text() ).toEqual( 'Parent Data present' );
-        });
+        // it("should display parent's values", function() {
+        //     expect( $('#v-component .inherit-good-with .comp-parent-value').text() ).toEqual( 'Parent Data present' );
+        // });
 
         it("should display values included by v-with", function() {
             expect( $('#v-component .inherit-good-with .comp-with-value').text() ).toEqual( 'Data to be included by v-with' );
