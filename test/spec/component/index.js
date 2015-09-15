@@ -1,4 +1,8 @@
+var fs = require('fs');
+
 module.exports = {
+    template: fs.readFileSync(__dirname + '/templates/index.html', 'utf8'),
+
     data: function() {
         return {
             content: true

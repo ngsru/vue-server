@@ -1,58 +1,12 @@
-var fs = require('fs');
-var cheerio = require('cheerio');
-var _ = require('underscore');
-var VueServer = require('../../index.js');
-var VueCompile = VueServer.compiler;
-var VueRender = VueServer.renderer;
+var wrapComponent = require('./wrapComponent.js');
 var contentComponent = require('./component');
 var $;
 
+
+
 beforeAll(function(done) {
-    (function() {
-        contentComponent.template = VueCompile( fs.readFileSync(__dirname + '/component/templates/index.html', 'utf8') );
-
-
-        var prepareComponents = function(components) {
-            _.each(components, function(component) {
-                if (component.template) {
-                   component.template = VueCompile(component.template); 
-                }
-                preparePartials(component.partials);
-
-                prepareComponents(component.components);
-            });
-        }
-
-
-        var preparePartials = function(partials) {
-            _.each(partials, function(partial, name) {
-                partials[name] = VueCompile(partial);
-            });
-        }
-
-        prepareComponents(contentComponent.components);
-        preparePartials(contentComponent.partials);
-    })();
-
-    var Vue = new VueRender();
-
-    Vue.config.silent = true;
-
-    console.time('gogo')
-    var vm = new Vue({
-        data: {
-            dynamic: 'content'
-        },
-        template: VueCompile('<div v-component="{{dynamic}}" wait-for="loaded"></div>'),
-
-        components: {
-            content: contentComponent
-        }
-    });
-
-    vm.$on('vueServer.htmlReady', function(html) {
-        console.timeEnd('gogo')
-        $ = cheerio.load(html);
+    wrapComponent(contentComponent, function(response) {
+        $ = response;
         done();
     });
 });
