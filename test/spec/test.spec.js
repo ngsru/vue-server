@@ -1,3 +1,62 @@
+var fs = require('fs');
+var cheerio = require('cheerio');
+var _ = require('underscore');
+var VueServer = require('../../index.js');
+var VueCompile = VueServer.compiler;
+var VueRender = VueServer.renderer;
+var contentComponent = require('./component');
+var $;
+
+beforeAll(function(done) {
+    (function() {
+        contentComponent.template = VueCompile( fs.readFileSync(__dirname + '/component/templates/index.html', 'utf8') );
+
+
+        var prepareComponents = function(components) {
+            _.each(components, function(component) {
+                if (component.template) {
+                   component.template = VueCompile(component.template); 
+                }
+                preparePartials(component.partials);
+
+                prepareComponents(component.components);
+            });
+        }
+
+
+        var preparePartials = function(partials) {
+            _.each(partials, function(partial, name) {
+                partials[name] = VueCompile(partial);
+            });
+        }
+
+        prepareComponents(contentComponent.components);
+        preparePartials(contentComponent.partials);
+    })();
+
+    var Vue = new VueRender();
+
+    Vue.config.silent = true;
+
+    console.time('gogo')
+    var vm = new Vue({
+        data: {
+            dynamic: 'content'
+        },
+        template: VueCompile('<div v-component="{{dynamic}}" wait-for="loaded"></div>'),
+
+        components: {
+            content: contentComponent
+        }
+    });
+
+    vm.$on('vueServer.htmlReady', function(html) {
+        console.timeEnd('gogo')
+        $ = cheerio.load(html);
+        done();
+    });
+});
+
 
 // plain - begin
 describe("In plain templating", function() {
@@ -6,11 +65,11 @@ describe("In plain templating", function() {
     });
 
     it("should set an attribute value", function() {
-        expect( $('#plain .attr-value').prop('type') ).toEqual('text');
+        expect( $('#plain .attr-value').attr('type') ).toEqual('text');
     });
 
     it("should properly set mixed attribute value", function() {
-        expect( $('#plain .attr-value').prop('type') ).toEqual('text');
+        expect( $('#plain .attr-value').attr('type') ).toEqual('text');
     });
 
 
@@ -349,13 +408,13 @@ describe("v-repeat", function() {
 
     it("should be able to use a filter", function() {
         expect( $('#v-repeat .array-filter-by').find('li').length ).toEqual(2);
-        expect( $('#v-repeat .array-filter-by').find('li:eq(1) .age').text() ).toEqual('32');
+        expect( $('#v-repeat .array-filter-by').find('li').eq(1).find('.age').text() ).toEqual('32');
     });
 
 
     it("should be able to use multiple filters", function() {
         expect( $('#v-repeat .array-filter-by-multiple').find('li').length ).toEqual(1);
-        expect( $('#v-repeat .array-filter-by-multiple').find('li:eq(0) .age').text() ).toEqual('25');
+        expect( $('#v-repeat .array-filter-by-multiple').find('li').eq(0).find('.age').text() ).toEqual('25');
     });
 
 
@@ -586,7 +645,7 @@ describe("v-model", function() {
 
     describe("in <select> with dynamic <option>s (via 'options' attribute)", function() {
         it("should remove static options", function() {
-            expect( $('#v-model .select-dyn option').eq(0).prop('value') ).not.toBe( '999' );
+            expect( $('#v-model .select-dyn option').eq(0).attr('value') ).not.toBe( '999' );
         });
 
         it("should render options and set select's value", function() {
@@ -662,14 +721,14 @@ describe("v-model", function() {
 describe("v-attr", function() {
     it("should set attributes", function() {
         var $img = $('#v-attr .simple');
-        expect( $img.prop('width') ).toEqual( 100 );
-        expect( $img.prop('height') ).toEqual( 60 );
+        expect( $img.attr('width') ).toEqual( '100' );
+        expect( $img.attr('height') ).toEqual( '60' );
     });
 
     it("should set attributes when a param provided by a method", function() {
         var $img = $('#v-attr .method');
-        expect( $img.prop('width') ).toEqual( 100 );
-        expect( $img.prop('height') ).toEqual( 60 );
+        expect( $img.attr('width') ).toEqual( '100' );
+        expect( $img.attr('height') ).toEqual( '60' );
     });
 
     it("should replace v-model value", function() {
@@ -747,7 +806,7 @@ describe("v-class", function() {
 
 
     it("should not add unnecessary whitespace in begining of class attribute", function() {
-        expect( $('#v-class-no-class').prop('class') ).not.toMatch(/^ /);
+        expect( $('#v-class-no-class').attr('class') ).not.toMatch(/^ /);
     });
 
 
@@ -821,3 +880,4 @@ describe("v-if", function() {
         expect( $('#v-if .hide-method').length ).toEqual( 0 );
     });
 });
+

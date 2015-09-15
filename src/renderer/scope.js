@@ -176,49 +176,6 @@ var scope = {
         // Прокидываем методы контроля событий
         common.extend(vm, events);
 
-        vm.$compiler = {
-            isCleanActive: false,
-            getOption: function(option, value) {
-                var filter = vm.$options.filters[value];
-                var replacement = function(v) {
-                    return v;
-                };
-
-                if (!filter) {
-                    filter = replacement;
-                    vm.$logger.warn( 'Unknown filter "' + value + '":', common.getVmPath(vm) );
-                }
-
-                if (typeof filter === 'function') {
-                    return filter;
-                } else {
-                    return filter.read || replacement;
-                }
-
-            },
-
-            cleanValue: function(value) {
-                if (this.isCleanActive) {
-                    return common.cleanValue(value);    
-                } else {
-                    return value;
-                }
-                
-            },
-
-            // Brand new strip function
-            // Better than any "replace" version;
-            escapeHtml: function(str) {
-                if (typeof str !== 'string') {
-                    return this.cleanValue(str);
-                }
-
-                return this.cleanValue(
-                    str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-                );
-            }
-        };
-
         vm.$set = function(keypath, value) {
             utils.set(this, keypath, value);
             return this;
