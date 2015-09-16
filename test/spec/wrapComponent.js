@@ -5,9 +5,13 @@ var VueServer = require('../../index.js');
 var VueCompile = VueServer.compiler;
 var VueRender = VueServer.renderer;
 
-module.exports = function(content, callback) {
+module.exports = function(content, callback, config) {
     (function() {
-        content.template = VueCompile(content.template);
+        if (typeof content.template === 'string') {
+            content.template = VueCompile(content.template);
+        } else {
+            content.template = VueCompile(fs.readFileSync(content.template.path, 'utf-8'));
+        }
 
         // Чтобы не париться на тему этого хука
         if (!content.compiledBe) {
@@ -41,6 +45,10 @@ module.exports = function(content, callback) {
     var Vue = new VueRender();
 
     Vue.config.silent = true;
+
+    if (config) {
+        _.extend(Vue.config, config);
+    }
 
     var vm = new Vue({
         data: {

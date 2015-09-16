@@ -274,52 +274,59 @@ var scope = {
     setKeyElementInner: function(vm, tpl) {
         if (tpl) {
             // Хитрый режим сочленения элементов
-            if (vm.$options.replace) {
-                for (var param in tpl[0]) {
-                    if (param === 'id') {
-                        continue;
-                    }
-                    if (param === 'dirs') {
-                        for (var dir in tpl[0].dirs) {
-                            tpl[0].dirs[dir].vm = vm;
+            if (this.config.replace || vm.$options.replace) {
+
+                // Если элемент верхнего уровня - единственный
+                if (!tpl[1]) {
+                    for (var param in tpl[0]) {
+                        if (param === 'id') {
+                            continue;
                         }
-
-                        if (vm.$el.dirs.component && tpl[0].dirs.component) {
-                            vm.$logger.warn('Invalid v-component usage because of key elements merging');
-                        }
-                        
-                        vm.$el.dirs = common.extend({}, tpl[0].dirs, vm.$el.dirs);
-                        continue;
-                    }
-
-                    if (param === 'attribs') {
-                        (function() {
-                            var elAttribs = vm.$el.attribs;
-                            vm.$el.attribs = {};
-                            vm.$el.attribsVmMap = {};
-
-                            // Сперва добавляем аттрибуты верхнего тего из шаблона комопонента
-                            for (var name in tpl[0].attribs) {
-                                vm.$el.attribs[name] = tpl[0].attribs[name];
-                                vm.$el.attribsVmMap[name] = vm;
+                        if (param === 'dirs') {
+                            for (var dir in tpl[0].dirs) {
+                                tpl[0].dirs[dir].vm = vm;
                             }
 
-                            // Потом добавляем аттрибуты ключевого элемента (на котором вызывался компонент)
-                            for (var name in elAttribs) {
-                                vm.$el.attribs[name] = elAttribs[name];
-                                vm.$el.attribsVmMap[name] = vm.$parent;
+                            if (vm.$el.dirs.component && tpl[0].dirs.component) {
+                                vm.$logger.warn('Invalid v-component usage because of key elements merging');
                             }
-                        })();
-                        continue;
+                            
+                            vm.$el.dirs = common.extend({}, tpl[0].dirs, vm.$el.dirs);
+                            continue;
+                        }
+
+                        if (param === 'attribs') {
+                            (function() {
+                                var elAttribs = vm.$el.attribs;
+                                vm.$el.attribs = {};
+                                vm.$el.attribsVmMap = {};
+
+                                // Сперва добавляем аттрибуты верхнего тего из шаблона комопонента
+                                for (var name in tpl[0].attribs) {
+                                    vm.$el.attribs[name] = tpl[0].attribs[name];
+                                    vm.$el.attribsVmMap[name] = vm;
+                                }
+
+                                // Потом добавляем аттрибуты ключевого элемента (на котором вызывался компонент)
+                                for (var name in elAttribs) {
+                                    vm.$el.attribs[name] = elAttribs[name];
+                                    vm.$el.attribsVmMap[name] = vm.$parent;
+                                }
+                            })();
+                            continue;
+                        }
+
+                        vm.$el[param] = tpl[0][param];
                     }
-
-                    vm.$el[param] = tpl[0][param];
+                    
+                // Если элементов верхнего уровня домуя
+                } else {
+                    vm.$el.name = 'partial';
+                    vm.$el.attribs = {};
+                    vm.$el.dirs = {};
+                    vm.$el.inner = tpl;
                 }
 
-                if (tpl[1]) {
-                    vm.$logger.warn('The component\'s template has more then one top level element. They won\'t be compiled properly', vm.nestingPath);
-                }
-                // vm.$el.replaced = true;
             } else {
                 vm.$el.inner = tpl;
             }

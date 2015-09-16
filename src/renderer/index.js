@@ -30,6 +30,7 @@ var VueRender = function(logger) {
 
 
         scope.$logger = that.logger;
+        scope.config = this.config;
         renders.$logger = that.logger;
 
         vm = scope.initViewModel({
@@ -84,7 +85,8 @@ var VueRender = function(logger) {
 
     makeRootVm.prototype.config = {
         debug: false,
-        silent: false
+        silent: false,
+        replace: false
     };
 
     makeRootVm.prototype.component = this.component;

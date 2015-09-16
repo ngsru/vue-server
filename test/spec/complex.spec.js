@@ -743,9 +743,9 @@ describe("v-style", function() {
     });
 
 
-    // it("should replace display value from v-show", function() {
-    //     expect( $('#v-style .replace-v-show').css('display') ).toEqual('inline-block');
-    // });
+    it('should handle style object', function() {
+        expect( $('#v-style .object').css('color') ).toEqual('red');
+    });
 });
 
 

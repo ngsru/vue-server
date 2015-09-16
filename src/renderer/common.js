@@ -55,7 +55,7 @@ var common = {
     execute: function(vm, value, options) {
         var result = '';
 
-        if (typeof value === 'object') {
+        if (typeof value === 'object' && value !== null) {
             if (Array.isArray(value)) {
                 for (var i = 0; i < value.length; i++) {
                     result += this.executeSingle(vm, value[i], options);

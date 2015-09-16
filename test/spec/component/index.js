@@ -1,7 +1,5 @@
-var fs = require('fs');
-
 module.exports = {
-    template: fs.readFileSync(__dirname + '/templates/index.html', 'utf8'),
+    template: {path: __dirname + '/templates/index.html'},
 
     data: function() {
         return {
@@ -225,7 +223,11 @@ module.exports = {
         this.vStyle = {
             display: 'inline-block',
             position: 'relative',
-            hide: false
+            hide: false,
+            object: {
+                color: 'red',
+                display: 'inline-block'
+            }
         };
 
         this.vClass = {
