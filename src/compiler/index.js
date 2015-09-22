@@ -20,40 +20,12 @@ var directiveOptions = {
     'v-component': ['wait-for', 'keep-alive', 'transition-mode', 'inline-template']
 };
 
-
-var tools = {
-    exp: require('./exp-parser.js'),
-    text: require('./text-parser.js'),
-    directive: require('./directive.js')
-};
-
-
-
 var parsers = {
     directive: require('./../parsers/directive'),
     expression: require('./../parsers/expression'),
     path: require('./../parsers/path'),
     text: require('./../parsers/text')
 };
-
-
-
-var compileExpr = function(text) {
-    text = text.replace(/\n|\r|\t/g, ' ');
-    var expr = tools.text.parseAttr(text);
-    var fn;
-
-    if (expr) {
-        fn = tools.exp.parse(expr);
-    }
-
-    if (!fn) {
-        fn = new Function('return "' + text + '";');
-    }
-
-    return fn;
-};
-
 
 var tokensToFn = function(tokens) {
     var expr = parsers.text.tokensToExp(tokens);

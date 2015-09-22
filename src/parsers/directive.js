@@ -4,6 +4,8 @@ var cache = new Cache(1000)
 var argRE = /^[^\{\?]+$|^'[^']*'$|^"[^"]*"$/
 var filterTokenRE = /[^\s'"]+|'[^']+'|"[^"]+"/g
 var reservedArgRE = /^in$|^-?\d+/
+var Entities = require('html-entities').AllHtmlEntities;
+entities = new Entities();
 
 /**
  * Parser state
@@ -52,6 +54,13 @@ function pushFilter () {
     filter.name = tokens[0]
     if (tokens.length > 1) {
       filter.args = tokens.slice(1).map(processFilterArg)
+      // Превращаем веб-символы в обычные символы
+      if (filter.args) {
+          filter.args = filter.args.map(function(value) {
+            value.value = entities.decode(value.value);
+            return value;
+          });
+      }
     }
   }
   if (filter) {
