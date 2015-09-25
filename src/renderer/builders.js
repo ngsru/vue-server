@@ -66,12 +66,27 @@ var builders = {
             if (element.type === 'tag') {
 
                 // trying to check for custom-tag component
-                if (vm.$options.components[element.name]) {
-                    element.dirs.component = {
-                        value: element.name,
-                        options: {}
-                    };
-                }
+                // <comp-name></comp-name>
+                (function() {
+                    var name;
+                    var cameledName;
+                    if (vm.$options.components[element.name]){
+                        name = element.name
+                    } else {
+                        cameledName = common.dashToCamelCase(element.name);
+                        if (vm.$options.components[cameledName]) {
+                            name = cameledName;
+                        }
+                    }
+
+                    if (name) {
+                        element.dirs.component = {
+                            value: name,
+                            options: {}
+                        };
+                    }
+                })();
+
 
                 // Конструкция <component is="{{name}}"></component>
                 if (element.name === 'component' && element.attribs.is) {

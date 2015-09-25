@@ -524,8 +524,8 @@ var scope = {
 
     pullPropsDataItem: function(vm, name, config) {
         var ownDataPropsNames = vm.$options.dataNames;
-        var attrName = common.toDashCase(name);
-        var propName = common.toCamelCase(name);
+        var attrName = common.camelToDashCase(name);
+        var propName = common.dashToCamelCase(name);
         var descriptor;
 
         // Небольшой костыль, чтобы с точки входа контентного компонента

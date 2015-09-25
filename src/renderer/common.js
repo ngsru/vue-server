@@ -348,13 +348,13 @@ var common = {
     },
 
 
-    toCamelCase: function(value) {
+    dashToCamelCase: function(value) {
         return value.replace(/-(\w)/g, function(a, b){
             return b.toUpperCase();
         });
     },
 
-    toDashCase: function(value) {
+    camelToDashCase: function(value) {
         return value.replace(/[A-Z]/g, function(a) { return '-' + a.toLowerCase() });
     }
 }
