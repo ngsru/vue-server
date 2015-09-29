@@ -175,7 +175,7 @@ var common = {
         if (!vm.$parent) {
             return '$root'
         } else {
-           return vm.nestingPath ? vm.nestingPath : (vm.$parent.nestingPath + '>>RepeatItem');
+           return vm.logName;
         }
     },
 
@@ -219,74 +219,7 @@ var common = {
             })();
         };
 
-
-
-
-
-
-        // var mixingParams = {
-        //     createdBe: true,
-        //     compiledBe: true
-        // };
-
-
-
-        // for (var name in mixingParams) {
-        //     if (options[name]) {
-        //         (function() {
-        //             var fn = options[name];
-        //             options[name] = [fn];
-        //         })();
-        //     }
-        // }
-
-
-        // Реализация примесей
-        if (options.mixins && Array.isArray(options.mixins)) {
-            (function() {
-                var mixed = {
-                    data: null,
-                    createdBe: null,
-                    compiledBe: null
-                };
-
-                var selfParams = {};
-
-                for (var param in mixed) {
-                    if (options[param]) {
-                        selfParams[param] = options[param];
-                    }
-                }
-
-                options.mixins.push(selfParams);
-
-                options.mixins.forEach(function (item) {
-                    for (var param in mixed) {
-                        if (item[param] && typeof item[param] === 'function') {
-                            if (mixed[param]) {
-                                var mixedFn = mixed[param];
-                                var newFn = item[param];
-                                mixed[param] = new Function([
-                                    'var result = ' + mixedFn.toString() + '.call(this);',
-                                    'var data = ' + newFn.toString() + '.call(this);',
-                                    'for (var item in data) {',
-                                        'result[item] = data[item]',
-                                    '};',
-                                    'return result;'
-                                ].join(''))
-                            } else {
-                                mixed[param] = item[param];
-                            }
-                        }
-                    }
-                });
-
-                common.extend(options, mixed);
-            })();
-        }
-
         return {options: options, rawVm: rawVm};
-
     },
 
 

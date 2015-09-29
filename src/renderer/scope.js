@@ -66,7 +66,6 @@ var scope = {
         options.components = common.extend({}, contexts.components, options.components);
 
 
-        vm.logName = options.logName;
         vm.$logger = this.$logger;
 
         vm.$ = {};
@@ -126,15 +125,27 @@ var scope = {
             common.extend(vm, contexts.repeatData);
         }
 
+
+        // миксины серверного Created
+        if (vm.$options.mixins) {
+            for (var i = 0; i < vm.$options.mixins.length; i++) {
+                if (vm.$options.mixins[i].createdBe) {
+                    vm.$options.mixins[i].createdBe.call(vm);
+                }
+            }
+        }
+
         // серверный Created
         if (vm.$options.createdBe) {
             vm.$options.createdBe.call(vm);
         }
 
+
         scope.buildWithedData(vm, contexts);
         scope.buildComputedProps(vm);
 
         process.nextTick(function() {
+            var isCompiledBePresent = false;
             if (vm.styles) {
                 vm.$root.$emit('_vueServer.populateStyles', vm.styles);
             }
@@ -150,14 +161,28 @@ var scope = {
                     });
                 }
 
+
+                // миксины серверного Compiled
+                if (vm.$options.mixins) {
+                    for (var i = 0; i < vm.$options.mixins.length; i++) {
+                        if (vm.$options.mixins[i].compiledBe) {
+                            isCompiledBePresent = true;
+                            vm.$options.mixins[i].compiledBe.call(vm);
+                        }
+                 
+                    }
+                }
+
                 // серверный Compiled
                 if (vm.$options.compiledBe) {
+                    isCompiledBePresent = true;
                     vm.$options.compiledBe.call(vm);
                 }
 
+
                 if (!contexts.waitFor) {
                     // Страшная опция.
-                    if (vm.$options.compiledBe && vm !== vm.$root) {
+                    if (isCompiledBePresent && vm !== vm.$root) {
                         scope.resetVmInstance(vm);
                     } else {
                         vm._isReady = true;
@@ -411,27 +436,49 @@ var scope = {
 
     // Выставляем контекст данных с проверкой на валидность этих данных
     initData: function(vm) {
-        var result = {};
-        if (vm.$options.data) {
-            var dataType = typeof vm.$options.data;
-            if (
-                !vm.$parent &&
-                dataType === 'object' &&
-                vm.$options.data instanceof Array !== true
-            ) {
-                return vm.$options.data;
-            }
+        var ownData = scope.initDataUnit(vm, vm.$options.data);
+        var mixinResults;
+        var result
 
-            if (dataType !== 'function') {
-                vm.$logger.warn( 'The "data" option type is not valid: ' + common.getVmPath(vm) );
-            } else {
-                result = vm.$options.data.call(vm) || {};
-                vm.$options.dataNames = Object.keys(result);
+        if (vm.$options.mixins) {
+            mixinResults = [];
+            for (var i = vm.$options.mixins.length - 1; i >= 0; i--) {
+                if (vm.$options.mixins[i].data) {
+                    mixinResults.push( scope.initDataUnit(vm, vm.$options.mixins[i].data) );
+                }
+            };
 
-                return result;
-            }
+            mixinResults = mixinResults.reverse();
+            mixinResults.push(ownData);
+            result = common.extend.apply(common, mixinResults);
+        } else {
+            result = ownData;
         }
 
+        vm.$options.dataNames = Object.keys(result);
+
+        return result;
+    },
+
+
+    initDataUnit: function(vm, data) {
+        var result = {};
+        if (data) {
+            var dataType = typeof data;
+            if (
+                dataType === 'object' &&
+                !vm.$parent &&
+                data instanceof Array !== true
+            ) {
+                return data;
+            }
+
+            if (dataType === 'function') {
+                result = data.call(vm) || {};
+            } else {
+                vm.$logger.warn( 'The "data" option type is not valid: ' + common.getVmPath(vm) );
+            }
+        }
         return result;
     },
 
