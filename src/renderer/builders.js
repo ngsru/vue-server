@@ -4,7 +4,7 @@ var common = require('./common.js');
 var builders = {
     build: function(vm, callback) {
         if (!vm.$el) {
-            vm.$logger.error( 'No $el in ViewModel: ' + common.getVmPath(vm) );
+            vm.$logger.error( 'No $el in ViewModel', common.onLogMessage(vm) );
             return;
         }
 
@@ -177,11 +177,11 @@ var builders = {
         if (partial) {
             meta.onDoesExist(partial);
         } else {
-            logMsg = 'There is no partial "' + partialName + '": ' + common.getVmPath(vm);
+            logMsg = 'There is no partial "' + partialName + '"';
             if (meta.partialName) {
-                vm.$logger.warn( logMsg );
+                vm.$logger.warn( logMsg, common.onLogMessage(vm) );
             } else {
-                vm.$logger.debug( logMsg );
+                vm.$logger.debug( logMsg, common.onLogMessage(vm) );
             }
             meta.onDoesNotExist();
         }
@@ -212,7 +212,7 @@ var builders = {
         try {
             value = common.applyFilters(vm, dir.filters, value);    
         } catch(e) {
-            vm.$logger.warn(e);
+            vm.$logger.warn( e, common.onLogMessage(vm) );
         }
 
         return value;
@@ -359,6 +359,7 @@ var builders = {
             options.waitFor = element.dirs.component.options.waitFor;
         }
 
+
         if (element.dirs.ref) {
             options.ref = element.dirs.ref.value;
         }
@@ -381,16 +382,16 @@ var builders = {
 
 
     logComponentResolveError: function(vm, element, componentName, reason) {
-        var logMessage = 'Failed to resolve component: "' + componentName +'"  (parent: ' + common.getVmPath(vm) + ')';
+        var logMessage = 'Failed to resolve component: "' + componentName +'"';
 
         if (reason) {
             logMessage += '. Reason: ' + reason;
         }
 
         if (componentName) {
-            vm.$logger.warn(logMessage);
+            vm.$logger.warn( logMessage, common.onLogMessage(vm) );
         } else {
-            vm.$logger.debug(logMessage);
+            vm.$logger.debug( logMessage, common.onLogMessage(vm) );
         }
     }
 

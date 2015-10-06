@@ -303,46 +303,8 @@ var scope = {
 
                 // Если элемент верхнего уровня - единственный
                 if (!tpl[1]) {
-                    for (var param in tpl[0]) {
-                        if (param === 'id') {
-                            continue;
-                        }
-                        if (param === 'dirs') {
-                            for (var dir in tpl[0].dirs) {
-                                tpl[0].dirs[dir].vm = vm;
-                            }
-
-                            if (vm.$el.dirs.component && tpl[0].dirs.component) {
-                                vm.$logger.warn('Invalid v-component usage because of key elements merging');
-                            }
-                            
-                            vm.$el.dirs = common.extend({}, tpl[0].dirs, vm.$el.dirs);
-                            continue;
-                        }
-
-                        if (param === 'attribs') {
-                            (function() {
-                                var elAttribs = vm.$el.attribs;
-                                vm.$el.attribs = {};
-                                vm.$el.attribsVmMap = {};
-
-                                // Сперва добавляем аттрибуты верхнего тего из шаблона комопонента
-                                for (var name in tpl[0].attribs) {
-                                    vm.$el.attribs[name] = tpl[0].attribs[name];
-                                    vm.$el.attribsVmMap[name] = vm;
-                                }
-
-                                // Потом добавляем аттрибуты ключевого элемента (на котором вызывался компонент)
-                                for (var name in elAttribs) {
-                                    vm.$el.attribs[name] = elAttribs[name];
-                                    vm.$el.attribsVmMap[name] = vm.$parent;
-                                }
-                            })();
-                            continue;
-                        }
-
-                        vm.$el[param] = tpl[0][param];
-                    }
+                    vm.$el.name = '$merge'
+                    vm.$el.inner = tpl;
                     
                 // Если элементов верхнего уровня домуя
                 } else {
@@ -476,7 +438,7 @@ var scope = {
             if (dataType === 'function') {
                 result = data.call(vm) || {};
             } else {
-                vm.$logger.warn( 'The "data" option type is not valid: ' + common.getVmPath(vm) );
+                vm.$logger.warn( 'The "data" option type is not valid', common.onLogMessage(vm) );
             }
         }
         return result;
@@ -488,12 +450,12 @@ var scope = {
             templateFn = vm.$options.template;
 
         if (!templateFn) {
-            this.$logger.debug('No "template" option: ' + common.getVmPath(vm));
+            this.$logger.debug( 'No "template" option provided', common.onLogMessage(vm) );
             return template;
         }
 
         if (typeof templateFn !== 'function') {
-            this.$logger.warn('"template" option type is not valid (' + typeof templateFn + '): ' + common.getVmPath(vm));
+            this.$logger.warn( '"template" option type is not valid (' + typeof templateFn + ')', common.onLogMessage(vm) );
             return template;
         }
 
@@ -639,14 +601,17 @@ var scope = {
                         } else {
                             type = value.constructor.name;
                         }
-                        vm.$logger.warn('Invalid prop: type check failed for "' + propName + '". Expected ' + descriptor.type.name + ', got ' + type);
+                        vm.$logger.warn(
+                            'Invalid prop: type check failed for "' + propName + '". Expected ' + descriptor.type.name + ', got ' + type,
+                            common.onLogMessage(vm)
+                        );
                         return;
                     }
                 }
 
                 // Валидация данных
                 if (rawValue && descriptor.validator && !descriptor.validator(value)) {
-                    vm.$logger.warn('Invalid prop: custom validator check failed for "' + propName + '"');
+                    vm.$logger.warn( 'Invalid prop: custom validator check failed for "' + propName + '"', common.onLogMessage(vm) );
                     return;
                 }
             }

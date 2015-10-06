@@ -16,6 +16,8 @@ var renders = {
             if (element.type === 'tag') {
                 if ((element.name === 'template' && _.size(element.dirs)) || element.name === 'partial') {
                     html += renders.renderTemplate(element.inner);
+                } else if (element.name === '$merge') { 
+                    html += renders.renderMergedTags(element);
                 } else {
                     html += renders.renderTag(element);
                 }
@@ -66,6 +68,45 @@ var renders = {
         }
 
         return tag;
+    },
+
+
+    renderMergedTags: function(element) {
+        var elementChild = element.inner[0];
+
+        element.inner = elementChild.inner;
+        element.name = elementChild.name;
+
+        for (var key in elementChild.attribs) {
+            if (
+                elementChild.attribs[key] === undefined ||
+                elementChild.attribs[key] === false ||
+                elementChild.attribs[key] === null
+            ) {
+                continue;
+            }
+
+            if (key === 'class' || key === 'style') {
+                renders.mergeAttribute(element, elementChild, key);
+                continue;
+            }
+
+            element.attribs[key] = elementChild.attribs[key];
+
+        }
+
+        return renders.renderTag(element);
+    },
+
+
+    mergeAttribute: function(element, elementChild, name) {
+        if (element.attribs[name] && elementChild.attribs[name]) {
+            element.attribs[name] = elementChild.attribs[name] + ' ' + element.attribs[name];
+        }
+        
+        if (!element.attribs[name] && elementChild.attribs[name]) {
+            element.attribs[name] = elementChild.attribs[name];
+        }
     }
 
 }

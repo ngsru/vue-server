@@ -86,7 +86,8 @@ var VueRender = function(logger) {
     makeRootVm.prototype.config = {
         debug: false,
         silent: false,
-        replace: false
+        replace: false,
+        onLogMessage: null
     };
 
     makeRootVm.prototype.component = this.component;

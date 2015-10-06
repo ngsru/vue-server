@@ -39,8 +39,7 @@ var common = {
             try {
                 result = value.call(vm, vm);
             } catch(e) {
-                vm.$logger.warn('Error executing expression [begin]');
-                vm.$logger.warn(common.getVmPath(vm));
+                vm.$logger.warn('Error executing expression [begin]', common.onLogMessage(vm));
                 vm.$logger.warn(e.toString());
                 vm.$logger.warn(value.toString());
                 vm.$logger.warn('Error executing expression [end]');
@@ -75,7 +74,7 @@ var common = {
         try {
             value = this.applyFilters(vm, config.filters, value);
         } catch(e) {
-            vm.$logger.warn('Error executing filter:', e.toString());
+            vm.$logger.warn( 'Error executing filter:', e.toString(), common.onLogMessage(vm) );
         } 
         
         if (options) {
@@ -111,7 +110,7 @@ var common = {
         };
 
         if (!filter) {
-            vm.$logger.warn( 'Unknown filter "' + meta.name + '":', common.getVmPath(vm) );
+            vm.$logger.warn( 'Unknown filter "' + meta.name + '"', common.onLogMessage(vm) );
             filter = replacement;
         }
 
@@ -176,6 +175,12 @@ var common = {
             return '$root'
         } else {
            return vm.logName;
+        }
+    },
+
+    onLogMessage: function(vm) {
+        if (vm.$logger._config.onLogMessage) {
+            return vm.$logger._config.onLogMessage(vm);
         }
     },
 

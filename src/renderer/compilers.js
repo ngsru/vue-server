@@ -113,13 +113,7 @@ var compilers = {
 
             // Компилируем аттрибуты тега
             for (var key in element.attribs) {
-                var vmForAttr;
-                if (element.attribsVmMap) {
-                    vmForAttr = element.attribsVmMap[key];
-                } else {
-                    vmForAttr = vm;
-                }
-                element.attribs[key] = common.execute(vmForAttr, element.attribs[key]);
+                element.attribs[key] = common.execute(vm, element.attribs[key]);
             }
 
             compilers._compileAttributeDirectives(vm, element);
@@ -139,7 +133,6 @@ var compilers = {
         // v-class
         if (element.dirs.class) {
             var classList;
-            var vClassVm = element.dirs.class.vm ? element.dirs.class.vm : vm;
             var vClassItem;
 
             if (element.attribs.class) {
@@ -156,14 +149,14 @@ var compilers = {
                 for (var i = 0; i < element.dirs.class.value.length; i++) {
                     vClassItem = element.dirs.class.value[i];
 
-                    if ( common.execute(vClassVm, {value: vClassItem.get}) ) {
+                    if ( common.execute(vm, {value: vClassItem.get}) ) {
                         classList.push(vClassItem.arg);
                     }
                 };
 
             // Когда переданы объектом
             } else {
-                var vClassItem = common.execute(vClassVm, {value: element.dirs.class.value.get});
+                var vClassItem = common.execute(vm, {value: element.dirs.class.value.get});
 
                 for (var name in vClassItem) {
                     if (vClassItem[name]) {
@@ -177,20 +170,25 @@ var compilers = {
         
         // v-style && v-show
         var styles = {};
+        var originalStyle = element.attribs.style;
+        if (originalStyle) {
+            originalStyle = cssParser.parse(originalStyle);
+        }
+
         if (element.dirs.style && element.dirs.show) {
             // Правильность применения стилей от данных директив
             // должна зависеть от порядка их объявления в теге
             if (element.dirs.style.order < element.dirs.show.order) {
-                _.extend(
+                common.extend(
                     styles,
                     compilers._compileDirectiveStyle(vm, element),
-                    compilers._compileDirectiveShow(vm, element)
+                    compilers._compileDirectiveShow(vm, element, originalStyle)
                 );
                 
             } else {
-                _.extend(
+                common.extend(
                     styles,
-                    compilers._compileDirectiveShow(vm, element),
+                    compilers._compileDirectiveShow(vm, element, originalStyle),
                     compilers._compileDirectiveStyle(vm, element)
                 );
             }
@@ -201,12 +199,15 @@ var compilers = {
 
         // v-show
         } else if (element.dirs.show) {
-            styles = compilers._compileDirectiveShow(vm, element);
+            styles = compilers._compileDirectiveShow(vm, element, originalStyle);
         }
 
-
         if ( _.size(styles) ) {
-            element.attribs.style = cssParser.stringify(styles);
+            if (originalStyle) {
+                element.attribs.style = cssParser.stringify(common.extend(originalStyle, styles));
+            } else {
+                element.attribs.style = cssParser.stringify(styles);
+            }
         }
     },
 
@@ -332,15 +333,14 @@ var compilers = {
 
     // v-style
     _compileDirectiveStyle: function(vm, element) {
-        var vStyleVm = element.dirs.style.vm ? element.dirs.style.vm : vm;
         var styleObject = {};
 
         if ( Array.isArray(element.dirs.style.value) ) {
             element.dirs.style.value.forEach(function (item) {
-                styleObject[item.arg] = common.getValue(vStyleVm, item.get);
+                styleObject[item.arg] = common.getValue(vm, item.get);
             });
         } else {
-            styleObject = common.getValue(vStyleVm, element.dirs.style.value.get);
+            styleObject = common.getValue(vm, element.dirs.style.value.get);
         }
 
         return styleObject;
@@ -348,16 +348,10 @@ var compilers = {
 
 
     // v-show
-    _compileDirectiveShow: function(vm, element) {
-        var vShowVm = element.dirs.show.vm ? element.dirs.show.vm : vm;
+    _compileDirectiveShow: function(vm, element, originalStyle) {
         var elStyles = {};
-
-        if (element.attribs.style) {
-            elStyles = cssParser.parse(element.attribs.style);
-        }
-
-        var isToShow = common.getValue(vShowVm, element.dirs.show.value.get);
-        if (isToShow && elStyles.display === 'none') {    
+        var isToShow = common.getValue(vm, element.dirs.show.value.get);
+        if (isToShow && originalStyle && originalStyle.display === 'none') {    
             elStyles.display = '';
         }
 
