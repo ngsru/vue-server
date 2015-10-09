@@ -248,6 +248,24 @@ var Compile = function(template) {
                 var attribsCounter = 0;
 
                 _.each(attribs, function(value, name) {
+                    if (name.match(/^v-bind:(.+)/) || name.match(/^:(.+)/)) {
+                        (function() {
+                            var attr = name.match(/:(.+)/)[1];
+
+                            element.dirs.bind = element.dirs.bind || [];
+
+                            var dirValue = parseDirective(attribs[name]);
+
+                            if (dirValue) {
+                                element.dirs.bind.push({
+                                    name: attr,
+                                    value: dirValue[0]
+                                });
+                            }
+                        })();
+                    }
+
+
                     if (name === 'v-text') {
                         var vTextDir = parseDirective(attribs['v-text']);
                         if (vTextDir) {
@@ -414,6 +432,7 @@ var Compile = function(template) {
                     // Удаляем из дерева vue-директивы кроме v-clock (нефиг их рендерить)
                     if ( 
                         ( !name.match(/^v-/) || name.match(/^v-cloak$/) ) &&
+                        !name.match(/^:(.+)/) &&
                         !attribsForExclude[name]
                     ) {
                         element.attribs[name] = getMetaValue(value);

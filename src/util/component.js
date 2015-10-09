@@ -9,24 +9,66 @@ var _ = require('./index')
  * @return {String|undefined}
  */
 
-exports.commonTagRE = /^(div|p|span|img|a|br|ul|ol|li|h1|h2|h3|h4|h5|code|pre)$/
-exports.checkComponent = function (el, options) {
+exports.commonTagRE = /^(div|p|span|img|a|b|i|br|ul|ol|li|h1|h2|h3|h4|h5|h6|code|pre|table|th|td|tr|form|label|input|select|option|nav|article|section|header|footer)$/
+exports.checkComponent = function (el, options, hasAttrs) {
   var tag = el.tagName.toLowerCase()
-  if (tag === 'component') {
-    // dynamic syntax
-    var exp = el.getAttribute('is')
-    el.removeAttribute('is')
-    return exp
-  } else if (
-    !exports.commonTagRE.test(tag) &&
-    _.resolveAsset(options, 'components', tag)
-  ) {
-    return tag
-  /* eslint-disable no-cond-assign */
-  } else if (tag = _.attr(el, 'component')) {
-  /* eslint-enable no-cond-assign */
-    return tag
+  if (!exports.commonTagRE.test(tag) && tag !== 'component') {
+    if (_.resolveAsset(options, 'components', tag)) {
+      // custom element component
+      return tag
+    } else {
+      var exp = hasAttrs && checkComponentAttribute(el)
+      /* istanbul ignore if */
+      if (exp) return exp
+      if (process.env.NODE_ENV !== 'production') {
+        if (tag.indexOf('-') > -1 ||
+            /HTMLUnknownElement/.test(Object.prototype.toString.call(el))) {
+          _.warn(
+            'Unknown custom element: <' + tag + '> - did you ' +
+            'register the component correctly?'
+          )
+        }
+      }
+    }
+  } else if (hasAttrs) {
+    return checkComponentAttribute(el)
   }
+}
+
+/**
+ * Check possible component denoting attributes, e.g.
+ * is, v-bind:is and v-component.
+ *
+ * @param {Elemnent} el
+ * @return {String|null}
+ */
+
+function checkComponentAttribute (el) {
+  var exp
+  /* eslint-disable no-cond-assign */
+  if (exp = _.attr(el, 'component')) {
+  /* eslint-enable no-cond-assign */
+    if (process.env.NODE_ENV !== 'production') {
+      _.deprecation.V_COMPONENT()
+    }
+    return exp
+  }
+  // dynamic syntax
+  exp = el.getAttribute('is')
+  if (exp != null) {
+    if (process.env.NODE_ENV !== 'production' && /{{.*}}/.test(exp)) {
+      _.deprecation.BIND_IS()
+    }
+    el.removeAttribute('is')
+  } else {
+    exp = _.getBindAttr(el, 'is')
+    if (exp != null) {
+      // leverage literal dynamic for now.
+      // TODO: make this cleaner
+      exp = '{{' + exp + '}}'
+    }
+  }
+  return exp
 }
 
 /**
@@ -59,6 +101,11 @@ exports.initProp = function (vm, prop, value) {
  */
 
 exports.assertProp = function (prop, value) {
+  // if a prop is not provided and is not required,
+  // skip the check.
+  if (prop.raw === null && !prop.required) {
+    return true
+  }
   var options = prop.options
   var type = options.type
   var valid = true
@@ -87,7 +134,7 @@ exports.assertProp = function (prop, value) {
     }
   }
   if (!valid) {
-    _.warn(
+    process.env.NODE_ENV !== 'production' && _.warn(
       'Invalid prop: type check failed for ' +
       prop.path + '="' + prop.raw + '".' +
       ' Expected ' + formatType(expectedType) +
@@ -98,7 +145,7 @@ exports.assertProp = function (prop, value) {
   var validator = options.validator
   if (validator) {
     if (!validator.call(null, value)) {
-      _.warn(
+      process.env.NODE_ENV !== 'production' && _.warn(
         'Invalid prop: custom validator check failed for ' +
         prop.path + '="' + prop.raw + '"'
       )

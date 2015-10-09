@@ -80,6 +80,17 @@ var compilers = {
             if (element.dirs.model) {
                 compilers._compileDirectiveModel(vm, element);
             }
+
+
+            // v-bind
+            if (element.dirs.bind) {
+                for (var i = element.dirs.bind.length - 1; i >= 0; i--) {
+                    element.attribs[ element.dirs.bind[i].name ] = common.execute(vm, {
+                        value: element.dirs.bind[i].value.get,
+                        filters: element.dirs.bind[i].value.filters,
+                    });
+                };
+            }
             
 
             // v-text

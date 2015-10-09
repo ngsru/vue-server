@@ -13,7 +13,9 @@ exports.query = function (el) {
     var selector = el
     el = document.querySelector(el)
     if (!el) {
-      _.warn('Cannot find element: ' + selector)
+      process.env.NODE_ENV !== 'production' && _.warn(
+        'Cannot find element: ' + selector
+      )
     }
   }
   return el
@@ -44,6 +46,7 @@ exports.inDoc = function (node) {
  *
  * @param {Node} node
  * @param {String} attr
+ * @return {String|null}
  */
 
 exports.attr = function (node, attr) {
@@ -53,6 +56,41 @@ exports.attr = function (node, attr) {
     node.removeAttribute(attr)
   }
   return val
+}
+
+/**
+ * Get an attribute with colon or bind- prefix.
+ *
+ * @param {Node} node
+ * @param {String} name
+ * @return {String|null}
+ */
+
+exports.getBindAttr = function (node, name) {
+  var attr = ':' + name
+  var val = node.getAttribute(attr)
+  if (val === null) {
+    attr = config.prefix + 'bind:' + name
+    val = node.getAttribute(attr)
+  }
+  if (val !== null) {
+    node.removeAttribute(attr)
+  }
+  return val
+}
+
+var refRE = /^v-ref:/
+exports.findRef = function (node) {
+  if (node.hasAttributes()) {
+    var attrs = node.attributes
+    for (var i = 0, l = attrs.length; i < l; i++) {
+      var name = attrs[i].name
+      if (refRE.test(name)) {
+        node.removeAttribute(name)
+        return _.camelize(name.replace(refRE, ''))
+      }
+    }
+  }
 }
 
 /**
@@ -180,6 +218,9 @@ exports.removeClass = function (el, cls) {
     }
     el.setAttribute('class', cur.trim())
   }
+  if (!el.className) {
+    el.removeAttribute('class')
+  }
 }
 
 /**
@@ -202,8 +243,7 @@ exports.extractContent = function (el, asFragment) {
     el = el.content
   }
   if (el.hasChildNodes()) {
-    trim(el, el.firstChild)
-    trim(el, el.lastChild)
+    exports.trimNode(el)
     rawContent = asFragment
       ? document.createDocumentFragment()
       : document.createElement('div')
@@ -216,9 +256,20 @@ exports.extractContent = function (el, asFragment) {
   return rawContent
 }
 
-function trim (content, node) {
+/**
+ * Trim possible empty head/tail textNodes inside a parent.
+ *
+ * @param {Node} node
+ */
+
+exports.trimNode = function (node) {
+  trim(node, node.firstChild)
+  trim(node, node.lastChild)
+}
+
+function trim (parent, node) {
   if (node && node.nodeType === 3 && !node.data.trim()) {
-    content.removeChild(node)
+    parent.removeChild(node)
   }
 }
 
@@ -238,7 +289,7 @@ exports.isTemplate = function (el) {
 /**
  * Create an "anchor" for performing dom insertion/removals.
  * This is used in a number of scenarios:
- * - block instance
+ * - fragment instance
  * - v-html
  * - v-if
  * - component

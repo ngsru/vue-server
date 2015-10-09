@@ -2,10 +2,12 @@ var _ = require('../util')
 var Cache = require('../cache')
 var cache = new Cache(1000)
 var argRE = /^[^\{\?]+$|^'[^']*'$|^"[^"]*"$/
-var filterTokenRE = /[^\s'"]+|'[^']+'|"[^"]+"/g
+var filterTokenRE = /[^\s'"]+|'[^']*'|"[^"]*"/g
 var reservedArgRE = /^in$|^-?\d+/
+// @Solodovnikov - begin
 var Entities = require('html-entities').AllHtmlEntities;
 entities = new Entities();
+// @Solodovnikov - end
 
 /**
  * Parser state
@@ -54,13 +56,6 @@ function pushFilter () {
     filter.name = tokens[0]
     if (tokens.length > 1) {
       filter.args = tokens.slice(1).map(processFilterArg)
-      // Превращаем веб-символы в обычные символы
-      if (filter.args) {
-          filter.args = filter.args.map(function(value) {
-            value.value = entities.decode(value.value);
-            return value;
-          });
-      }
     }
   }
   if (filter) {
@@ -80,9 +75,12 @@ function processFilterArg (arg) {
   var stripped = reservedArgRE.test(arg)
     ? arg
     : _.stripQuotes(arg)
+  var dynamic = stripped === false
   return {
-    value: stripped || arg,
-    dynamic: !stripped
+    // @Solodovnikov - begin
+    value: dynamic ? arg : entities.decode(stripped),
+    // @Solodovnikov - end
+    dynamic: dynamic
   }
 }
 
@@ -151,6 +149,11 @@ exports.parse = function (s) {
       if (argRE.test(arg)) {
         argIndex = i + 1
         dir.arg = _.stripQuotes(arg) || arg
+
+        if (process.env.NODE_ENV !== 'production') {
+          _.deprecation.DIR_ARGS(str)
+        }
+
       }
     } else if (
       c === 0x7C && // pipe
@@ -184,5 +187,10 @@ exports.parse = function (s) {
   }
 
   cache.put(s, dirs)
+
+  if (process.env.NODE_ENV !== 'production' && dirs.length > 1) {
+    _.deprecation.MULTI_CLAUSES()
+  }
+
   return dirs
 }
