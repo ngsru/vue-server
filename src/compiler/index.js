@@ -33,13 +33,6 @@ var tokensToFn = function(tokens) {
 };
 
 
-var textToFn = function(text) {
-    var tokens = parsers.text.parse(text);
-    var expr = parsers.text.tokensToExp(tokens);
-    return parsers.expression.parse(expr).get;
-};
-
-
 var parseDirective = function(value) {
     var result = parsers.directive.parse(value);
     var error = false;
@@ -155,6 +148,13 @@ var getElementId = function() {
 
 
 
+
+var bindRE = /^:|^v-bind:/;
+var onRE = /^@/;
+var argRE = /:(.*)$/;
+
+
+
 // Конвертируем голый HTML в специальное дерево массивов-объектов
 var Compile = function(template) {
     if (template === undefined || template === null) {
@@ -248,9 +248,9 @@ var Compile = function(template) {
                 var attribsCounter = 0;
 
                 _.each(attribs, function(value, name) {
-                    if (name.match(/^v-bind:(.+)/) || name.match(/^:(.+)/)) {
+                    if (name.match(bindRE)) {
                         (function() {
-                            var attr = name.match(/:(.+)/)[1];
+                            var attr = name.match(argRE)[1].replace(/\.sync$|\.once$/, '');
 
                             element.dirs.bind = element.dirs.bind || [];
 
@@ -433,6 +433,7 @@ var Compile = function(template) {
                     if ( 
                         ( !name.match(/^v-/) || name.match(/^v-cloak$/) ) &&
                         !name.match(/^:(.+)/) &&
+                        !name.match(onRE) &&
                         !attribsForExclude[name]
                     ) {
                         element.attribs[name] = getMetaValue(value);

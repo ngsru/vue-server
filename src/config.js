@@ -1,14 +1,6 @@
 module.exports = {
 
   /**
-   * The prefix to look for when parsing directives.
-   *
-   * @type {String}
-   */
-
-  prefix: 'v-',
-
-  /**
    * Whether to print debug messages.
    * Also enables stack trace for warnings.
    *
@@ -18,12 +10,19 @@ module.exports = {
   debug: false,
 
   /**
+   * Strict mode.
+   * Disables asset lookup in the view parent chain.
+   */
+
+  strict: false,
+
+  /**
    * Whether to suppress warnings.
    *
    * @type {Boolean}
    */
 
-  silent: true,
+  silent: false,
 
   /**
    * Whether allow observer to alter data objects'
@@ -98,20 +97,61 @@ module.exports = {
 }
 
 /**
- * Interpolation delimiters.
- * We need to mark the changed flag so that the text parser
- * knows it needs to recompile the regex.
+ * The prefix to look for when parsing directives.
+ *
+ * @type {String}
+ */
+
+var prefix = 'v-'
+Object.defineProperty(module.exports, 'prefix', {
+  get: function () {
+    return prefix
+  },
+  set: function (val) {
+    prefix = val
+    if (process.env.NODE_ENV !== 'production') {
+      require('./util').deprecation.PREFIX()
+    }
+  }
+})
+
+/**
+ * Interpolation delimiters. Changing these would trigger
+ * the text parser to re-compile the regular expressions.
  *
  * @type {Array<String>}
  */
 
 var delimiters = ['{{', '}}']
+var unsafeDelimiters = ['{{{', '}}}']
+var textParser = require('./parsers/text')
+
 Object.defineProperty(module.exports, 'delimiters', {
   get: function () {
     return delimiters
   },
   set: function (val) {
     delimiters = val
-    this._delimitersChanged = true
+    var unsafeOpen = val[0].charAt(0) + val[0]
+    var unsafeClose = val[1] + val[1].slice(-1)
+    unsafeDelimiters = [unsafeOpen, unsafeClose]
+    if (process.env.NODE_ENV !== 'production') {
+      require('./util').log(
+        'Interpolation delimiters for unsafe HTML will ' +
+        'need to be configured separately as ' +
+        'Vue.config.unsafeDelimiters in 1.0.0.'
+      )
+    }
+    textParser.compileRegex()
+  }
+})
+
+Object.defineProperty(module.exports, 'unsafeDelimiters', {
+  get: function () {
+    return unsafeDelimiters
+  },
+  set: function (val) {
+    unsafeDelimiters = val
+    textParser.compileRegex()
   }
 })

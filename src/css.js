@@ -25,8 +25,8 @@ var CSSParser = {
             if (object[prop] === undefined || object[prop] === null || object[prop] === '') {
                 continue;
             }
-            // string += prop.replace(/[A-Z]/g, function(a) { return '-' + a.toLowerCase() }) + ': ' + object[prop] + '; ';
-            string += prop + ': ' + object[prop] + '; ';
+            string += prop.replace(/[A-Z]/g, function(a) { return '-' + a.toLowerCase() }) + ': ' + object[prop] + '; ';
+            // string += prop + ': ' + object[prop] + '; ';
         }
 
         return string.trim();
