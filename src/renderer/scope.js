@@ -70,6 +70,8 @@ var scope = {
 
         vm.$ = {};
         vm.$$ = {};
+        vm.$refs = {};
+        vm.$els = {};
         vm.$el = contexts.element;
         vm.$options = options;
         vm.$data = data;
@@ -248,7 +250,7 @@ var scope = {
             
 
             if (options.ref) {
-                this.$[options.ref] = newVm;
+                this[options.ref.options.target][options.ref.value] = newVm;
             }
 
             if (options.component && !options.repeatData) {

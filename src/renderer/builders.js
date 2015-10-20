@@ -366,7 +366,7 @@ var builders = {
 
 
         if (element.dirs.ref) {
-            options.ref = element.dirs.ref.value;
+            options.ref = element.dirs.ref;
         }
 
         options.component.name = componentName;

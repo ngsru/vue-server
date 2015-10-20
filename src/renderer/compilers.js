@@ -76,24 +76,6 @@ var compilers = {
         }
         
         if (element.type === 'tag') {
-            // v-bind
-            if (element.dirs.bind) {
-                for (var i = element.dirs.bind.length - 1; i >= 0; i--) {
-                    (function() {
-                        var name = element.dirs.bind[i].name;
-                        element.attribs[name] = common.execute(vm, {
-                            value: element.dirs.bind[i].value.get,
-                            filters: element.dirs.bind[i].value.filters,
-                        });
-
-                        if (name === 'style') {
-                            element.attribs[name] = cssParser.stringify(element.attribs[name]);
-                        }
-                    })();
-                };
-            }
-
-
             // v-model
             if (element.dirs.model) {
                 compilers._compileDirectiveModel(vm, element);
@@ -129,12 +111,77 @@ var compilers = {
             }
 
 
+            // v-el
+            if (element.dirs.el) {
+                // Not done yet
+            }
+
             // Компилируем аттрибуты тега
             for (var key in element.attribs) {
                 element.attribs[key] = common.execute(vm, element.attribs[key]);
             }
 
             compilers._compileAttributeDirectives(vm, element);
+
+
+
+
+            // NEW SYNTAX
+            // v-bind
+            if (element.dirs.bind) {
+                for (var i = element.dirs.bind.length - 1; i >= 0; i--) {
+                    (function() {
+                        var name = element.dirs.bind[i].name;
+                        var value = common.execute(vm, {
+                            value: element.dirs.bind[i].value.get,
+                            filters: element.dirs.bind[i].value.filters,
+                        });
+
+                        if (name === 'style') {
+                            if (Array.isArray(value)) {
+                                value = common.extend.apply(common, value);
+                            }
+                            element.attribs[name] = cssParser.stringify(value);
+
+                            return;
+                        }
+
+                        if (name === 'class') {
+                            (function() {
+                                var classList = [];
+                                var vClassItem;
+
+                                if (element.attribs.class) {
+                                    classList = element.attribs.class.split(' ');
+                                    classList = classList.filter(function (item) {
+                                        return item;
+                                    });
+                                }
+
+                                if (Array.isArray(value)) {
+                                    classList = value;
+                                } else {
+                                    for (var name in value) {
+                                        if (value[name]) {
+                                            classList.push(name);
+                                        }
+                                    }
+                                }
+
+                                element.attribs.class = _.uniq(classList).join(' ');
+                            })();
+
+                            return;
+                        }
+
+
+
+                        element.attribs[name] = value;
+                    })();
+                };
+            }
+
+
 
             element.compiled = true;
         }

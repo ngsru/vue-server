@@ -150,6 +150,8 @@ var getElementId = function() {
 
 
 var bindRE = /^:|^v-bind:/;
+var refRE = /^:|^v-ref:/;
+var elRE = /^:|^v-el:/;
 var onRE = /^@/;
 var argRE = /:(.*)$/;
 
@@ -248,6 +250,7 @@ var Compile = function(template) {
                 var attribsCounter = 0;
 
                 _.each(attribs, function(value, name) {
+                    // v-bind
                     if (name.match(bindRE)) {
                         (function() {
                             var attr = name.match(argRE)[1].replace(/\.sync$|\.once$/, '');
@@ -264,6 +267,40 @@ var Compile = function(template) {
                             }
                         })();
                     }
+
+                    // v-ref:name
+                    if (name.match(refRE)) {
+                        (function() {
+                            var ref = name.match(argRE)[1];
+
+                            if (ref) {
+                                element.dirs.ref = {
+                                    value: attribs['v-ref'],
+                                    options: {
+                                        target: '$refs'
+                                    }
+                                };
+                            }
+                        })();
+                    }
+
+                    // v-el:name
+                    if (name.match(elRE)) {
+                        (function() {
+                            var el = name.match(argRE)[1];
+
+                            if (el) {
+                                element.dirs.el = {
+                                    value: el,
+                                    options: {
+                                        target: '$els'
+                                    }
+                                };
+                            }
+                        })();
+                    }
+
+
 
 
                     if (name === 'v-text') {
@@ -411,7 +448,19 @@ var Compile = function(template) {
 
                     if (name === 'v-ref') {
                         element.dirs.ref = {
-                            value: attribs['v-ref']
+                            value: attribs['v-ref'],
+                            options: {
+                                target: '$'
+                            }
+                        };
+                    }
+
+                    if (name === 'v-el') {
+                        element.dirs.el = {
+                            value: attribs['v-el'],
+                            options: {
+                                target: '$$'
+                            }
                         };
                     }
 
