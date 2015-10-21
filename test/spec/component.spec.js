@@ -8,6 +8,7 @@ var contentComponent = {
             '<div id="directive"><div v-component="compName"></div></div>',
             '<div id="camel"><compName></compName></div>',
             '<div id="dash"><comp-name></comp-name></div>',
+            '<div id="repeat-tag"><comp-name v-repeat="arr"></comp-name></div>',
         '</div>'
     ].join(''),
     data: function() {
@@ -55,5 +56,9 @@ describe('component', function() {
 
     it('should mount via custom tag in dashed-case', function() {
         expect( $('#dash').html() ).toEqual('<i>rakushka</i>');
+    });
+
+    it('should mount via custom tag in dashed-case with v-repeat', function() {
+        expect( $('#repeat-tag').html() ).toEqual('<i>rakushka</i><i>rakushka</i><i>rakushka</i>');
     });
 });

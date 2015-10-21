@@ -71,7 +71,7 @@ var builders = {
                     var name;
                     var cameledName;
                     if (vm.$options.components[element.name]){
-                        name = element.name
+                        name = element.name;
                     } else {
                         cameledName = common.dashToCamelCase(element.name);
                         if (vm.$options.components[cameledName]) {
@@ -164,7 +164,7 @@ var builders = {
             if (element.inner && !(element._isKeyElement && !element._isReadyToBuild) ) {
                 builders.buildElements(vm, element.inner);
             }
-        };
+        }
     },
 
 
@@ -203,7 +203,7 @@ var builders = {
                         $key: prop,
                         $value: value[prop]
                     });
-                };
+                }
 
                 value = array;
             }
@@ -274,6 +274,11 @@ var builders = {
                 // Создаём клон псевдо-dom элемента
                 repeatElement = cloneElement();
                 repeatElement.dirs.repeat.isCompiled = true;
+
+                // repeatElement - репликация element, образ которого создаёт compiler
+                // Если компонент вставляется через тег, то у него изначально директива v-component не прописана
+                // и у реплицированного компонента её тоже не будет, поэтому - прокидываем
+                repeatElement.dirs.component = element.dirs.component;
                 repeatElements.push(repeatElement);
 
 
