@@ -29,14 +29,14 @@ module.exports = function(content, callback, config) {
 
                 prepareComponents(component.components);
             });
-        }
+        };
 
 
         var preparePartials = function(partials) {
             _.each(partials, function(partial, name) {
                 partials[name] = VueCompile(partial);
             });
-        }
+        };
 
         prepareComponents(content.components);
         preparePartials(content.partials);
@@ -45,6 +45,7 @@ module.exports = function(content, callback, config) {
     var Vue = new VueRender();
 
     Vue.config.silent = true;
+    Vue.config.replace = false;
 
     if (config) {
         _.extend(Vue.config, config);
@@ -65,4 +66,4 @@ module.exports = function(content, callback, config) {
         $ = cheerio.load(html);
         callback($);
     });
-}
+};

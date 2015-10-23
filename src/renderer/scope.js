@@ -42,12 +42,7 @@ var scope = {
 
         // Наследуем данные от родителя
         if (contexts.parent && options.inherit) {
-            for (var key in contexts.parent) {
-                if (scope.isSystemProp(key) || data[key] || contexts.parent.$options.methods[key]) {
-                    continue;
-                }
-                data[key] = contexts.parent[key];
-            }
+            scope.inheritData(data, contexts.parent);
         }
 
         // "Инициализируем" контекст
@@ -67,6 +62,7 @@ var scope = {
 
 
         vm.$logger = this.$logger;
+        
 
         vm.$ = {};
         vm.$$ = {};
@@ -117,13 +113,30 @@ var scope = {
 
         scope.markKeyElement(vm);
 
+
+
+
+        // Создём специальый мини скоуп данных для v-for
+        if (
+            vm._isComponent &&
+            vm.$el.dirs &&
+            vm.$el.dirs.repeat &&
+            vm.$el.dirs.repeat.options &&
+            vm.$el.dirs.repeat.options.vFor
+        ) {
+            vm._vForScope = scope.inheritData(contexts.repeatData, vm.$parent);
+        }
+
+
+
+
         // Инициализируем личные данные компонента (data)
         common.extend(vm, scope.initData(vm));
 
         // Подтягиваем данные по props
         scope.pullPropsData(vm);
 
-        if (contexts.repeatData) {
+        if (contexts.repeatData && !vm._vForScope) {
             common.extend(vm, contexts.repeatData);
         }
 
@@ -262,7 +275,7 @@ var scope = {
         vm.$nextTick = function(cb) {
             var self = this;
             process.nextTick(function() {
-                cb.call(self)
+                cb.call(self);
             });
         };
     },
@@ -294,7 +307,7 @@ var scope = {
                 vm._isReady = true;
                 vm.$root.$emit('_vueServer.tryBeginCompile');
             });
-        })
+        });
     },
 
 
@@ -311,7 +324,7 @@ var scope = {
 
                 // Если элемент верхнего уровня - единственный
                 if (!tpl[1]) {
-                    vm.$el.name = '$merge'
+                    vm.$el.name = '$merge';
                     vm.$el.inner = tpl;
                     
                 // Если элементов верхнего уровня домуя
@@ -408,7 +421,7 @@ var scope = {
     initData: function(vm) {
         var ownData = scope.initDataUnit(vm, vm.$options.data);
         var mixinResults;
-        var result
+        var result;
 
         if (vm.$options.mixins) {
             mixinResults = [];
@@ -416,7 +429,7 @@ var scope = {
                 if (vm.$options.mixins[i].data) {
                     mixinResults.push( scope.initDataUnit(vm, vm.$options.mixins[i].data) );
                 }
-            };
+            }
 
             mixinResults = mixinResults.reverse();
             mixinResults.push(ownData);
@@ -519,6 +532,7 @@ var scope = {
 
     pullPropsData: function(vm, excludeOwnDataProps) {
         var props = vm.$options.props;
+        var vForScope;
 
         if (typeof props === 'object') {
             // Если props - массив
@@ -568,8 +582,10 @@ var scope = {
             }       
         }
 
+        // Контекст для v-for
+        var parentScope = vm._vForScope ? vm._vForScope: vm.$parent;
 
-        var value = common.execute(vm.$parent, rawValue, {
+        var value = common.execute(parentScope, rawValue, {
             isEscape: false,
             isClean: false
         });
@@ -625,6 +641,18 @@ var scope = {
         } else {
             vm[propName] = value;
         }
+    },
+
+
+    inheritData: function(dataTo, dataFrom) {
+        for (var key in dataFrom) {
+            if (scope.isSystemProp(key) || dataTo[key] || dataFrom.$options.methods[key]) {
+                continue;
+            }
+            dataTo[key] = dataFrom[key];
+        }
+
+        return dataTo;
     }
 };
 

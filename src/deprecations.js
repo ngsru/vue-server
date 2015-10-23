@@ -60,10 +60,10 @@ if (process.env.NODE_ENV !== 'production') {
     },
 
     DIR_ARGS: function (exp) {
-      warn(
-        exp + ': Directive arguments will be moved into the attribute name in 1.0.0 - ' +
-        'use v-dirname:arg="expression" syntax instead.' + newBindingSyntaxLink
-      )
+      // warn(
+      //   exp + ': Directive arguments will be moved into the attribute name in 1.0.0 - ' +
+      //   'use v-dirname:arg="expression" syntax instead.' + newBindingSyntaxLink
+      // )
     },
 
     MULTI_CLAUSES: function () {

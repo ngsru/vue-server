@@ -32,6 +32,11 @@ var tokensToFn = function(tokens) {
     return parsers.expression.parse(expr).get;
 };
 
+var textToFn = function(text) {
+    var tokens = parsers.text.parse(text);
+    var expr = parsers.text.tokensToExp(tokens);
+    return parsers.expression.parse(expr).get;
+};
 
 var parseDirective = function(value) {
     var result = parsers.directive.parse(value);
@@ -54,7 +59,7 @@ var parseDirective = function(value) {
     });
 
     return result;
-}
+};
 
 var getMetaValue = function(value) {
     var result = [];
@@ -92,7 +97,7 @@ var getMetaValue = function(value) {
                     value: exp.get,
                     isEscape: token.html ? false : true,
                     isClean: true
-                }
+                };
 
                 if (parsedToken.filters) {
                     item.filters = parsedToken.filters;
@@ -126,7 +131,7 @@ var getMetaValue = function(value) {
 
         return value;
     }
-}
+};
 
 var makeTxtNode = function(current, value) {
     if (value) {
@@ -144,7 +149,7 @@ var getElementId = function() {
     var time = process.hrtime();
     result += String(time[0]).slice(5) + time[1];
     return result;
-}
+};
 
 
 
@@ -237,7 +242,7 @@ var Compile = function(template) {
                     'parent': current,
                     'close': true,
                     'pre': false
-                }
+                };
 
 
                 // Теги, которые не должны иметь закрывающего тега
@@ -299,6 +304,34 @@ var Compile = function(template) {
                             }
                         })();
                     }
+
+                    // v-for
+                    if (name === 'v-for') {
+                        var rawValue = parseDirective('item: items');
+                        (function() {
+                            var rawValue = parseDirective(attribs['v-for']);
+
+                            if (rawValue) {
+                                rawValue = rawValue[0];
+
+                                var args = rawValue.expression.split(' in ');
+
+                                element.dirs.repeat = {
+                                    value: {
+                                        arg: args[0],
+                                        expression: args[1],
+                                        get: textToFn('{{' + args[1] + '}}')
+                                    },
+                                    options: {
+                                        vFor: true
+                                    }
+                                };
+                                repeatItems.push(element);
+                            }
+                        })();
+
+                    }
+
 
 
 

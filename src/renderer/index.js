@@ -86,7 +86,7 @@ var VueRender = function(logger) {
     makeRootVm.prototype.config = {
         debug: false,
         silent: false,
-        replace: false,
+        replace: true,
         onLogMessage: null
     };
 
@@ -100,7 +100,7 @@ var VueRender = function(logger) {
     makeRootVm.config = makeRootVm.prototype.config;
 
     return makeRootVm;
-}
+};
 
 
 
@@ -121,7 +121,7 @@ VueRender.prototype._checkVmsReady = function(vm) {
     }
 
     return true;
-}
+};
 
 
 // Объявление глобальных компонентов
@@ -193,7 +193,7 @@ VueRender.prototype._initLogger = function(config, logger) {
 
             return this;
         }
-    }
+    };
 };
 
 
