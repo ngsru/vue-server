@@ -17,7 +17,7 @@ var noCloseTags = {
 var directiveOptions = {
     'v-model': ['lazy', 'number', 'options', 'debounce'],
     'v-repeat': ['track-by'],
-    'v-component': ['wait-for', 'keep-alive', 'transition-mode', 'inline-template']
+    'v-component': ['keep-alive', 'transition-mode', 'inline-template']
 };
 
 var parsers = {
@@ -280,7 +280,7 @@ var Compile = function(template) {
 
                             if (ref) {
                                 element.dirs.ref = {
-                                    value: attribs['v-ref'],
+                                    value: ref,
                                     options: {
                                         target: '$refs'
                                     }
@@ -307,7 +307,6 @@ var Compile = function(template) {
 
                     // v-for
                     if (name === 'v-for') {
-                        var rawValue = parseDirective('item: items');
                         (function() {
                             var rawValue = parseDirective(attribs['v-for']);
 
@@ -326,6 +325,11 @@ var Compile = function(template) {
                                         vFor: true
                                     }
                                 };
+
+                                if (rawValue.filters) {
+                                    element.dirs.repeat.value.filters = rawValue.filters;
+                                }
+
                                 repeatItems.push(element);
                             }
                         })();
@@ -392,10 +396,6 @@ var Compile = function(template) {
                                 element.dirs.component.value = attribs['v-component'].trim();
                             } else {
                                 element.dirs.component.value = tokensToFn(tokens);
-                            }
-
-                            if (attribs['wait-for']) {
-                                element.dirs.component.options.waitFor = attribs['wait-for'];
                             }
                         })();
                     }

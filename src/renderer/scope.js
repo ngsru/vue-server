@@ -168,7 +168,13 @@ var scope = {
             builders.build(vm, function() {
                 vm._isCompiled = true;
 
-                if (contexts.waitFor) {
+                if (vm.$options.activateBe) {
+                    vm.$options.activateBe.call(vm, function() {
+                        scope.buildWithedData(vm, contexts);
+                        scope.pullPropsData(vm, true);
+                        scope.resetVmInstance(vm);
+                    });
+                } else if (contexts.waitFor) {
                     vm.$on(contexts.waitFor, function() {
                         scope.buildWithedData(vm, contexts);
                         scope.pullPropsData(vm, true);
@@ -195,7 +201,7 @@ var scope = {
                 }
 
 
-                if (!contexts.waitFor) {
+                if (!contexts.waitFor && !vm.$options.activateBe) {
                     // Страшная опция.
                     if (isCompiledBePresent && vm !== vm.$root) {
                         scope.resetVmInstance(vm);
@@ -263,7 +269,7 @@ var scope = {
             
 
             if (options.ref) {
-                this[options.ref.options.target][options.ref.value] = newVm;
+                this[options.ref.options.target][common.dashToCamelCase(options.ref.value)] = newVm;
             }
 
             if (options.component && !options.repeatData) {

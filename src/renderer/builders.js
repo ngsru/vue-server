@@ -94,12 +94,6 @@ var builders = {
                         value: common.execute(vm, element.attribs.is),
                         options: {}
                     };
-                    element.attribs.is = undefined;
-
-                    if (element.attribs['wait-for']) {
-                        element.dirs.component.options.waitFor = element.attribs['wait-for'];
-                        element.attribs['wait-for'] = undefined;
-                    }
                 }
 
                 // v-if
@@ -308,6 +302,13 @@ var builders = {
     buildComponent: function(vm, element, options) {
         var componentName = common.getValue(vm, element.dirs.component.value);
         var component = vm.$options.components[componentName];
+
+        if (element.attribs['wait-for']) {
+            element.dirs.component.options.waitFor = element.attribs['wait-for'];
+        }
+
+        element.attribs.is = undefined;
+        element.attribs['wait-for'] = undefined;
 
         // Такой компонент есть
         if (component) {

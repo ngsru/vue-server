@@ -11,6 +11,8 @@ var excludeInstanceOptions = {
     'beforeCompile': true,
     'compiled': true,
     'compiledBe': true,
+    'activate': true,
+    'activateBe': true,
     'ready': true,
     'readyBe': true,
     'attached': true,
@@ -58,7 +60,7 @@ var common = {
             if (Array.isArray(value)) {
                 for (var i = 0; i < value.length; i++) {
                     result += this.executeSingle(vm, value[i], options);
-                };
+                }
                 return result;
             } else {
                 return this.executeSingle(vm, value, options);
@@ -97,7 +99,7 @@ var common = {
         if (filters) {
             for (var i = 0; i < filters.length; i++) {
                 value = this.applyFilter( vm, filters[i], value );
-            };
+            }
         }
 
         return value;
@@ -127,7 +129,7 @@ var common = {
                 } else {
                     args.push( vm.$get(meta.args[i].value) );
                 }
-            };
+            }
         }
 
         return filter.apply(vm, args);
@@ -154,7 +156,7 @@ var common = {
 
     isPresent: function(value) {
         if (value === undefined || value === null) {
-            return false
+            return false;
         }
 
         return true;
@@ -172,7 +174,7 @@ var common = {
 
     getVmPath: function(vm) {
         if (!vm.$parent) {
-            return '$root'
+            return '$root';
         } else {
            return vm.logName;
         }
@@ -222,7 +224,7 @@ var common = {
                     }
                 }
             })();
-        };
+        }
 
         return {options: options, rawVm: rawVm};
     },
@@ -295,6 +297,6 @@ var common = {
     camelToDashCase: function(value) {
         return value.replace(/[A-Z]/g, function(a) { return '-' + a.toLowerCase() });
     }
-}
+};
 
 module.exports = common;
