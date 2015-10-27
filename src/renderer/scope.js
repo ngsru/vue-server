@@ -115,11 +115,11 @@ var scope = {
 
         scope.markKeyElement(vm);
 
-        // Подтягиваем данные по props
-        scope.pullPropsData(vm);
-
         // Инициализируем личные данные компонента (data)
         common.extend(vm, scope.initData(vm));
+
+        // Подтягиваем данные по props
+        scope.pullPropsData(vm);
 
         if (contexts.repeatData) {
             common.extend(vm, contexts.repeatData);
@@ -417,8 +417,6 @@ var scope = {
             result = ownData;
         }
 
-        vm.$options.dataNames = Object.keys(result);
-
         return result;
     },
 
@@ -532,7 +530,6 @@ var scope = {
 
 
     pullPropsDataItem: function(vm, name, config) {
-        var ownDataPropsNames = vm.$options.dataNames;
         var attrName = common.camelToDashCase(name);
         var propName = common.dashToCamelCase(name);
         var descriptor;
@@ -546,11 +543,6 @@ var scope = {
         }
 
         var rawValue = vm.$el.props[attrName];
-
-        // Чтобы не перетереть личные данные компонента при передёргивании компонентов через wait-for
-        if (ownDataPropsNames && ownDataPropsNames.indexOf(propName) !== -1) {
-            return;
-        }
 
         // Сложный формат props (объектом)
         if (config !== undefined) {
