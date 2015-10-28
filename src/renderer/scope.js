@@ -47,13 +47,14 @@ var scope = {
 
         // "Инициализируем" контекст
         var vm = common.extend(rawVm, data);
+        vm.__states = {};
 
         if (contexts.isRepeat) {
-            vm._isRepeat = true;
+            vm.__states.isRepeat = true;
         }
 
         if (contexts.isComponent) {
-            vm._isComponent = true;
+            vm.__states.isComponent = true;
         }
 
         options.filters = common.extend({}, contexts.filters, options.filters);
@@ -88,7 +89,7 @@ var scope = {
         scope.initVmSystemMethods(vm);
 
         // Инициализация ТОЛЬКО для компонентов
-        if (vm._isComponent) {
+        if (vm.__states.isComponent) {
             var tpl = scope.initTemplate(vm);
 
             if (vm.$parent) {
@@ -118,13 +119,13 @@ var scope = {
 
         // Создём специальый мини скоуп данных для v-for
         if (
-            vm._isComponent &&
+            vm.__states.isComponent &&
             vm.$el.dirs &&
             vm.$el.dirs.repeat &&
             vm.$el.dirs.repeat.options &&
             vm.$el.dirs.repeat.options.vFor
         ) {
-            vm._vForScope = scope.inheritData(contexts.repeatData, vm.$parent);
+            vm.__states.vForScope = scope.inheritData(contexts.repeatData, vm.$parent);
         }
 
 
@@ -136,7 +137,7 @@ var scope = {
         // Подтягиваем данные по props
         scope.pullPropsData(vm);
 
-        if (contexts.repeatData && !vm._vForScope) {
+        if (contexts.repeatData && !vm.__states.vForScope) {
             common.extend(vm, contexts.repeatData);
         }
 
@@ -236,9 +237,9 @@ var scope = {
             var newVm;
             var presentVm;
 
-            if (this.$el._componentsDetached && options.component) {
-                presentVm = this.$el._componentsDetached[options.element.id + options.component.name];
-                this.$el._componentsDetached[options.element.id + options.component.name] = undefined;
+            if (this.__states.VMsDetached && options.component) {
+                presentVm = this.__states.VMsDetached[options.element.id + options.component.name];
+                this.__states.VMsDetached[options.element.id + options.component.name] = undefined;
             }
 
             if ( !presentVm ) {
@@ -251,7 +252,7 @@ var scope = {
                     }, options)
                 );
             } else {
-                options.element._components = presentVm.$el._components;
+                options.element._components = presentVm.__states.VMs;
                 presentVm.$el = options.element;
                 scope.buildWithedData(presentVm, options);
                 scope.pullPropsData(presentVm, true);
@@ -273,8 +274,8 @@ var scope = {
             }
 
             if (options.component && !options.repeatData) {
-                this.$el._components = this.$el._components || {};
-                this.$el._components[options.element.id + options.component.name] = newVm;
+                this.__states.VMs = this.__states.VMs || {};
+                this.__states.VMs[options.element.id + options.component.name] = newVm;
             }
         };
 
@@ -300,8 +301,8 @@ var scope = {
         vm.$children = null;
         vm.$childrenReady = 0;
         vm._isReady = false;
-        vm.$el._componentsDetached = vm.$el._components;
-        vm.$el._components = {};
+        vm.__states.VMsDetached = vm.__states.VMs;
+        vm.__states.VMs = {};
         var tpl = scope.initTemplate(vm);
         scope.setKeyElementInner(vm, tpl);
 
@@ -417,7 +418,7 @@ var scope = {
         // Помечаем, что элемент является ключевым для какого-то vm-а
         vm.$el._isKeyElement = true;
         vm.$el._isReadyToBuild = false;
-        if (vm._isComponent && !vm._isRepeat) {
+        if (vm.__states.isRepeat && !vm.__states.isRepeat) {
             vm.$el._compileSelfInParentVm = true;
         } 
     },
@@ -516,7 +517,7 @@ var scope = {
 
     eventDispatch: function(vm, params) {
         if (vm.$parent) {
-            if (vm.$parent._isComponent) {
+            if (vm.$parent.__states.isComponent) {
                 vm.$parent.$emit.apply(vm.$parent, params);
             }
             this.eventDispatch(vm.$parent, params);
@@ -527,7 +528,7 @@ var scope = {
     eventBroadcast: function(vm, params) {
         if (vm.$children) {
             for (var item in vm.$children) {
-                if (vm.$children[item]._isComponent) {
+                if (vm.$children[item].__states.isComponent) {
                     vm.$children[item].$emit.apply(vm.$children[item], params);
                 }
                 this.eventBroadcast(vm.$children[item], params);
@@ -589,7 +590,7 @@ var scope = {
         }
 
         // Контекст для v-for
-        var parentScope = vm._vForScope ? vm._vForScope: vm.$parent;
+        var parentScope = vm.__states.vForScope ? vm.__states.vForScope: vm.$parent;
 
         var value = common.execute(parentScope, rawValue, {
             isEscape: false,
