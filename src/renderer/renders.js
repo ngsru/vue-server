@@ -101,7 +101,7 @@ var renders = {
 
     mergeAttribute: function(element, elementChild, name) {
         if (element.attribs[name] && elementChild.attribs[name]) {
-            element.attribs[name] = elementChild.attribs[name] + ' ' + element.attribs[name];
+            element.attribs[name] = element.attribs[name] + ' ' + elementChild.attribs[name];
         }
         
         if (!element.attribs[name] && elementChild.attribs[name]) {

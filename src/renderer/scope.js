@@ -427,7 +427,7 @@ var scope = {
         // Помечаем, что элемент является ключевым для какого-то vm-а
         vm.$el._isKeyElement = true;
         vm.$el._isReadyToBuild = false;
-        if (vm.__states.isRepeat && !vm.__states.isRepeat) {
+        if (vm.__states.isComponent && !vm.__states.isRepeat) {
             vm.$el._compileSelfInParentVm = true;
         } 
     },

@@ -93,7 +93,6 @@ var compilers = {
                         isClean: true
                     })
                 );
-                
             }
 
 
@@ -144,10 +143,19 @@ var compilers = {
                         });
 
                         if (name === 'style') {
+                            // Нужно учесть собственные стили элемента
+                            var originalStyle = element.attribs.style;
+                            if (originalStyle) {
+                                originalStyle = cssParser.parse(originalStyle);
+                            } else {
+                                originalStyle = {};
+                            }
+
+                            // Обрабатываем значение, если класс пришёл в формате массива
                             if (Array.isArray(value)) {
                                 value = common.extend.apply(common, value);
                             }
-                            element.attribs[name] = cssParser.stringify(value);
+                            element.attribs[name] = cssParser.stringify(common.extend(originalStyle, value));
 
                             return;
                         }

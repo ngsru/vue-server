@@ -20,23 +20,18 @@ var VueRender = function(logger) {
 
         this.logger = this._initLogger(this.config, this._logger);
 
-        this.filters = filtersGlobal;
-        this.partials = {};
-        this.components = {};
-
         if (!instance) {
             that.logger.error('Can\'t initialize render: no root instance transmitted');
             return this;
         }
 
-
         common.$logger = that.logger;
         scope.$logger = that.logger;
         scope.config = this.config;
 
-        scope.filters = this.filters;
-        scope.partials = this.partials;
-        scope.components = this.components;
+        scope.filters = this._filters;
+        scope.partials = this._partials;
+        scope.components = this._components;
 
         renders.$logger = that.logger;
 
@@ -89,6 +84,16 @@ var VueRender = function(logger) {
         return vm;
     };
 
+    makeRootVm.component = this.component;
+    makeRootVm.filter = this.filter;
+    makeRootVm.partial = this.partial;
+    makeRootVm.prototype._components = {};
+    makeRootVm.prototype._filters = filtersGlobal;
+    makeRootVm.prototype._partials = {};
+
+    // makeRootVm.prototype._logger = logger;
+    makeRootVm.prototype._initLogger = this._initLogger;
+    makeRootVm.prototype._checkVmsReady = this._checkVmsReady;
 
     makeRootVm.prototype.config = {
         debug: false,
@@ -97,14 +102,6 @@ var VueRender = function(logger) {
         replace: true,
         onLogMessage: null
     };
-
-    makeRootVm.prototype.component = this.component;
-    makeRootVm.prototype.filter = this.filter;
-    makeRootVm.prototype.partial = this.partial;
-    makeRootVm.prototype._logger = logger;
-    makeRootVm.prototype._initLogger = this._initLogger;
-    makeRootVm.prototype._checkVmsReady = this._checkVmsReady;
-
     makeRootVm.config = makeRootVm.prototype.config;
 
     return makeRootVm;
@@ -139,7 +136,7 @@ VueRender.prototype.component = function(id, component) {
         return this;
     }
 
-    this.components[id] = component;
+    this.prototype._components[id] = component;
 
     return this;
 };
@@ -151,7 +148,7 @@ VueRender.prototype.filter = function(id, filter) {
         return this;
     }
 
-    this.filters[id] = filter;
+    this.prototype._filters[id] = filter;
 
     return this;
 };
@@ -163,7 +160,7 @@ VueRender.prototype.partial = function(id, partial) {
         return this;
     }
 
-    this.partials[id] = partial;
+    this.prototype._partials[id] = partial;
 
     return this;
 };

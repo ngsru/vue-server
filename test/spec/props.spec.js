@@ -5,13 +5,13 @@ var contentComponent = {
     data: function() {
         return {
             transmit: 'value present'
-        }
+        };
     },
     template: [
         '<div>',
             '<as-array value="{{transmit}}"></as-array>',
-            '<as-object value="{{transmit}}"></as-object>',
-            '<as-object-v-bind v-bind:value="transmit"></as-object>',
+            '<as-object id="plain" value="{{transmit}}"></as-object>',
+            '<as-object id="v-bind" v-bind:value="transmit"></as-object>',
             '<type value="{{transmit}}"></type>',
             '<type-default value="{{transmit}}"></type-default>',
             '<default-straight></default-straight>',
@@ -113,11 +113,11 @@ describe('props should be able', function() {
     });
 
     it('to work in object format', function() {
-        expect($('as-object > div').text()).toEqual('value present');
+        expect($('as-object#plain > div').text()).toEqual('value present');
     });
 
     it('to work in object format binded via v-bind', function() {
-        expect($('as-object-v-bind > div').text()).toEqual('value present');
+        expect($('as-object#v-bind > div').text()).toEqual('value present');
     });
 
     it('to use type option', function() {
