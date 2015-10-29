@@ -297,9 +297,15 @@ var scope = {
 
 
     setKeyElementInner: function(vm, tpl) {
+        var shouldReplace = this.config.replace;
+
+        if (vm.$options.replace !== undefined) {
+            shouldReplace = vm.$options.replace;
+        }
+        
         if (tpl) {
             // Хитрый режим сочленения элементов
-            if (this.config.replace || vm.$options.replace) {
+            if (shouldReplace) {
 
                 // Если элемент верхнего уровня - единственный
                 if (!tpl[1]) {
