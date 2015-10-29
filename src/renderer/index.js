@@ -19,9 +19,9 @@ var VueRender = function(logger) {
 
         this.logger = this._initLogger(this.config, this._logger);
 
-        this.components = {};
         this.filters = filtersGlobal;
         this.partials = {};
+        this.components = {};
 
         if (!instance) {
             that.logger.error('Can\'t initialize render: no root instance transmitted');
@@ -31,13 +31,18 @@ var VueRender = function(logger) {
 
         scope.$logger = that.logger;
         scope.config = this.config;
+
+        scope.filters = this.filters;
+        scope.partials = this.partials;
+        scope.components = this.components;
+
         renders.$logger = that.logger;
 
         vm = scope.initViewModel({
             parent: null,
-            filters: that.filters,
-            partials: that.partials,
-            components: that.components,
+            filters: {},
+            partials: {},
+            components: {},
             component: instance,
             isComponent: true
         });
@@ -50,7 +55,7 @@ var VueRender = function(logger) {
             .$on('_vueServer.tryBeginCompile', function() {
                 if (that._checkVmsReady(this)) {
                     if (compileInProgress) {
-                        that.logger.warn('"vueServer:action.rebuildVm" called after application finished compiling. Changes won\'t appear.');
+                        that.logger.error('Building proccess gone wrong. Some VMs finished compilation after $root Ready');
                         return;
                     }
 
@@ -86,6 +91,7 @@ var VueRender = function(logger) {
     makeRootVm.prototype.config = {
         debug: false,
         silent: false,
+        strict: false,
         replace: true,
         onLogMessage: null
     };
@@ -112,9 +118,9 @@ VueRender.prototype._checkVmsReady = function(vm) {
         return false;
     }
 
-    if (vm.$children) {
-        for (var item in vm.$children) {
-            if (!this._checkVmsReady(vm.$children[item])) {
+    if (vm.__states.children) {
+        for (var item in vm.__states.children) {
+            if (!this._checkVmsReady(vm.__states.children[item])) {
                 return false;
             }
         }

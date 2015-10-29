@@ -57,9 +57,16 @@ var scope = {
             vm.__states.isComponent = true;
         }
 
-        options.filters = common.extend({}, contexts.filters, options.filters);
-        options.partials = common.extend({}, contexts.partials, options.partials);
-        options.components = common.extend({}, contexts.components, options.components);
+
+        if (this.config.strict) {
+            options.filters = common.extend({}, this.filters, options.filters);
+            options.partials = common.extend({}, this.partials, options.partials);
+            options.components = common.extend({}, this.components, options.components);
+        } else {
+            options.filters = common.extend({}, this.filters, contexts.filters, options.filters);
+            options.partials = common.extend({}, this.partials, contexts.partials, options.partials);
+            options.components = common.extend({}, this.components, contexts.components, options.components);
+        }
 
 
         vm.$logger = this.$logger;
@@ -80,8 +87,9 @@ var scope = {
         vm._eventsCount = {};
         vm._eventCancelled = false;
 
-        vm.$children = null;
-        vm.$childrenReady = 0;
+        vm.$children = [];
+        vm.__states.children = [];
+        vm.__states.childrenReadyCount = 0;
         vm._isCompiled = false;
         vm._isReady = false;
         vm.isServer = true;
@@ -116,16 +124,19 @@ var scope = {
 
 
 
-
-        // Создём специальый мини скоуп данных для v-for
+        
         if (
-            vm.__states.isComponent &&
             vm.$el.dirs &&
             vm.$el.dirs.repeat &&
             vm.$el.dirs.repeat.options &&
             vm.$el.dirs.repeat.options.vFor
         ) {
-            vm.__states.vForScope = scope.inheritData(contexts.repeatData, vm.$parent);
+            // Создём специальый мини скоуп данных для v-for
+            if (vm.__states.isComponent) {
+                vm.__states.vForScope = scope.inheritData(contexts.repeatData, vm.$parent);
+            } else {
+                vm.__states.notPublic = true;
+            }
         }
 
 
@@ -261,13 +272,20 @@ var scope = {
             }
 
 
+            // Заморочки нужны для поддержки асинхронного компонента
+            // Его vm создаёт не сразу
             if (options.childIndex !== undefined) {
-                this.$children[options.childIndex] = newVm;
+                this.__states.children[options.childIndex] = newVm;
             } else {
-                this.$children = this.$children || [];
+                this.__states.children.push(newVm);
+            }
+
+            
+            // VM-ы от v-for не нужно добавлять в $children
+            if (!newVm.__states.notPublic) {
                 this.$children.push(newVm);
             }
-            
+
 
             if (options.ref) {
                 this[options.ref.options.target][common.dashToCamelCase(options.ref.value)] = newVm;
@@ -298,8 +316,9 @@ var scope = {
         vm._eventsCount = {};
         vm._eventCancelled = false;
 
-        vm.$children = null;
-        vm.$childrenReady = 0;
+        vm.$children = [];
+        vm.__states.children = [];
+        vm.__states.childrenReadyCount = 0;
         vm._isReady = false;
         vm.__states.VMsDetached = vm.__states.VMs;
         vm.__states.VMs = {};
@@ -352,10 +371,6 @@ var scope = {
     setSystemEventListeners: function(vm) {
         vm.$on('vueServer:action.rebuildComputed', function () {
             scope.buildComputedProps(vm);
-        });
-
-        vm.$on('vueServer:action.rebuildVm', function () {
-            scope.resetVmInstance(vm);
         });
 
         vm.$on('_vueServer.stopBuilding', function () {
@@ -512,28 +527,6 @@ var scope = {
         }
 
         return this;
-    },
-
-
-    eventDispatch: function(vm, params) {
-        if (vm.$parent) {
-            if (vm.$parent.__states.isComponent) {
-                vm.$parent.$emit.apply(vm.$parent, params);
-            }
-            this.eventDispatch(vm.$parent, params);
-        }
-    },
-
-
-    eventBroadcast: function(vm, params) {
-        if (vm.$children) {
-            for (var item in vm.$children) {
-                if (vm.$children[item].__states.isComponent) {
-                    vm.$children[item].$emit.apply(vm.$children[item], params);
-                }
-                this.eventBroadcast(vm.$children[item], params);
-            }
-        }
     },
 
 

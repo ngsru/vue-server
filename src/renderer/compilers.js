@@ -15,10 +15,10 @@ var compilers = {
 
         compilers.compileElements(vm, [vm.$el]);
 
-        if (!vm.$children) return;
+        if (!vm.__states.children) return;
 
-        for (var i = 0, l = vm.$children.length; i < l; i++) {
-            childVm = vm.$children[i];
+        for (var i = 0, l = vm.__states.children.length; i < l; i++) {
+            childVm = vm.__states.children[i];
             compilers.compileViewModels(childVm);
         }
     },
@@ -30,7 +30,7 @@ var compilers = {
         for (var i = 0, l = elements.length; i < l; i++) {
             element = common.setElement(elements[i]);
             compilers.compileElement(vm, element); 
-        };
+        }
     },
 
 
@@ -49,13 +49,13 @@ var compilers = {
         // _compileSelfInParentVm присвоено элементам НЕ из v-repeat
         if (foreignKeyElement) {
             if (element._compileSelfInParentVm) {
-                compilers._compileTag(vm, element);
+                compilers.compileTag(vm, element);
             }
 
             return;
         }
 
-        compilers._compileTag(vm, element);
+        compilers.compileTag(vm, element);
 
         // Текстовая нода
         if (element.type === 'text') {
@@ -66,11 +66,11 @@ var compilers = {
         // Дочерние элементы тега
         if (element.inner) {
             compilers.compileElements(vm, element.inner);
-        } 
+        }
     },
 
 
-    _compileTag: function(vm, element) {
+    compileTag: function(vm, element) {
         if (element.compiled) {
             return;
         }
@@ -78,7 +78,7 @@ var compilers = {
         if (element.type === 'tag') {
             // v-model
             if (element.dirs.model) {
-                compilers._compileDirectiveModel(vm, element);
+                compilers.compileDirectiveModel(vm, element);
             }
             
 
@@ -121,7 +121,7 @@ var compilers = {
                 element.attribs[key] = common.execute(vm, element.attribs[key]);
             }
 
-            compilers._compileAttributeDirectives(vm, element);
+            compilers.compileAttributeDirectives(vm, element);
 
 
 
@@ -178,7 +178,16 @@ var compilers = {
 
                         element.attribs[name] = value;
                     })();
-                };
+                }
+            }
+
+
+            // setSelected (hack for v-for <select> options)
+            if (element.dirs.setSelected) {
+                // Нужно как-то по-другому это делать
+                if (element.dirs.setSelected.value[element.attribs.value]) {
+                    element.attribs.selected = 'selected';
+                }
             }
 
 
@@ -194,7 +203,7 @@ var compilers = {
         }];
     },
 
-    _compileAttributeDirectives: function(vm, element) {
+    compileAttributeDirectives: function(vm, element) {
         // v-class
         if (element.dirs.class) {
             var classList;
@@ -217,11 +226,11 @@ var compilers = {
                     if ( common.execute(vm, {value: vClassItem.get}) ) {
                         classList.push(vClassItem.arg);
                     }
-                };
+                }
 
             // Когда переданы объектом
             } else {
-                var vClassItem = common.execute(vm, {value: element.dirs.class.value.get});
+                vClassItem = common.execute(vm, {value: element.dirs.class.value.get});
 
                 for (var name in vClassItem) {
                     if (vClassItem[name]) {
@@ -246,25 +255,25 @@ var compilers = {
             if (element.dirs.style.order < element.dirs.show.order) {
                 common.extend(
                     styles,
-                    compilers._compileDirectiveStyle(vm, element),
-                    compilers._compileDirectiveShow(vm, element, originalStyle)
+                    compilers.compileDirectiveStyle(vm, element),
+                    compilers.compileDirectiveShow(vm, element, originalStyle)
                 );
                 
             } else {
                 common.extend(
                     styles,
-                    compilers._compileDirectiveShow(vm, element, originalStyle),
-                    compilers._compileDirectiveStyle(vm, element)
+                    compilers.compileDirectiveShow(vm, element, originalStyle),
+                    compilers.compileDirectiveStyle(vm, element)
                 );
             }
 
         // v-style
         } else if (element.dirs.style) {
-            styles = compilers._compileDirectiveStyle(vm, element);
+            styles = compilers.compileDirectiveStyle(vm, element);
 
         // v-show
         } else if (element.dirs.show) {
-            styles = compilers._compileDirectiveShow(vm, element, originalStyle);
+            styles = compilers.compileDirectiveShow(vm, element, originalStyle);
         }
 
         if ( _.size(styles) ) {
@@ -278,7 +287,7 @@ var compilers = {
 
 
     // v-model
-    _compileDirectiveModel: function(vm, element) {
+    compileDirectiveModel: function(vm, element) {
         var selectOptions;
         var vModelValue;
         var attrValue;
@@ -347,12 +356,13 @@ var compilers = {
                 if (selectOptions) {
                     for (var i = 0, l = selectOptions.length; i < l; i++) {
                         var optionItem = {
-                            'type': 'tag',
-                            'name': 'option',
-                            'attribs': {
+                            type: 'tag',
+                            name: 'option',
+                            dirs: {},
+                            attribs: {
                                 'value': selectOptions[i].value
                             }
-                        }
+                        };
 
                         compilers.setInnerText(optionItem, selectOptions[i].text);
                         element.inner.push(optionItem);
@@ -363,7 +373,7 @@ var compilers = {
 
             // Значения select multiple приходят в виде массива
             // Создаём карту значений, чтобы не бегать по массиву 100500 раз
-            if (element.attribs.multiple != undefined) {
+            if (element.attribs.multiple !== undefined) {
                 if (vModelValue) {
                     for (var i = 0, l = vModelValue.length; i < l; i++) {
                         selectValueMap[vModelValue[i]] = true;
@@ -379,6 +389,9 @@ var compilers = {
                 var item = element.inner[i];
 
                 if (item.name === 'option') {
+                    item.dirs.setSelected = {
+                        value: selectValueMap
+                    };
                     if (selectValueMap[common.getValue(vm, item.attribs.value)]) {
                         item.attribs.selected = "selected";
                     } else {
@@ -397,7 +410,7 @@ var compilers = {
 
 
     // v-style
-    _compileDirectiveStyle: function(vm, element) {
+    compileDirectiveStyle: function(vm, element) {
         var styleObject = {};
 
         if ( Array.isArray(element.dirs.style.value) ) {
@@ -413,7 +426,7 @@ var compilers = {
 
 
     // v-show
-    _compileDirectiveShow: function(vm, element, originalStyle) {
+    compileDirectiveShow: function(vm, element, originalStyle) {
         var elStyles = {};
         var isToShow = common.getValue(vm, element.dirs.show.value.get);
         if (isToShow && originalStyle && originalStyle.display === 'none') {    
@@ -426,7 +439,7 @@ var compilers = {
 
         return elStyles;
     }
-}
+};
 
 
 module.exports = compilers;

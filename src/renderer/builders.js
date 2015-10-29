@@ -18,15 +18,15 @@ var builders = {
 
         builders.buildElements(vm, vm.$el.inner);
 
-        if (vm.$children) {
+        if (vm.__states.children.length) {
             vm.$on('_vueServer.childVmReady', function() {
-                if (!vm.$children) {
+                if (!vm.__states.children) {
                     vm.$logger.error( 'Something went wrong while building children VMs. Please report the error.' );
                     return;
                 }
-                vm.$childrenReady++;
+                vm.__states.childrenReadyCount++;
 
-                if (vm.$childrenReady === vm.$children.length) {
+                if (vm.__states.childrenReadyCount === vm.__states.children.length) {
                     if (callback) {
                         callback();
                     }
@@ -321,9 +321,8 @@ var builders = {
             }, options);
 
             // Забиваем себе местечко под солнцем
-            vm.$children = vm.$children || [];
-            options.childIndex = vm.$children.length;
-            vm.$children.push({});
+            options.childIndex = vm.__states.children.length;
+            vm.__states.children.push({});
 
             // Асинхронный компонент
             if (typeof component === 'function') {

@@ -184,6 +184,8 @@ var common = {
         if (vm.$logger._config.onLogMessage) {
             return vm.$logger._config.onLogMessage(vm);
         }
+
+        return '';
     },
 
     extend: function() {

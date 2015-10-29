@@ -30,7 +30,7 @@ var renders = {
             // if (element.type === 'partial') {
             //     html += renders.renderTemplate(element.inner);
             // }
-        };
+        }
 
         return html;
     },
