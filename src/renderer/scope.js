@@ -547,7 +547,8 @@ var scope = {
             vm.$el.attribs[attrName] = undefined;
         }
 
-        var rawValue = vm.$el.props[attrName];
+
+
 
         // Сложный формат props (объектом)
         if (config !== undefined) {
@@ -568,11 +569,30 @@ var scope = {
         // Контекст для v-for
         var parentScope = vm.__states.vForScope ? vm.__states.vForScope: vm.$parent;
 
-        var value = common.execute(parentScope, rawValue, {
-            isEscape: false,
-            isClean: false
-        });
+        var value;
 
+        var rawValue = vm.$el.props[attrName];
+
+        // Реализация протяжки свойств через новый формат - v-bind:
+        if (vm.$el.dirs.bind) {
+            for (var i = vm.$el.dirs.bind.length - 1; i >= 0; i--) {
+                if (vm.$el.dirs.bind[i].name === attrName) {
+                    rawValue = {
+                        value: vm.$el.dirs.bind[i].value.get,
+                        filters: vm.$el.dirs.bind[i].value.filters
+                    };
+                    vm.$el.dirs.bind[i].isProp = true;
+                    break;
+                }
+            }
+        }
+
+        if (rawValue) {
+            value = common.execute(parentScope, rawValue, {
+                isEscape: false,
+                isClean: false
+            });
+        }
 
         if (descriptor) {
             if (!rawValue) {

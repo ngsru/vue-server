@@ -8,35 +8,26 @@ Vue.js server side version
 ## Code Example
 ```
 var vueServer = require('vue-server');
-var Server = new vueServer.renderer();
+var Vue = new vueServer.renderer();
 
-var VueCompile = vueServer.compiler;
-var tpl = VueCompile([
-    '<common-module object="{{go}}"></common-module>',
-    '<as-template object="{{go}}"></as-template>'
-].join(''));
-
-var vm = new Server({
-    template: tpl,
+var vm = new Vue({
+    template: '<commonModule v-bind:object="scheme"></commonModule>',
     data: {
-        go: {
+        scheme: {
             display: 'inline',
             position: 'absolute'
         }
     },
 
     components: {
-        'common-module': {
-            paramAttributes: ['object'],
-            template: VueCompile('<pre>{{object | json}}</pre>'),
-        },
-        'as-template': {
-            replace: true,
-            paramAttributes: ['object'],
-            template: VueCompile('<div>Now we can use inherited values: <pre>{{object | json}}</pre></div>'),
+        commonModule: {
+            props: {
+                object: null
+            },
+            template: '<pre>{{object | json}}</pre>',
         }
     }
-})
+});
 
 vm.$on('vueServer.htmlReady', function(html) {
     console.log(html);

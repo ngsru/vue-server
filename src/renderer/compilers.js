@@ -131,6 +131,12 @@ var compilers = {
             if (element.dirs.bind) {
                 for (var i = element.dirs.bind.length - 1; i >= 0; i--) {
                     (function() {
+                        // Тот случай, когда пропертя используется для передачи данных в компонент
+                        // через props. Значит её не нужно рендерить как атрибут
+                        if (element.dirs.bind[i].isProp) {
+                            return;
+                        }
+                        
                         var name = element.dirs.bind[i].name;
                         var value = common.execute(vm, {
                             value: element.dirs.bind[i].value.get,
