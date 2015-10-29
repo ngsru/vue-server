@@ -3,6 +3,7 @@ var log4js = require('log4js');
 
 var filtersGlobal = require('./../filters');
 
+var common = require('./common.js');
 var scope = require('./scope.js');
 var compilers = require('./compilers.js');
 var renders = require('./renders.js');
@@ -29,6 +30,7 @@ var VueRender = function(logger) {
         }
 
 
+        common.$logger = that.logger;
         scope.$logger = that.logger;
         scope.config = this.config;
 
@@ -43,7 +45,7 @@ var VueRender = function(logger) {
             filters: {},
             partials: {},
             components: {},
-            component: instance,
+            component: common.composeComponent(instance),
             isComponent: true
         });
 

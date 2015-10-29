@@ -8,7 +8,7 @@ var VueRender = VueServer.renderer;
 module.exports = function(content, callback, config) {
     (function() {
         if (typeof content.template === 'string') {
-            content.template = VueCompile(content.template);
+            // content.template = VueCompile(content.template);
         } else {
             content.template = VueCompile(fs.readFileSync(content.template.path, 'utf-8'));
         }
@@ -20,26 +20,26 @@ module.exports = function(content, callback, config) {
             };
         }
         
-        var prepareComponents = function(components) {
-            _.each(components, function(component) {
-                if (component.template) {
-                   component.template = VueCompile(component.template); 
-                }
-                preparePartials(component.partials);
+        // var prepareComponents = function(components) {
+        //     _.each(components, function(component) {
+        //         if (component.template) {
+        //            component.template = VueCompile(component.template); 
+        //         }
+        //         preparePartials(component.partials);
 
-                prepareComponents(component.components);
-            });
-        };
+        //         prepareComponents(component.components);
+        //     });
+        // };
 
 
-        var preparePartials = function(partials) {
-            _.each(partials, function(partial, name) {
-                partials[name] = VueCompile(partial);
-            });
-        };
+        // var preparePartials = function(partials) {
+        //     _.each(partials, function(partial, name) {
+        //         partials[name] = VueCompile(partial);
+        //     });
+        // };
 
-        prepareComponents(content.components);
-        preparePartials(content.partials);
+        // prepareComponents(content.components);
+        // preparePartials(content.partials);
     })();
 
     var Vue = new VueRender();

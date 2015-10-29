@@ -21,14 +21,8 @@ var scope = {
         var rawVm = {};
 
         if (contexts.isComponent) {
-            if (!contexts.parent) {
-                var kkk = common.composeComponent(contexts.component);
-                options = kkk.options;
-                rawVm = kkk.rawVm;
-            } else {
-                options = contexts.component.options;
-                rawVm = contexts.component.rawVm;
-            }
+            options = contexts.component.options;
+            rawVm = contexts.component.rawVm;
 
         // Наследуем данные в контексты элементов v-repeat
         } else if (contexts.isRepeat) {
@@ -487,22 +481,11 @@ var scope = {
 
 
     initTemplate: function(vm) {
-        var template = null,
-            templateFn = vm.$options.template;
-
-        if (!templateFn) {
-            this.$logger.debug( 'No "template" option provided', common.onLogMessage(vm) );
-            return template;
+        if (vm.$options.template) {
+            return vm.$options.template();
+        } else {
+            return null;
         }
-
-        if (typeof templateFn !== 'function') {
-            this.$logger.warn( '"template" option type is not valid (' + typeof templateFn + ')', common.onLogMessage(vm) );
-            return template;
-        }
-
-        template = templateFn();
-
-        return template;
     },
 
 

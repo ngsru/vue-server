@@ -1,3 +1,7 @@
+var Path = require('./../parsers/path');
+
+var compiler = require('./../compiler');
+
 var excludeInstanceOptions = {
     'data': true,
     'methods': true,
@@ -30,8 +34,6 @@ var excludeInstanceOptions = {
     'mixins': true,
     'name': true
 };
-
-var Path = require('./../parsers/path');
 
 var common = {
     getValue: function(vm, value) {
@@ -228,9 +230,44 @@ var common = {
             })();
         }
 
+        options.template = common.prepareTemplate(options.template, 'Component\'s template');
+
+        if (options.partials) {
+
+            for (var name in options.partials) {
+                (function() {
+                    options.partials[name] = common.prepareTemplate(
+                        options.partials[name], 
+                        'Partial "' + name + '"'
+                    );
+                })();
+            }
+
+        }
+
         return {options: options, rawVm: rawVm};
     },
 
+
+
+    prepareTemplate: function(template, logName) {
+        var tplTypeof;
+
+        if (template) {
+            tplTypeof = typeof template;
+
+            if (tplTypeof === 'string') {
+                return compiler(template);
+            } else if (tplTypeof !== 'function') {
+                this.$logger.warn(logName + ' type is not valid (' + tplTypeof + ')');
+                return null;
+            }
+        } else {
+            this.$logger.debug(logName + ' is empty (' + tplTypeof + ')');
+        }
+
+        return template;
+    },
 
     // Хитрожопый способ получить имена ВСЕХ свойств класса.
     // Прикол в том, что разные компиляторы es6 в es5 по разному обращаются с этими свойствами
