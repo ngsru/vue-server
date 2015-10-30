@@ -325,13 +325,18 @@ var compilers = {
         });
 
         if (element.name === 'input') {
-
             if (element.attribs.type === 'text' || !element.attribs.type) {
                 element.attribs.value = common.cleanValue(vModelValue);
             }
 
             if (element.attribs.type === 'checkbox' && vModelValue) {
-                element.attribs.checked = 'checked';
+                if (Array.isArray(vModelValue)) {
+                    if (vModelValue.indexOf(element.attribs.value) !== -1) {
+                        element.attribs.checked = 'checked';
+                    }
+                } else {
+                    element.attribs.checked = 'checked';
+                }
             }
 
             if (element.attribs.type === 'radio') {
