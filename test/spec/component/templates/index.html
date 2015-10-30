@@ -128,14 +128,14 @@
 
 
         <ul class="array-filter-by">
-            <li v-repeat="vRepeat.arrayForFilter | filterBy vRepeat.searchText in name">
+            <li v-repeat="vRepeat.arrayForFilter | filterBy vRepeat.searchText in 'name'">
                 <span class="age">{{age}}</span>
             </li>
         </ul>
 
 
         <ul class="array-filter-by-multiple">
-            <li v-repeat="vRepeat.arrayForFilter | filterBy vRepeat.searchText in name | filterBy '25' in 'age'">
+            <li v-repeat="vRepeat.arrayForFilter | filterBy vRepeat.searchText in 'name' | filterBy '25' in 'age'">
                 <span class="age">{{age}}</span>
             </li>
         </ul>

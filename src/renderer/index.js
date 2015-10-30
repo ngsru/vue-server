@@ -91,7 +91,7 @@ var VueRender = function(logger) {
     makeRootVm.prototype._filters = filtersGlobal;
     makeRootVm.prototype._partials = {};
 
-    // makeRootVm.prototype._logger = logger;
+    makeRootVm.prototype._logger = logger;
     makeRootVm.prototype._initLogger = this._initLogger;
     makeRootVm.prototype._checkVmsReady = this._checkVmsReady;
 

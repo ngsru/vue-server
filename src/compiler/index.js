@@ -337,6 +337,25 @@ var Compile = function(template) {
                     }
 
 
+                    if (name === 'v-else') {
+                        // Ищим ближайший тег, проверяем его на v-if
+                        (function() {
+                            for (var i = current.inner.length - 1; i >= 0; i--) {
+                                if (current.inner[i].type === 'tag') {
+                                    if (current.inner[i].dirs && current.inner[i].dirs.if) {
+                                        var vIfDir = parseDirective('!(' + current.inner[i].dirs.if.value.expression + ')');
+                                        if (vIfDir) {
+                                            element.dirs.if = {
+                                                value: vIfDir[0]
+                                            };
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                        })();
+                    }
+
 
 
 
@@ -520,7 +539,7 @@ var Compile = function(template) {
                     ) {
                         element.attribs[name] = getMetaValue(value);
                     }
-                })
+                });
 
 
                 // Кишки от директивы v-attr
@@ -528,7 +547,7 @@ var Compile = function(template) {
                     element.dirs.attr.value.forEach(function(item) {
                         element.attribs[item.arg] = {
                             value: item.get
-                        }
+                        };
                     });
                 }
 
@@ -633,11 +652,11 @@ var Compile = function(template) {
     for (var i = repeatItems.length - 1; i >= 0; i--) {
         var clone = new Function( 'return ' + strFnObj( repeatItems[i] ) );
         repeatItems[i].clone = clone;
-    };
+    }
     
 
     return new Function( 'return ' + strFnObj(mass.inner) );
-}
+};
 
 
 

@@ -15,7 +15,7 @@ var contentComponent = {
                 '</select>',
             '</div>',
             '<div id="select-multiple-complex">',
-                '<select v-model="valueMultiple" multiple>',
+                '<select v-model="valueMultiple2" multiple>',
                     '<option value="mazda">Mazda</option>',
                     '<option v-for="option in options" :value="option.value">{{option.label}}</option>',
                 '</select>',
@@ -31,7 +31,8 @@ var contentComponent = {
             ],
 
             valueSingle: '222',
-            valueMultiple: ['one', 333]
+            valueMultiple: ['one', 333],
+            valueMultiple2: ['mazda', 333]
         };
     }
 };
@@ -57,6 +58,14 @@ describe('v-model', function() {
                 isSelected.push(Boolean($(this).attr('selected')));
             });
             expect( isSelected.join(',') ).toEqual('true,false,true');
+        });
+
+        it('and a static <option> should set multiple value', function() {
+            var isSelected = [];
+            $('#select-multiple-complex option').each(function() {
+                isSelected.push(Boolean($(this).attr('selected')));
+            });
+            expect( isSelected.join(',') ).toEqual('true,false,false,true');
         });
     });
 });

@@ -61,7 +61,7 @@ var digitsRE = /(\d{3})(?=\d)/g
 exports.currency = function (value, currency) {
   value = parseFloat(value)
   if (!isFinite(value) || (!value && value !== 0)) return ''
-  currency = currency || '$'
+  currency = currency != null ? currency : '$'
   var stringified = Math.abs(value).toFixed(2)
   var _int = stringified.slice(0, -3)
   var i = _int.length % 3
@@ -107,6 +107,7 @@ var keyCodes = {
   esc: 27,
   tab: 9,
   enter: 13,
+  space: 32,
   'delete': 46,
   up: 38,
   left: 37,
@@ -129,6 +130,14 @@ exports.key = function (handler, key) {
 
 // expose keycode hash
 exports.key.keyCodes = keyCodes
+
+exports.debounce = function (handler, delay) {
+  if (!handler) return
+  if (!delay) {
+    delay = 300
+  }
+  return _.debounce(handler, delay)
+}
 
 /**
  * Install special array filters
