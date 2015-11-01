@@ -4,7 +4,19 @@ var contentComponent = {
 
     template: [
         '<div id="select">',
-            '<select v-model="value">',
+            '<select v-model="valueSingle">',
+                '<option v-for="option in options" :value="option.value">{{option.label}}</option>',
+            '</select>',
+        '</div>',
+        '<div id="select-filter">',
+            '<select v-model="valueSingle | replacer1">',
+                '<option v-for="option in options" :value="option.value">{{option.label}}</option>',
+            '</select>',
+        '</div>',
+        '<div id="select-empty">',
+            '<select v-model="valueEmpty">',
+                '<option>None</option>',
+                '<option value="">Empty</option>',
                 '<option v-for="option in options" :value="option.value">{{option.label}}</option>',
             '</select>',
         '</div>',
@@ -27,6 +39,10 @@ var contentComponent = {
         '<div id="checkbox-multiple">',
             '<input type="checkbox" value="Jack" v-model="checkboxMultiple" />',
             '<input type="checkbox" value="Daniels" v-model="checkboxMultiple" />',
+        '</div>',
+        '<div id="checkbox-multiple-filter">',
+            '<input type="checkbox" value="Jack" v-model="checkboxMultiple | replacer2" />',
+            '<input type="checkbox" value="Daniels" v-model="checkboxMultiple | replacer2" />',
         '</div>'
     ].join(''),
     data: function() {
@@ -38,6 +54,7 @@ var contentComponent = {
             ],
 
             valueSingle: '222',
+            valueEmpty: '',
             valueMultiple: ['one', 333],
             valueMultiple2: ['mazda', 333],
 
@@ -45,6 +62,16 @@ var contentComponent = {
             checkbox: true,
             checkboxMultiple: ['Daniels']
         };
+    },
+
+    filters: {
+        replacer1: function() {
+            return '333';
+        },
+
+        replacer2: function() {
+            return ['Jack'];
+        }
     }
 };
 
@@ -60,7 +87,27 @@ beforeAll(function(done) {
 describe('v-model', function() {
     describe('on <select> and v-for\'ed <option> items', function() {
         it('should set single value', function() {
-            expect( $('#select option').eq(1).attr('selected') ).toEqual('selected');
+            var isSelected = [];
+            $('#select option').each(function() {
+                isSelected.push(Boolean($(this).attr('selected')));
+            });
+            expect( isSelected.join(',') ).toEqual('false,true,false');
+        });
+
+        it('with a filter should set single value', function() {
+            var isSelected = [];
+            $('#select-filter option').each(function() {
+                isSelected.push(Boolean($(this).attr('selected')));
+            });
+            expect( isSelected.join(',') ).toEqual('false,false,true');
+        });
+
+        it('should set empty value', function() {
+            var isSelected = [];
+            $('#select-empty option').each(function() {
+                isSelected.push(Boolean($(this).attr('selected')));
+            });
+            expect( isSelected.join(',') ).toEqual('false,true,false,false,false');
         });
 
         it('should set multiple value', function() {
@@ -91,6 +138,14 @@ describe('v-model', function() {
                 isSelected.push(Boolean($(this).attr('checked')));
             });
             expect( isSelected.join(',') ).toEqual('false,true');
+        });
+
+        it('should set "checked" properly with a filter if value is an Array', function() {
+            var isSelected = [];
+            $('#checkbox-multiple-filter input').each(function() {
+                isSelected.push(Boolean($(this).attr('checked')));
+            });
+            expect( isSelected.join(',') ).toEqual('true,false');
         });
     });
 });

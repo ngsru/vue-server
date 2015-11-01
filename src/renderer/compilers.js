@@ -199,7 +199,10 @@ var compilers = {
             // setSelected (hack for v-for <select> options)
             if (element.dirs.setSelected) {
                 // Нужно как-то по-другому это делать
-                if (element.dirs.setSelected.value[element.attribs.value]) {
+                if (
+                    element.dirs.setSelected.value.map[element.attribs.value] ||
+                    (element.attribs.value === element.dirs.setSelected.value.original)
+                ) {
                     element.attribs.selected = 'selected';
                 }
             }
@@ -409,7 +412,10 @@ var compilers = {
 
                 if (item.name === 'option') {
                     item.dirs.setSelected = {
-                        value: selectValueMap
+                        value: {
+                            original: vModelValue,
+                            map: selectValueMap
+                        }
                     };
                     if (selectValueMap[common.getValue(vm, item.attribs.value)]) {
                         item.attribs.selected = "selected";

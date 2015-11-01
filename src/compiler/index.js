@@ -159,6 +159,7 @@ var refRE = /^:|^v-ref:/;
 var elRE = /^:|^v-el:/;
 var onRE = /^@/;
 var argRE = /:(.*)$/;
+var vForValRE = /\((.+)\)/;
 
 
 
@@ -314,10 +315,21 @@ var Compile = function(template) {
                                 rawValue = rawValue[0];
 
                                 var args = rawValue.expression.split(' in ');
+                                var arg = args[0].match(vForValRE);
+                                var index;
+
+                                if (arg) {
+                                    arg = arg.replace(/ /g, '').split(',');
+                                    index = arg[0];
+                                    arg = arg[1];
+                                } else {
+                                    arg = args[0];
+                                }
+
 
                                 element.dirs.repeat = {
                                     value: {
-                                        arg: args[0],
+                                        arg: arg,
                                         expression: args[1],
                                         get: textToFn('{{' + args[1] + '}}')
                                     },
