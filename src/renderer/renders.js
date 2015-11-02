@@ -14,7 +14,11 @@ var renders = {
             element = elements[i];
 
             if (element.type === 'tag') {
-                if ((element.name === 'template' && _.size(element.dirs)) || element.name === 'partial') {
+                if (
+                    (element.name === 'template' && _.size(element.dirs)) ||
+                    element.name === 'partial' ||
+                    element.name === 'slot'
+                ) {
                     html += renders.renderTemplate(element.inner);
                 } else if (element.name === '$merge') { 
                     html += renders.renderMergedTags(element);

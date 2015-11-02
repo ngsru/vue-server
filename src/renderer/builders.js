@@ -262,8 +262,14 @@ var builders = {
                 if (repeatData[i].$key) {
                     repeatDataItem.$key = repeatData[i].$key;
                 }
-                repeatDataItem.$index = i;
 
+                // Кастомное определения имени параметра с индексом
+                // вид v-for="(index, value) in array"
+                if (element.dirs.repeat.value.index) {
+                    repeatDataItem[element.dirs.repeat.value.index] = i;
+                } else {
+                    repeatDataItem.$index = i;
+                }
 
                 // Создаём клон псевдо-dom элемента
                 repeatElement = cloneElement();
@@ -398,6 +404,67 @@ var builders = {
         } else {
             vm.$logger.debug( logMessage, common.onLogMessage(vm) );
         }
+    },
+
+
+
+    mergeSlotItems: function(vm, tpl) {
+        var slots = {
+            unnamed: null,
+            named: null
+        };
+
+        if (!tpl[0].inner) {
+            return;
+        }
+        var elInner = vm.$el.inner;
+        var tplInner = tpl[0].inner;
+
+        for (var i = tplInner.length - 1; i >= 0; i--) {
+            if (tplInner[i].name === 'slot') {
+                if (tplInner[i].attribs.name) {
+                    slots.named = slots.named || {};
+                    slots.named[tplInner[i].attribs.name] = tplInner[i];
+                } else {
+                    if (!slots.unnamed) {
+                        slots.unnamed = tplInner[i];
+                    } else {
+                        vm.$logger.warn( 'Duplicate unnamed <slot>', common.onLogMessage(vm) );
+                    }
+                }
+            }
+        };
+
+        if (slots.unnamed || slots.named) {
+            for (var i = elInner.length - 1; i >= 0; i--) {
+                if (
+                    elInner[i].attribs &&
+                    elInner[i].attribs.slot &&
+                    slots.named &&
+                    slots.named[elInner[i].attribs.slot]
+                ) {
+                    builders.fillSlot(
+                        slots.named[elInner[i].attribs.slot],
+                        elInner[i]
+                    );
+                } else if (slots.unnamed) {
+                    builders.fillSlot(
+                        slots.unnamed,
+                        elInner[i]
+                    );
+                }
+            }
+        }
+    },
+
+
+    fillSlot: function(element, item) {
+        if (!element.filled) {
+            element.inner = [];
+            element.filled = true;
+        }
+
+        element.inner.push(item);
     }
 
 };

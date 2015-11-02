@@ -338,12 +338,13 @@ var scope = {
             shouldReplace = vm.$options.replace;
         }
         
-        if (tpl) {
+        if (tpl) {            
             // Хитрый режим сочленения элементов
             if (shouldReplace) {
 
                 // Если элемент верхнего уровня - единственный
                 if (!tpl[1]) {
+                    builders.mergeSlotItems(vm, tpl);
                     vm.$el.name = '$merge';
                     vm.$el.inner = tpl;
                     
@@ -356,6 +357,7 @@ var scope = {
                 }
 
             } else {
+                builders.mergeSlotItems(vm, tpl);
                 vm.$el.inner = tpl;
             }
         }

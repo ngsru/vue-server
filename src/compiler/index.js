@@ -307,36 +307,34 @@ var Compile = function(template) {
                     }
 
                     // v-for
-                    if (name === 'v-for') {
+                    if (name === 'v-for' && attribs['v-for']) {
                         (function() {
-                            var rawValue = parseDirective(attribs['v-for']);
+                            var text = attribs['v-for'].split(' in ');
+                            var expression = text[1]
+                            var arg = text[0].match(vForValRE);
+                            var index;
+
+                            if (arg) {
+                                arg = arg[1].replace(/ /g, '').split(',');
+                                index = arg[0];
+                                arg = arg[1];
+                            } else {
+                                arg = text[0];
+                            }
+
+                            var rawValue = parseDirective(arg + ':' + expression);
 
                             if (rawValue) {
                                 rawValue = rawValue[0];
 
-                                var args = rawValue.expression.split(' in ');
-                                var arg = args[0].match(vForValRE);
-                                var index;
-
-                                if (arg) {
-                                    arg = arg.replace(/ /g, '').split(',');
-                                    index = arg[0];
-                                    arg = arg[1];
-                                } else {
-                                    arg = args[0];
-                                }
-
-
                                 element.dirs.repeat = {
-                                    value: {
-                                        arg: arg,
-                                        expression: args[1],
-                                        get: textToFn('{{' + args[1] + '}}')
-                                    },
+                                    value: rawValue,
                                     options: {
                                         vFor: true
                                     }
                                 };
+
+                                element.dirs.repeat.value.index = index;
 
                                 if (rawValue.filters) {
                                     element.dirs.repeat.value.filters = rawValue.filters;
