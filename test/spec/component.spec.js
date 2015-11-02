@@ -5,6 +5,8 @@ var contentComponent = {
     template: [
         '<div>',
             '<div id="component"><component is="compName"></div></div>',
+            '<div id="component-dyn"><component is="{{varCompName}}"></div></div>',
+            '<div id="component-dyn-new"><component :is="varCompName"></div></div>',
             '<div id="directive"><div v-component="compName"></div></div>',
             '<div id="camel"><compName></compName></div>',
             '<div id="dash"><comp-name></comp-name></div>',
@@ -13,6 +15,7 @@ var contentComponent = {
     ].join(''),
     data: function() {
         return {
+            varCompName: 'compName',
             arr: [1,2,3],
             childValue: 'content',
             parto: 'compParted',
@@ -44,6 +47,14 @@ beforeAll(function(done) {
 describe('component', function() {
     it('should mount via <component> tag', function() {
         expect( $('#component').html() ).toEqual('<i>rakushka</i>');
+    });
+
+    it('should mount via <component> tag with dynamic "is"', function() {
+        expect( $('#component-dyn').html() ).toEqual('<i>rakushka</i>');
+    });
+
+    it('should mount via <component> tag with dynamic "is" in new style', function() {
+        expect( $('#component-dyn-new').html() ).toEqual('<i>rakushka</i>');
     });
 
     it('should mount via v-component directive', function() {

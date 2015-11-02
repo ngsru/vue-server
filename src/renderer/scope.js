@@ -577,13 +577,13 @@ var scope = {
 
         // Реализация протяжки свойств через новый формат - v-bind:
         if (vm.$el.dirs.bind) {
-            for (var i = vm.$el.dirs.bind.length - 1; i >= 0; i--) {
-                if (vm.$el.dirs.bind[i].name === attrName) {
+            for (var name in vm.$el.dirs.bind) {
+                if (name === attrName) {
                     rawValue = {
-                        value: vm.$el.dirs.bind[i].value.get,
-                        filters: vm.$el.dirs.bind[i].value.filters
+                        value: vm.$el.dirs.bind[name].value.get,
+                        filters: vm.$el.dirs.bind[name].value.filters
                     };
-                    vm.$el.dirs.bind[i].isProp = true;
+                    vm.$el.dirs.bind[name].isCompiled = true;
                     break;
                 }
             }

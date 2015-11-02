@@ -89,12 +89,22 @@ var builders = {
 
 
                 // Конструкция <component is="{{name}}"></component>
-                if (element.name === 'component' && element.attribs.is) {
+                if (
+                    element.name === 'component' &&
+                    (
+                        element.attribs.is ||
+                        (
+                            element.dirs.bind &&
+                            element.dirs.bind.is
+                        )
+                    )
+                ) {
                     element.dirs.component = {
-                        value: common.execute(vm, element.attribs.is),
+                        value: common.getAttribute(vm, element, 'is'),
                         options: {}
                     };
                 }
+
 
                 // v-if
                 if (element.dirs.if) {
@@ -117,7 +127,7 @@ var builders = {
                 if (element.name === 'partial') {
                     builders.getPartial({
                         'vm': vm,
-                        'partialName': common.execute(vm, element.attribs.name, {isEscape: false, isClean: false}),
+                        'partialName': common.getAttribute(vm, element, 'name'),
                         'onDoesExist': function(partial) {
                             element.inner = partial();
                         },

@@ -97,6 +97,36 @@ var common = {
     },
 
 
+    getAttribute: function(vm, element, name) {
+        var value;
+        if (element.dirs.bind && element.dirs.bind[name]) {
+            value = common.execute(
+                vm, 
+                {
+                    value: element.dirs.bind[name].value.get,
+                    filters: element.dirs.bind[name].value.filters,
+                },
+                {
+                    isEscape: false,
+                    isClean: false
+                }
+            );
+            element.dirs.bind[name].isCompiled = true;
+        } else {
+            value = common.execute(
+                vm,
+                element.attribs[name],
+                {
+                    isEscape: false,
+                    isClean: false
+                }
+            );
+        }
+
+        return value;
+    },
+
+
     applyFilters: function(vm, filters, value) {
         if (filters) {
             for (var i = 0; i < filters.length; i++) {

@@ -128,18 +128,15 @@ var compilers = {
             // NEW SYNTAX
             // v-bind
             if (element.dirs.bind) {
-                for (var i = element.dirs.bind.length - 1; i >= 0; i--) {
+                for (var name in element.dirs.bind) {
                     (function() {
-                        // Тот случай, когда пропертя используется для передачи данных в компонент
-                        // через props. Значит её не нужно рендерить как атрибут
-                        if (element.dirs.bind[i].isProp) {
+                        if (element.dirs.bind[name].isCompiled) {
                             return;
                         }
                         
-                        var name = element.dirs.bind[i].name;
                         var value = common.execute(vm, {
-                            value: element.dirs.bind[i].value.get,
-                            filters: element.dirs.bind[i].value.filters,
+                            value: element.dirs.bind[name].value.get,
+                            filters: element.dirs.bind[name].value.filters,
                         });
 
                         if (name === 'style') {
@@ -187,8 +184,6 @@ var compilers = {
 
                             return;
                         }
-
-
 
                         element.attribs[name] = value;
                     })();

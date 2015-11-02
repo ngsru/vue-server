@@ -261,15 +261,14 @@ var Compile = function(template) {
                         (function() {
                             var attr = name.match(argRE)[1].replace(/\.sync$|\.once$/, '');
 
-                            element.dirs.bind = element.dirs.bind || [];
+                            element.dirs.bind = element.dirs.bind || {};
 
                             var dirValue = parseDirective(attribs[name]);
 
                             if (dirValue) {
-                                element.dirs.bind.push({
-                                    name: attr,
+                                element.dirs.bind[attr] = {
                                     value: dirValue[0]
-                                });
+                                };
                             }
                         })();
                     }
