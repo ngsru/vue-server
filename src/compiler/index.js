@@ -73,17 +73,7 @@ var getMetaValue = function(value) {
             }
             
             if (token.tag) {
-                // var exp = parsers.text.tokensToExp([token]);
-                // var parsedExp = parsers.expression.parse(exp);
-                // var item = {
-                //     value: {
-                //         get: parsedExp.get
-                //     },
-                //     isEscape: token.html ? false : true,
-                //     isClean: true
-                // }
-
-                
+               
                 var parsedToken = parsers.directive.parse(token.value)[0];
                 var exp = parsers.expression.parse(parsedToken.expression);
 

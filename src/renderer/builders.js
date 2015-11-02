@@ -90,13 +90,10 @@ var builders = {
 
                 // Конструкция <component is="{{name}}"></component>
                 if (
-                    element.name === 'component' &&
+                    element.attribs.is ||
                     (
-                        element.attribs.is ||
-                        (
-                            element.dirs.bind &&
-                            element.dirs.bind.is
-                        )
+                        element.dirs.bind &&
+                        element.dirs.bind.is
                     )
                 ) {
                     element.dirs.component = {

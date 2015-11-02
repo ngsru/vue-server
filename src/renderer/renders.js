@@ -30,10 +30,6 @@ var renders = {
             if (element.type === 'text') {
                 html += renders.renderText(element);
             }
-
-            // if (element.type === 'partial') {
-            //     html += renders.renderTemplate(element.inner);
-            // }
         }
 
         return html;

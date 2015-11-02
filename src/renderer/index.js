@@ -46,9 +46,6 @@ var VueRender = function(logger) {
 
 
         vm
-            .$on('_vueServer.populateStyles', function (style) {
-                styles[style] = 1;
-            })
             .$on('_vueServer.tryBeginCompile', function() {
                 if (that._checkVmsReady(this)) {
                     if (compileInProgress) {
@@ -59,13 +56,6 @@ var VueRender = function(logger) {
                     compileInProgress = true;
                     this.$emit('_vueServer.readyToCompile');
                     this.$broadcast('_vueServer.readyToCompile');
-
-                    // Инициализация стилей из компонентов
-                    var styleStr = '';
-                    for (var style in styles) {
-                        styleStr += style;
-                    }
-                    this.styles = styleStr;
 
                     process.nextTick(function() {
                         compilers.compile(this);

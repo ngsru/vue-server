@@ -5,14 +5,6 @@ var events = require('./events.js');
 
 var util = require('util');
 
-var systemProps = {
-    logName: true,
-    styles: true,
-    nestingPath: true,
-    isServer: true
-};
-
-
 var scope = {
     // Инициализация VM-ов для компонентов и repeat-item-ов
     initViewModel: function(contexts) {
@@ -167,9 +159,6 @@ var scope = {
 
         process.nextTick(function() {
             var isCompiledBePresent = false;
-            if (vm.styles) {
-                vm.$root.$emit('_vueServer.populateStyles', vm.styles);
-            }
 
             builders.build(vm, function() {
                 vm._isCompiled = true;
@@ -423,10 +412,6 @@ var scope = {
 
 
     isSystemProp: function(name) {
-        if (systemProps[name]) {
-            return true;
-        }
-
         var char = name.charAt(0);
         if (char === '$' || char === '_') {
             return true;
