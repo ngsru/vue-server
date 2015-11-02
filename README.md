@@ -43,7 +43,7 @@ VueServer.js does not share hooks with Vue.js. It has its own ones, partially eq
 | createdBe     | created       |
 | --            | beforeCompile |
 | compiledBe    | compiled      |
-| readyBe       | ready         |
+| --            | ready         |
 | --            | attached      |
 | --            | detached      |
 | --            | beforeDestroy |
@@ -70,8 +70,6 @@ VueServer.js does not share hooks with Vue.js. It has its own ones, partially eq
 
 Because of using extra light DOM version it is not possible to use custom directives too.
 
-#### What else
-* <content>/<slot> API (will be supported soon)
 
 ## What is supported
 Well, actually, everything else is (maybe I forgot something).

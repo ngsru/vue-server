@@ -282,7 +282,18 @@ var scope = {
 
 
             if (options.ref) {
-                this[options.ref.options.target][common.dashToCamelCase(options.ref.value)] = newVm;
+                (function() {
+                    var prop = options.ref.options.target;
+                    var name = common.dashToCamelCase(options.ref.value);
+
+                    if (newVm.__states.isRepeat) {
+                        this[prop][name] = this[prop][name] || [];
+                        this[prop][name].push(newVm);
+                    } else {
+                        this[prop][name] = newVm;
+                    }
+
+                }).call(this);
             }
 
             if (options.component && !options.repeatData) {
@@ -306,6 +317,8 @@ var scope = {
         vm.$broadcast('_vueServer.stopBuilding');
         vm.$ = {};
         vm.$$ = {};
+        vm.$refs = {};
+        vm.$els = {};
         vm._events = {};
         vm._eventsCount = {};
         vm._eventCancelled = false;
@@ -347,7 +360,7 @@ var scope = {
                     builders.mergeSlotItems(vm, tpl);
                     vm.$el.name = '$merge';
                     vm.$el.inner = tpl;
-                    
+
                 // Если элементов верхнего уровня домуя
                 } else {
                     vm.$el.name = 'partial';
