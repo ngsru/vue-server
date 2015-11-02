@@ -271,6 +271,18 @@ var Compile = function(template) {
                                 };
                             }
                         })();
+                    } else if (name === 'v-bind') {
+                        (function() {
+                            element.dirs.bindMany = element.dirs.bindMany || {};
+
+                            var dirValue = parseDirective(attribs[name]);
+
+                            if (dirValue) {
+                                element.dirs.bindMany = {
+                                    value: dirValue[0]
+                                };
+                            }
+                        })();
                     }
 
                     // v-ref:name

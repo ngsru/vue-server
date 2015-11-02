@@ -126,7 +126,7 @@ var compilers = {
 
 
             // NEW SYNTAX
-            // v-bind
+            // v-bind:
             if (element.dirs.bind) {
                 for (var name in element.dirs.bind) {
                     (function() {
@@ -188,6 +188,18 @@ var compilers = {
                         element.attribs[name] = value;
                     })();
                 }
+            }
+            
+            // v-bind="{...}"
+            if (element.dirs.bindMany) {
+               (function() {
+                    var value = common.execute(vm, {
+                        value: element.dirs.bindMany.value.get,
+                        filters: element.dirs.bindMany.value.filters,
+                    });
+
+                    common.extend(element.attribs, value);
+                })();
             }
 
 
