@@ -328,17 +328,14 @@ var Compile = function(template) {
                             if (rawValue) {
                                 rawValue = rawValue[0];
 
-                                element.dirs.repeat = {
-                                    value: rawValue,
-                                    options: {
-                                        vFor: true
-                                    }
+                                element.dirs.for = {
+                                    value: rawValue
                                 };
 
-                                element.dirs.repeat.value.index = index;
+                                element.dirs.for.value.index = index;
 
                                 if (rawValue.filters) {
-                                    element.dirs.repeat.value.filters = rawValue.filters;
+                                    element.dirs.for.value.filters = rawValue.filters;
                                 }
 
                                 repeatItems.push(element);

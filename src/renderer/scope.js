@@ -109,32 +109,13 @@ var scope = {
         scope.markKeyElement(vm);
 
 
-
-        
-        if (
-            vm.$el.dirs &&
-            vm.$el.dirs.repeat &&
-            vm.$el.dirs.repeat.options &&
-            vm.$el.dirs.repeat.options.vFor
-        ) {
-            // Создём специальый мини скоуп данных для v-for
-            if (vm.__states.isComponent) {
-                vm.__states.vForScope = scope.inheritData(contexts.repeatData, vm.$parent);
-            } else {
-                vm.__states.notPublic = true;
-            }
-        }
-
-
-
-
         // Инициализируем личные данные компонента (data)
         common.extend(vm, scope.initData(vm));
 
         // Подтягиваем данные по props
         scope.pullPropsData(vm);
 
-        if (contexts.repeatData && !vm.__states.vForScope) {
+        if (contexts.repeatData) {
             common.extend(vm, contexts.repeatData);
         }
 
@@ -529,7 +510,6 @@ var scope = {
 
     pullPropsData: function(vm, excludeOwnDataProps) {
         var props = vm.$options.props;
-        var vForScope;
 
         if (typeof props === 'object') {
             // Если props - массив
@@ -578,7 +558,7 @@ var scope = {
         }
 
         // Контекст для v-for
-        var parentScope = vm.__states.vForScope ? vm.__states.vForScope: vm.$parent;
+        // var parentScope = vm.__states.vForScope ? vm.__states.vForScope: vm.$parent;
 
         var value;
 
@@ -599,7 +579,7 @@ var scope = {
         }
 
         if (rawValue) {
-            value = common.execute(parentScope, rawValue, {
+            value = common.execute(vm.$parent, rawValue, {
                 isEscape: false,
                 isClean: false
             });

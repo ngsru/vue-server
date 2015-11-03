@@ -74,6 +74,11 @@ var renders = {
     renderMergedTags: function(element) {
         var elementChild = element.inner[0];
 
+        // Случай v-if + v-for
+        if (!elementChild) {
+            return '';
+        }
+
         // Если много вложенных $merge
         if (elementChild.name === '$merge') {
             return renders.renderTemplate(element.inner);

@@ -1,6 +1,6 @@
 {
   "name": "vue-server",
-  "version": "0.4.0-beta.3",
+  "version": "0.4.0-beta.4",
   "description": "Vue.js server side version",
   "main": "index.js",
   "author": {

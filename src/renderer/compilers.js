@@ -416,27 +416,37 @@ var compilers = {
 
             for (var i = 0, l = element.inner.length; i < l; i++) {
                 var item = element.inner[i];
-
-                if (item.name === 'option') {
-                    item.dirs.setSelected = {
-                        value: {
-                            original: vModelValue,
-                            map: selectValueMap
-                        }
-                    };
-                    if (selectValueMap[common.getValue(vm, item.attribs.value)]) {
-                        item.attribs.selected = "selected";
-                    } else {
-                        // На всякий случай, чтобы удалить нежелательные selected,
-                        // которые могли быть в разметке
-                        delete item.attribs.selected;
-                    }
-                }
+                compilers.prepareSelecOption(vm, item, vModelValue, selectValueMap);
             }
         }
 
         if (element.name === 'textarea') {
             compilers.setInnerText(element, vModelValue);
+        }
+    },
+
+
+
+    prepareSelecOption: function(vm, item, vModelValue, selectValueMap) {
+        if (item.name === '$merge') {
+            compilers.prepareSelecOption(vm, item.inner[0], vModelValue, selectValueMap);
+            return;
+        }
+
+        if (item.name === 'option') {
+            item.dirs.setSelected = {
+                value: {
+                    original: vModelValue,
+                    map: selectValueMap
+                }
+            };
+            if (selectValueMap[common.getValue(vm, item.attribs.value)]) {
+                item.attribs.selected = "selected";
+            } else {
+                // На всякий случай, чтобы удалить нежелательные selected,
+                // которые могли быть в разметке
+                delete item.attribs.selected;
+            }
         }
     },
 

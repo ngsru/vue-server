@@ -1,5 +1,11 @@
 var _ = require('underscore');
 var common = require('./common.js');
+var getElementId = function() {
+    var result = '';
+    var time = process.hrtime();
+    result += String(time[0]).slice(5) + time[1];
+    return result;
+};
 
 var builders = {
     build: function(vm, callback) {
@@ -100,6 +106,24 @@ var builders = {
                         value: common.getAttribute(vm, element, 'is'),
                         options: {}
                     };
+                }
+
+                // v-for
+                if (element.dirs.for) {
+
+                    if (!element.dirs.for.isCompiled) {
+                        elements.splice(i, 1);
+
+                        repeatElements = builders.buildForElements(vm, elements, element);
+
+                        if (repeatElements) {
+                            // Вставляем получившиеся элементы в псведо-dom
+                            Array.prototype.splice.apply(elements, [i, 0].concat(repeatElements));
+                        }
+
+                        builders.buildElements(vm, elements, i);
+                        break;
+                    }
                 }
 
 
@@ -472,6 +496,110 @@ var builders = {
         }
 
         element.inner.push(item);
+    },
+
+
+
+
+
+
+
+
+
+    // NEW
+    // Building v-for items
+    buildForElements: function(vm, elements, element) {
+        var repeatData = builders.getRepeatData(vm, element.dirs.for.value);
+        // var repeatDataIsArray = Array.isArray(repeatData);
+        
+        // Если есть данные по директиве
+        if (repeatData && repeatData.length) {
+            var repeatElements = [];
+            var cloneElement = element.clone;
+
+            var item;
+            var repeatElement;
+            var repeatElementWrapper;
+            var repeatDataItem;
+            var repeatOptions;
+
+
+            // Проходим циклом по данным директивы
+            for (var i = 0; i < repeatData.length; i++) {
+                repeatDataItem = {};
+
+                // Когда репитим объект
+                if (repeatData[i].$value) {
+                    item = repeatData[i].$value;
+
+                // Когда просто массив
+                } else {
+                    item = repeatData[i];
+                }
+
+                // Случай с созданием неймспейса для данных вложенных в v-repeat
+                // например v-repeat="item: data"
+                if (element.dirs.for.value.arg) {
+                    repeatDataItem[element.dirs.for.value.arg] = item;
+
+                // Без неймспейса
+                } else {
+                    // Данные - объект
+                    if (typeof item === 'object' && !Array.isArray(item)) {
+                        repeatDataItem = item;
+
+                    // Данные - что-то другое
+                    } else {
+                        repeatDataItem.$value = item;
+                    }
+                }
+
+                if (repeatData[i].$key) {
+                    repeatDataItem.$key = repeatData[i].$key;
+                }
+
+                // Кастомное определения имени параметра с индексом
+                // вид v-for="(index, value) in array"
+                if (element.dirs.for.value.index) {
+                    repeatDataItem[element.dirs.for.value.index] = i;
+                } else {
+                    repeatDataItem.$index = i;
+                }
+
+                // Создаём клон псевдо-dom элемента
+                repeatElement = cloneElement();
+                repeatElement.dirs.for.isCompiled = true;
+
+                // repeatElement - репликация element, образ которого создаёт compiler
+                // Если компонент вставляется через тег, то у него изначально директива v-component не прописана
+                // и у реплицированного компонента её тоже не будет, поэтому - прокидываем
+                repeatElement.dirs.component = element.dirs.component;
+
+                repeatElement.id = getElementId();
+
+                repeatElementWrapper = {
+                    'type': 'tag',
+                    'name': '$merge',
+                    'attribs': {},
+                    'inner': [repeatElement],
+                    'dirs': {},
+                    'close': true,
+                    'pre': false
+                };
+
+                repeatElements.push(repeatElementWrapper);
+
+                vm.$addChild({
+                    isRepeat: true,
+                    element: repeatElementWrapper,
+                    repeatData: repeatDataItem,
+                });
+            }
+
+            return repeatElements;
+        }
+
+        return false;
     }
 
 };
