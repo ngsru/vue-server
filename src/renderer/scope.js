@@ -151,6 +151,7 @@ var scope = {
         // серверный Created
         if (vm.$options.createdBe) {
             vm.$options.createdBe.call(vm);
+            vm.$emit('hook:createdBe');
         }
 
 
@@ -163,13 +164,7 @@ var scope = {
             builders.build(vm, function() {
                 vm._isCompiled = true;
 
-                if (vm.$options.activateBe) {
-                    vm.$options.activateBe.call(vm, function() {
-                        scope.buildWithedData(vm, contexts);
-                        scope.pullPropsData(vm, true);
-                        scope.resetVmInstance(vm);
-                    });
-                } else if (contexts.waitFor) {
+                if (!vm.$options.activateBe && contexts.waitFor) {
                     vm.$on(contexts.waitFor, function() {
                         scope.buildWithedData(vm, contexts);
                         scope.pullPropsData(vm, true);
@@ -185,7 +180,6 @@ var scope = {
                             isCompiledBePresent = true;
                             vm.$options.mixins[i].compiledBe.call(vm);
                         }
-                 
                     }
                 }
 
@@ -193,6 +187,16 @@ var scope = {
                 if (vm.$options.compiledBe) {
                     isCompiledBePresent = true;
                     vm.$options.compiledBe.call(vm);
+                    vm.$emit('hook:compiledBe');
+                }
+
+                if (vm.$options.activateBe) {
+                    vm.$options.activateBe.call(vm, function() {
+                        scope.buildWithedData(vm, contexts);
+                        scope.pullPropsData(vm, true);
+                        scope.resetVmInstance(vm);
+                    });
+                    vm.$emit('hook:activateBe');
                 }
 
 
@@ -376,9 +380,19 @@ var scope = {
         });
 
         vm.$on('_vueServer.readyToCompile', function () {
-            // серверный Created
+            // миксины серверного ready
+            if (vm.$options.mixins) {
+                for (var i = 0; i < vm.$options.mixins.length; i++) {
+                    if (vm.$options.mixins[i].readyBe) {
+                        vm.$options.mixins[i].readyBe.call(vm);
+                    }
+                }
+            }
+
+            // серверный ready
             if (vm.$options.readyBe) { 
                 vm.$options.readyBe.call(vm);
+                vm.$emit('hook:readyBe');
             }
         });
     },
@@ -546,9 +560,6 @@ var scope = {
             vm.$el.props[attrName] = vm.$el.attribs[attrName];
             vm.$el.attribs[attrName] = undefined;
         }
-
-
-
 
         // Сложный формат props (объектом)
         if (config !== undefined) {

@@ -14,7 +14,6 @@ var VueRender = function(logger) {
 
     var makeRootVm = function(instance) {
         var that = this;
-        var styles = {};
         var vm;
         var compileInProgress = false;
 

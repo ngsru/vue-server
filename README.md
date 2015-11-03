@@ -1,12 +1,16 @@
-# VueServer.js
+VueServer.js
+========
+
 Vue.js server side version
 
-## Disclaimer
+Disclaimer
 This is not an offical Vue.js version and it has no stright relation to it and its author.
 
 The module is developed for specific needs of its authors and has some restrictions compared to Vue.js.
 
-## Getting started
+Getting started
+---
+
 
 ```
 var vueServer = require('vue-server');
@@ -27,28 +31,43 @@ vm.$on('vueServer.htmlReady', function(html) {
 });
 ```
 
-## Compability table
+Compability table
+---
+
 | VueServer.js  | Vue.js        |
 | :------------ |:------------- |
 | ^0.4.0        | 1.0.0-alpha.8 |
 
-## Restrictions
-VueServer.js is desined for static html rendering. It has no real reactivity.
-It means you cannot use some of Vue.js functionality.
 
-#### Hooks
+Restrictions
+---
+
+VueServer.js is designed for static html rendering. It has no real reactivity.
+
+Also, the module is not running original Vue.js on server. It has its own realisation.
+
+Which means VueServer.js is just trying to perfectly reproduce same result as Vue.js does.
+
+Because of the reasons listed above some of Vue.js functionality is not available.
+
+
+#### Hooks difference
 VueServer.js does not share hooks with Vue.js. It has its own ones, partially equal to Vue.js
+
+Note: readyBe is a bit experimental and its behaviour may be not correct.
 | VueServer.js  | Vue.js        |
 | :------------ |:------------- |
 | createdBe     | created       |
 | --            | beforeCompile |
 | compiledBe    | compiled      |
-| --            | ready         |
+| activateBe    | activate      |
+| readyBe       | ready         |
 | --            | attached      |
 | --            | detached      |
 | --            | beforeDestroy |
 | --            | destroyed     |
-| activateBe    | activate      |
+
+
 
 #### Methods are not supported:
 * vm.$watch
@@ -63,6 +82,7 @@ VueServer.js does not share hooks with Vue.js. It has its own ones, partially eq
 * vm.$mount
 * vm.$destroy
 * vm.$addChild
+
 
 #### Directives are not supported:
 * v-on
@@ -79,7 +99,9 @@ It means you can use v-if, filters, partials, async components, wait-for (or act
 Overall, it is possible to use complex component building system you love so much using Vue.js
 
 
-## Templates precompilation
+Templates precompilation
+---
+
 It is recommended to precompile templates for faster rendering
 
 ```
@@ -89,8 +111,12 @@ var VueCompile = new vueServer.compiler();
 var serverTemplate = VueCompile('<div>Hello world!</div>');
 ```
 
+We've got a gulp plugin for that purpose. Soon it will be published too.
 
-## Config
+
+Config
+---
+
 ```
 var vueServer = require('vue-server');
 var Vue = new vueServer.renderer();
