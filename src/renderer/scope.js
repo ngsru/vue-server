@@ -91,7 +91,7 @@ var scope = {
             // Если нет родителя, то это рутовый компонент и создадим для него специальный элемент-контейнер
             } else {
                 if (!tpl) {
-                    this.$logger.error('There is no $root template. Can\'t start rendering');
+                    vm.$logger.error('There is no $root template. Can\'t start rendering');
                 }
                 vm.$el = {
                     type: 'document',
@@ -250,7 +250,7 @@ var scope = {
 
             
             // VM-ы от v-for не нужно добавлять в $children
-            if (!newVm.__states.notPublic) {
+            if (!this.__states.notPublic) {
                 this.$children.push(newVm);
             }
 
@@ -273,6 +273,26 @@ var scope = {
             if (options.component && !options.repeatData) {
                 this.__states.VMs = this.__states.VMs || {};
                 this.__states.VMs[options.element.id + options.component.name] = newVm;
+            }
+        };
+
+        vm.$addLightChild = function(options) {
+            var newVm = scope.initLightViewModel(
+                common.extend({
+                    parent: this,
+                    filters: this.$options.filters,
+                    partials: this.$options.partials,
+                    components: this.$options.components
+                }, options)
+            );
+
+
+            // Заморочки нужны для поддержки асинхронного компонента
+            // Его vm создаёт не сразу
+            if (options.childIndex !== undefined) {
+                this.__states.children[options.childIndex] = newVm;
+            } else {
+                this.__states.children.push(newVm);
             }
         };
 
@@ -656,24 +676,67 @@ var scope = {
 
     // Инициализация VM-ов для v-for
     initLightViewModel: function(contexts) {
+        var options = {};
         var vm = {};
+
+        for (var key in contexts.parent) {
+            if (scope.isSystemProp(key) || vm[key]) {
+                continue;
+            }
+            vm[key] = contexts.parent[key];
+        }
+
+        vm.__states = {};
+        vm.__states.notPublic = true;
+
+        if (this.config.strict) {
+            options.filters = common.extend({}, this.filters, options.filters);
+            options.partials = common.extend({}, this.partials, options.partials);
+            options.components = common.extend({}, this.components, options.components);
+        } else {
+            options.filters = common.extend({}, this.filters, contexts.filters, options.filters);
+            options.partials = common.extend({}, this.partials, contexts.partials, options.partials);
+            options.components = common.extend({}, this.components, contexts.components, options.components);
+        }
+
 
         vm.$logger = this.$logger;
         
         vm.$refs = {};
         vm.$els = {};
         vm.$el = contexts.element;
+        vm.$options = options;
         vm.$parent = contexts.parent;
+        vm.$root = contexts.parent;
+
+        // events bookkeeping
+        vm._events = {};
+        vm._eventsCount = {};
+        vm._eventCancelled = false;
+
+        vm.__states.children = [];
+        vm.__states.childrenReadyCount = 0;
+        vm._isCompiled = false;
+        vm._isReady = false;
+        vm.isServer = true;
+
+        scope.initVmSystemMethods(vm);
 
         scope.markKeyElement(vm);
 
+        if (contexts.repeatData) {
+            common.extend(vm, contexts.repeatData);
+        }
+
         process.nextTick(function() {
-            builders.build(vm);
+            builders.build(vm, function() {
+                vm._isReady = true;
+            });
         });
 
 
         return vm;
-    },
+    }
 };
 
 

@@ -575,8 +575,6 @@ var builders = {
                 // и у реплицированного компонента её тоже не будет, поэтому - прокидываем
                 repeatElement.dirs.component = element.dirs.component;
 
-                repeatElement.id = getElementId();
-
                 repeatElementWrapper = {
                     'type': 'tag',
                     'name': '$merge',
@@ -589,7 +587,7 @@ var builders = {
 
                 repeatElements.push(repeatElementWrapper);
 
-                vm.$addChild({
+                vm.$addLightChild({
                     isRepeat: true,
                     element: repeatElementWrapper,
                     repeatData: repeatDataItem,
