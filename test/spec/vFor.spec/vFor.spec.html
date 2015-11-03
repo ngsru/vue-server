@@ -7,6 +7,15 @@
     <div id="component"><comp-name v-for="a in arr" :item="a" :index="$index"></comp-name></div>
     <div id="component-filter"><comp-name v-for="a in arr | reduce" :item="a" :index="$index"></comp-name></div>
     <div id="component-filter-explict"><comp-name v-for="(ind, a) in arr | reduce" :item="a" :index="ind"></comp-name></div>
+    <div id="component-compound">
+        <div 
+            v-for="a in arr"
+            is="compNameCompound"
+            :item="a"
+            :index="$index"
+            :extra="parto"
+        ></div>
+    </div>
     <div id="component2">
         <component is="compName" v-for="a in arr" :item="a" :index="$index"></component>
     </div>

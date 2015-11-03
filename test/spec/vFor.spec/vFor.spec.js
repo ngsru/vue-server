@@ -27,6 +27,15 @@ var contentComponent = {
             template: '<i>{{a}}{{index}}|{{item}}</i>'
         },
 
+        compNameCompound: {
+            props: {
+                item: null,
+                index: null,
+                extra: null
+            },
+            template: '<i>{{a}}{{index}}|{{item}}|{{extra}}</i>'
+        },
+
         filterRepeated: {
             'template': [
                 '<span class="evil-filter">{{boy | evilFilter}}</span>'
@@ -277,6 +286,10 @@ describe('v-for', function() {
 
     it('on component via custom tag and object + filter to work fine', function() {
         expect( $('#component-object-filter').html() ).toEqual('<i>0|1</i><i>1|3</i>');
+    });
+
+    it('on component via custom tag to work fine', function() {
+        expect( $('#component-compound').html() ).toEqual('<i>0|1|compParted</i><i>1|2|compParted</i><i>2|3|compParted</i>');
     });
 
     it('on component via <component> to work fine', function() {

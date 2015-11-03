@@ -1,0 +1,31 @@
+<div>
+    <div id="component">
+        <component is="compName"></div>
+    </div>
+    <div id="component-dyn">
+        <component is="{{varCompName}}"></div>
+    </div>
+    <div id="component-dyn-new">
+        <component :is="varCompName"></div>
+    </div>
+    <div id="directive">
+        <div v-component="compName"></div>
+    </div>
+    <div id="dash">
+        <comp-name></comp-name>
+    </div>
+    <div id="repeat-tag">
+        <comp-name v-repeat="arr"></comp-name>
+    </div>
+
+
+    <div id="overlappingn-rep">
+        <div is="compNameRep" v-if="overlapping.show" v-show="overlapping.show" :attr="overlapping.attr"></div>
+    </div>
+
+    <div id="overlappingn-no-rep">
+        <div is="compNameNoRep" v-if="overlapping.show" v-show="overlapping.show" :attr="overlapping.attr"></div>
+    </div>
+
+
+</div>
