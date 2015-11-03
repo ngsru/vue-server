@@ -235,7 +235,7 @@ var scope = {
             var newVm;
             var presentVm;
 
-            if (this.__states.VMsDetached && options.component) {
+            if (this.__states.VMsDetached && options.component && !options.repeatData) {
                 presentVm = this.__states.VMsDetached[options.element.id + options.component.name];
                 this.__states.VMsDetached[options.element.id + options.component.name] = undefined;
             }
@@ -667,7 +667,33 @@ var scope = {
         }
 
         return dataTo;
-    }
+    },
+
+
+
+
+
+
+    // Инициализация VM-ов для v-for
+    initLightViewModel: function(contexts) {
+        var vm = {};
+
+        vm.$logger = this.$logger;
+        
+        vm.$refs = {};
+        vm.$els = {};
+        vm.$el = contexts.element;
+        vm.$parent = contexts.parent;
+
+        scope.markKeyElement(vm);
+
+        process.nextTick(function() {
+            builders.build(vm);
+        });
+
+
+        return vm;
+    },
 };
 
 

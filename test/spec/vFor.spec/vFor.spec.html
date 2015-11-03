@@ -1,0 +1,84 @@
+<div>
+    <div id="simple"><i v-for="a in arr">{{a + $index}}</i></div>
+    <div id="simple-explict"><i v-for="(ind, a) in arr">{{a + ind}}</i></div>
+    <div id="simple-filter"><i v-for="a in arr | reduce">{{a + $index}}</i></div>
+    <div id="object"><i v-for="a in arr2">{{a + $index}}</i></div>
+    <div id="object-filter"><i v-for="a in arr2 | reduce">{{a + $index}}</i></div>
+    <div id="component"><comp-name v-for="a in arr" :item="a" :index="$index"></comp-name></div>
+    <div id="component-filter"><comp-name v-for="a in arr | reduce" :item="a" :index="$index"></comp-name></div>
+    <div id="component-filter-explict"><comp-name v-for="(ind, a) in arr | reduce" :item="a" :index="ind"></comp-name></div>
+    <div id="component2">
+        <component is="compName" v-for="a in arr" :item="a" :index="$index"></component>
+    </div>
+    <div id="component-object"><comp-name v-for="a in arr2" :item="a" :index="$index"></comp-name></div>
+    <div id="component-object-filter"><comp-name v-for="a in arr2 | reduce" :item="a" :index="$index"></comp-name></div>
+
+
+
+
+
+
+    <!-- v-repeat -->
+    <section id="v-repeat">
+        <ul class="simple-array">
+            <li v-for="item in vRepeat.simpleArray">
+                <span class="value">{{item.value}}</span>
+                <span class="dont-inherit">{{item.dontInherit}}</span>
+                <span class="parent-value">{{vRepeat.parentValue}}</span>
+            </li>
+        </ul>
+
+        <ul class="undefined">
+            <li v-for="item in vRepeat.undefined">Ok</li>
+        </ul>
+
+        <ul class="hollow">
+            <li v-for="item in vRepeat.hollowArray">Ok</li>
+        </ul>
+
+
+        <ul class="array-filter-by">
+            <li v-for="item in vRepeat.arrayForFilter | filterBy vRepeat.searchText in 'name'">
+                <span class="age">{{item.age}}</span>
+            </li>
+        </ul>
+
+        <!-- !!!!!!!!!!!!!!!! -->
+        <ul class="array-filter-by-multiple">
+            <li v-for="item in vRepeat.arrayForFilter | filterBy vRepeat.searchText in 'name' | filterBy 25 in 'age'">
+                <span class="age">{{item.age}}</span>
+            </li>
+        </ul>
+
+
+        <ul class="object">
+            <li class="value" v-for="item in vRepeat.object">{{item.value}}</li>
+        </ul>
+
+        <ul class="repeat-component">
+            <li v-for="item in vRepeat.simpleArray" is="compName">
+                <span class="should-not-be-there"></span>
+            </li>
+        </ul>
+
+
+        <div class="name-seting" v-for="item in vRepeat.nameNesting">
+            <span class="item-value">{{item.value}}</span>
+            <ul class="item-array">
+                <li class="item-array-unit" v-for="elseItem in item.array">{{elseItem.newValue}}</li>
+            </ul>
+
+            <ul class="item-array-nesting">
+                <li class="item-array-nesting-unit" v-for="unit in item.array">{{unit.newValue}}</li>
+            </ul>
+        </div>
+
+
+        <div class="compound-nesting" is="compound"></div>
+
+
+        <syntetic class="syntetic"></syntetic>
+
+        <div class="filter-repeated" v-for="item in vRepeat.simpleArray" is="filterRepeated"></div>
+    </section>
+</div>

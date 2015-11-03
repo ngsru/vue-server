@@ -271,7 +271,7 @@ module.exports = {
             },
 
             filters: {
-                'evilFilter': function(value) {
+                evilFilter: function(value) {
                     return 'evil' + value + 'evil';
                 }
             }
