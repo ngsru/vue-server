@@ -145,8 +145,8 @@ var getElementId = function() {
 
 
 var bindRE = /^:|^v-bind:/;
-var refRE = /^:|^v-ref:/;
-var elRE = /^:|^v-el:/;
+var refRE = /^v-ref:/;
+var elRE = /^v-el:/;
 var onRE = /^@/;
 var argRE = /:(.*)$/;
 var vForValRE = /\((.+)\)/;

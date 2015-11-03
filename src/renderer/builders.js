@@ -141,7 +141,7 @@ var builders = {
                     if (!element.dirs.repeat.isCompiled) {
                         elements.splice(i, 1);
 
-                        repeatElements = builders.buildRepeatElements(vm, elements, element, i);
+                        repeatElements = builders.buildRepeatElements(vm, elements, element);
 
                         if (repeatElements) {
                             // Вставляем получившиеся элементы в псведо-dom
