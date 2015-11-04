@@ -204,13 +204,6 @@ var common = {
         }
     },
 
-    getVmPath: function(vm) {
-        if (!vm.$parent) {
-            return '$root';
-        } else {
-           return vm.logName;
-        }
-    },
 
     onLogMessage: function(vm) {
         if (vm.$logger._config.onLogMessage) {

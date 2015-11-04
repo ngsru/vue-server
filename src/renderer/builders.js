@@ -39,8 +39,8 @@ var builders = {
 
                     vm.$emit('_vueServer.vmReady');
 
-                    if (vm.$parent) {
-                        vm.$parent.$emit('_vueServer.childVmReady');
+                    if (vm.__states.parent) {
+                        vm.__states.parent.$emit('_vueServer.childVmReady');
                     }
 
                     vm.$off('_vueServer.childVmReady');
@@ -53,8 +53,8 @@ var builders = {
 
             vm.$emit('_vueServer.vmReady');
 
-            if (vm.$parent) {
-                vm.$parent.$emit('_vueServer.childVmReady');
+            if (vm.__states.parent) {
+                vm.__states.parent.$emit('_vueServer.childVmReady');
             }
         }
 
@@ -76,11 +76,12 @@ var builders = {
                 (function() {
                     var name;
                     var cameledName;
-                    if (vm.$options.components[element.name]){
+                    var $components = builders.getAsset(vm, 'components');
+                    if ( $components[element.name] ) {
                         name = element.name;
                     } else {
                         cameledName = common.dashToCamelCase(element.name);
-                        if (vm.$options.components[cameledName]) {
+                        if ( $components[cameledName] ) {
                             name = cameledName;
                         }
                     }
@@ -196,7 +197,7 @@ var builders = {
     getPartial: function(meta) {
         var vm = meta.vm;
         var partialName = common.getValue(vm, meta.partialName);
-        var partial = vm.$options.partials[partialName];
+        var partial = builders.getAsset(vm, 'partials')[partialName];
         var logMsg;
 
         if (partial) {
@@ -338,7 +339,7 @@ var builders = {
     // Обрабатываем элемент с v-component
     buildComponent: function(vm, element, options) {
         var componentName = common.getValue(vm, element.dirs.component.value);
-        var component = vm.$options.components[componentName];
+        var component = builders.getAsset(vm, 'components')[componentName];
 
         if (element.attribs['wait-for']) {
             element.dirs.component.options.waitFor = element.attribs['wait-for'];
@@ -365,7 +366,7 @@ var builders = {
             if (typeof component === 'function') {
                 component(
                     function(data) {
-                        vm.$options.components[componentName] = data;
+                        builders.getAsset(vm, 'components')[componentName] = data;
                         builders.buildComponentContent(vm, element, options, data, componentName);
                     },
                     function(error) {
@@ -598,6 +599,14 @@ var builders = {
         }
 
         return false;
+    },
+
+
+    getAsset: function(vm, asset) {
+        if (vm.__states.notPublic) {
+            return this.getAsset(vm.$parent, asset);
+        }
+        return vm.$options[asset];
     }
 
 };

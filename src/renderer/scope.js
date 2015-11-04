@@ -65,7 +65,7 @@ var scope = {
         vm.$el = contexts.element;
         vm.$options = options;
         vm.$data = data;
-        vm.$parent = contexts.parent;
+        vm.$parent = contexts.parentLink ? contexts.parentLink : contexts.parent;
         vm.$root = contexts.parent ? contexts.parent.$root : vm;
 
         // events bookkeeping
@@ -74,6 +74,7 @@ var scope = {
         vm._eventCancelled = false;
 
         vm.$children = [];
+        vm.__states.parent = contexts.parent;
         vm.__states.children = [];
         vm.__states.childrenReadyCount = 0;
         vm._isCompiled = false;
@@ -86,7 +87,7 @@ var scope = {
         if (vm.__states.isComponent) {
             var tpl = scope.initTemplate(vm);
 
-            if (vm.$parent) {
+            if (vm.__states.parent) {
                 scope.setKeyElementInner(vm, tpl);
             // Если нет родителя, то это рутовый компонент и создадим для него специальный элемент-контейнер
             } else {
@@ -215,6 +216,7 @@ var scope = {
         vm.$addChild = function(options) {
             var newVm;
             var presentVm;
+            var $target = scope.getRealParent(vm);
 
             if (this.__states.VMsDetached && options.component && !options.repeatData) {
                 presentVm = this.__states.VMsDetached[options.element.id + options.component.name];
@@ -225,9 +227,10 @@ var scope = {
                 newVm = scope.initViewModel(
                     common.extend({
                         parent: this,
-                        filters: this.$options.filters,
-                        partials: this.$options.partials,
-                        components: this.$options.components
+                        parentLink: $target,
+                        filters: $target.$options.filters,
+                        partials: $target.$options.partials,
+                        components: $target.$options.components
                     }, options)
                 );
             } else {
@@ -250,9 +253,8 @@ var scope = {
 
             
             // VM-ы от v-for не нужно добавлять в $children
-            if (!this.__states.notPublic) {
-                this.$children.push(newVm);
-            }
+            $target.$children.push(newVm);
+
 
 
             if (options.ref) {
@@ -260,14 +262,14 @@ var scope = {
                     var prop = options.ref.options.target;
                     var name = common.dashToCamelCase(options.ref.value);
 
-                    if (newVm.__states.isRepeat) {
-                        this[prop][name] = this[prop][name] || [];
-                        this[prop][name].push(newVm);
+                    if (newVm.__states.isRepeat || newVm.__states.notPublic) {
+                        $target[prop][name] = $target[prop][name] || [];
+                        $target[prop][name].push(newVm);
                     } else {
-                        this[prop][name] = newVm;
+                        $target[prop][name] = newVm;
                     }
 
-                }).call(this);
+                })();
             }
 
             if (options.component && !options.repeatData) {
@@ -412,14 +414,14 @@ var scope = {
 
                 delete vm[key];
             }
-            withReplaceData = common.getValue(vm.$parent, contexts.withReplaceData);
+            withReplaceData = common.getValue(vm.__states.parent, contexts.withReplaceData);
             common.extend(vm, withReplaceData);
         }
 
         if (contexts.withData) {
             for (var i = 0, l = contexts.withData.length; i < l; i++) {
                 item = contexts.withData[i];
-                vm[item.arg] = common.getValue(vm.$parent, item.get);
+                vm[item.arg] = common.getValue(vm.__states.parent, item.get);
             }
         }
     },
@@ -479,7 +481,7 @@ var scope = {
             var dataType = typeof data;
             if (
                 dataType === 'object' &&
-                !vm.$parent &&
+                !vm.__states.parent &&
                 data instanceof Array !== true
             ) {
                 return data;
@@ -599,7 +601,7 @@ var scope = {
         }
 
         if (rawValue) {
-            value = common.execute(vm.$parent, rawValue, {
+            value = common.execute(vm.__states.parent, rawValue, {
                 isEscape: false,
                 isClean: false
             });
@@ -651,7 +653,7 @@ var scope = {
 
         // Наследование колбеков от родителя
         if (typeof value === 'function') {
-            vm[propName] = utils.bind(value, vm.$parent);
+            vm[propName] = utils.bind(value, vm.__states.parent);
         } else {
             vm[propName] = value;
         }
@@ -691,12 +693,8 @@ var scope = {
 
         if (this.config.strict) {
             options.filters = common.extend({}, this.filters, options.filters);
-            options.partials = common.extend({}, this.partials, options.partials);
-            options.components = common.extend({}, this.components, options.components);
         } else {
             options.filters = common.extend({}, this.filters, contexts.filters, options.filters);
-            options.partials = common.extend({}, this.partials, contexts.partials, options.partials);
-            options.components = common.extend({}, this.components, contexts.components, options.components);
         }
 
 
@@ -706,14 +704,15 @@ var scope = {
         vm.$els = {};
         vm.$el = contexts.element;
         vm.$options = options;
-        vm.$parent = contexts.parent;
-        vm.$root = contexts.parent;
+        vm.$parent = contexts.parentLink ? contexts.parentLink : contexts.parent;
+        vm.$root = contexts.parent ? contexts.parent.$root : vm;
 
         // events bookkeeping
         vm._events = {};
         vm._eventsCount = {};
         vm._eventCancelled = false;
 
+        vm.__states.parent = contexts.parent;
         vm.__states.children = [];
         vm.__states.childrenReadyCount = 0;
         vm._isCompiled = false;
@@ -734,6 +733,15 @@ var scope = {
             });
         });
 
+
+        return vm;
+    },
+
+
+    getRealParent: function(vm) {
+        if (vm.__states.notPublic) {
+            return this.getRealParent(vm.__states.parent);
+        }
 
         return vm;
     }
