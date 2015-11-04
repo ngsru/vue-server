@@ -32,14 +32,12 @@
 //     }
 // };
 
-
 // beforeAll(function(done) {
 //     wrapComponent(contentComponent, function(response) {
 //         $ = response;
 //         done();
 //     });
 // });
-
 
 // describe('while using replace: true', function() {
 //     it('v-repeat should not render its element while repeating component', function() {

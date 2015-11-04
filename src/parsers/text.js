@@ -11,25 +11,25 @@ var cache, tagRE, htmlRE
  * @param {String} str
  */
 
-function escapeRegex (str) {
-  return str.replace(regexEscapeRE, '\\$&')
+function escapeRegex(str) {
+    return str.replace(regexEscapeRE, '\\$&')
 }
 
 exports.compileRegex = function () {
-  var open = escapeRegex(config.delimiters[0])
-  var close = escapeRegex(config.delimiters[1])
-  var unsafeOpen = escapeRegex(config.unsafeDelimiters[0])
-  var unsafeClose = escapeRegex(config.unsafeDelimiters[1])
-  tagRE = new RegExp(
-    unsafeOpen + '(.+?)' + unsafeClose + '|' +
-    open + '(.+?)' + close,
-    'g'
-  )
-  htmlRE = new RegExp(
-    '^' + unsafeOpen + '.*' + unsafeClose + '$'
-  )
-  // reset cache
-  cache = new Cache(1000)
+    var open = escapeRegex(config.delimiters[0])
+    var close = escapeRegex(config.delimiters[1])
+    var unsafeOpen = escapeRegex(config.unsafeDelimiters[0])
+    var unsafeClose = escapeRegex(config.unsafeDelimiters[1])
+    tagRE = new RegExp(
+      unsafeOpen + '(.+?)' + unsafeClose + '|' +
+      open + '(.+?)' + close,
+      'g'
+    )
+    htmlRE = new RegExp(
+      '^' + unsafeOpen + '.*' + unsafeClose + '$'
+    )
+    // reset cache
+    cache = new Cache(1000)
 }
 
 /**
@@ -44,55 +44,55 @@ exports.compileRegex = function () {
  */
 
 exports.parse = function (text) {
-  if (!cache) {
-    exports.compileRegex()
-  }
-  var hit = cache.get(text)
-  if (hit) {
-    return hit
-  }
-  text = text.replace(/\n/g, '')
-  if (!tagRE.test(text)) {
-    return null
-  }
-  var tokens = []
-  var lastIndex = tagRE.lastIndex = 0
-  var match, index, html, value, first, oneTime, twoWay
-  /* eslint-disable no-cond-assign */
-  while (match = tagRE.exec(text)) {
-  /* eslint-enable no-cond-assign */
-    index = match.index
-    // push text token
-    if (index > lastIndex) {
-      tokens.push({
-        value: text.slice(lastIndex, index)
-      })
+    if (!cache) {
+        exports.compileRegex()
     }
-    // tag token
-    html = htmlRE.test(match[0])
-    value = html ? match[1] : match[2]
-    first = value.charCodeAt(0)
-    oneTime = first === 42 // *
-    twoWay = first === 38 || first === 64 // & or @
-    value = oneTime || twoWay
-      ? value.slice(1)
-      : value
-    tokens.push({
-      tag: true,
-      value: value.trim(),
-      html: html,
-      oneTime: oneTime,
-      twoWay: twoWay
-    })
-    lastIndex = index + match[0].length
-  }
-  if (lastIndex < text.length) {
-    tokens.push({
-      value: text.slice(lastIndex)
-    })
-  }
-  cache.put(text, tokens)
-  return tokens
+    var hit = cache.get(text)
+    if (hit) {
+        return hit
+    }
+    text = text.replace(/\n/g, '')
+    if (!tagRE.test(text)) {
+        return null
+    }
+    var tokens = []
+    var lastIndex = tagRE.lastIndex = 0
+    var match, index, html, value, first, oneTime, twoWay
+    /* eslint-disable no-cond-assign */
+    while (match = tagRE.exec(text)) {
+        /* eslint-enable no-cond-assign */
+        index = match.index
+        // push text token
+        if (index > lastIndex) {
+            tokens.push({
+                value: text.slice(lastIndex, index)
+            })
+        }
+        // tag token
+        html = htmlRE.test(match[0])
+        value = html ? match[1] : match[2]
+        first = value.charCodeAt(0)
+        oneTime = first === 42 // *
+        twoWay = first === 38 || first === 64 // & or @
+        value = oneTime || twoWay          ?
+      value.slice(1)
+          : value
+        tokens.push({
+            tag: true,
+            value: value.trim(),
+            html: html,
+            oneTime: oneTime,
+            twoWay: twoWay
+        })
+        lastIndex = index + match[0].length
+    }
+    if (lastIndex < text.length) {
+        tokens.push({
+            value: text.slice(lastIndex)
+        })
+    }
+    cache.put(text, tokens)
+    return tokens
 }
 
 /**
@@ -106,13 +106,13 @@ exports.parse = function (text) {
  */
 
 exports.tokensToExp = function (tokens, vm) {
-  if (tokens.length > 1) {
-    return tokens.map(function (token) {
-      return formatToken(token, vm)
-    }).join('+')
-  } else {
-    return formatToken(tokens[0], vm, true)
-  }
+    if (tokens.length > 1) {
+        return tokens.map(function (token) {
+            return formatToken(token, vm)
+        }).join('+')
+    } else {
+        return formatToken(tokens[0], vm, true)
+    }
 }
 
 /**
@@ -124,12 +124,12 @@ exports.tokensToExp = function (tokens, vm) {
  * @return {String}
  */
 
-function formatToken (token, vm, single) {
-  return token.tag
-    ? vm && token.oneTime
-      ? '"' + vm.$eval(token.value) + '"'
-      : inlineFilters(token.value, single)
-    : '"' + token.value + '"'
+function formatToken(token, vm, single) {
+    return token.tag      ?
+    vm && token.oneTime        ?
+      '"' + vm.$eval(token.value) + '"'
+        : inlineFilters(token.value, single)
+      : '"' + token.value + '"'
 }
 
 /**
@@ -146,21 +146,21 @@ function formatToken (token, vm, single) {
  */
 
 var filterRE = /[^|]\|[^|]/
-function inlineFilters (exp, single) {
-  if (!filterRE.test(exp)) {
-    return single
-      ? exp
-      : '(' + exp + ')'
-  } else {
-    var dir = dirParser.parse(exp)[0]
-    if (!dir.filters) {
-      return '(' + exp + ')'
+function inlineFilters(exp, single) {
+    if (!filterRE.test(exp)) {
+        return single          ?
+      exp
+          : '(' + exp + ')'
     } else {
-      return 'this._applyFilters(' +
-        dir.expression + // value
-        ',null,' +       // oldValue (null for read)
-        JSON.stringify(dir.filters) + // filter descriptors
-        ',false)'        // write?
+        var dir = dirParser.parse(exp)[0]
+        if (!dir.filters) {
+            return '(' + exp + ')'
+        } else {
+            return 'this._applyFilters(' +
+              dir.expression + // value
+              ',null,' +       // oldValue (null for read)
+              JSON.stringify(dir.filters) + // filter descriptors
+              ',false)'        // write?
+        }
     }
-  }
 }

@@ -32,7 +32,6 @@ var contentComponent = {
             '</select>',
         '</div>',
 
-
         '<div id="checkbox">',
             '<input type="checkbox" v-model="checkbox" />',
         '</div>',
@@ -45,7 +44,7 @@ var contentComponent = {
             '<input type="checkbox" value="Daniels" v-model="checkboxMultiple | replacer2" />',
         '</div>'
     ].join(''),
-    data: function() {
+    data: function () {
         return {
             options: [
                 {value: 'one', label: '1111'},
@@ -58,94 +57,91 @@ var contentComponent = {
             valueMultiple: ['one', 333],
             valueMultiple2: ['mazda', 333],
 
-
             checkbox: true,
             checkboxMultiple: ['Daniels']
         };
     },
 
     filters: {
-        replacer1: function() {
+        replacer1: function () {
             return '333';
         },
 
-        replacer2: function() {
+        replacer2: function () {
             return ['Jack'];
         }
     }
 };
 
-
-beforeAll(function(done) {
-    wrapComponent(contentComponent, function(response) {
+beforeAll(function (done) {
+    wrapComponent(contentComponent, function (response) {
         $ = response;
         done();
     }, {replace: true});
 });
 
-
-describe('v-model', function() {
-    describe('on <select> and v-for\'ed <option> items', function() {
-        it('should set single value', function() {
+describe('v-model', function () {
+    describe('on <select> and v-for\'ed <option> items', function () {
+        it('should set single value', function () {
             var isSelected = [];
-            $('#select option').each(function() {
+            $('#select option').each(function () {
                 isSelected.push(Boolean($(this).attr('selected')));
             });
-            expect( isSelected.join(',') ).toEqual('false,true,false');
+            expect(isSelected.join(',')).toEqual('false,true,false');
         });
 
-        it('with a filter should set single value', function() {
+        it('with a filter should set single value', function () {
             var isSelected = [];
-            $('#select-filter option').each(function() {
+            $('#select-filter option').each(function () {
                 isSelected.push(Boolean($(this).attr('selected')));
             });
-            expect( isSelected.join(',') ).toEqual('false,false,true');
+            expect(isSelected.join(',')).toEqual('false,false,true');
         });
 
-        it('should set empty value', function() {
+        it('should set empty value', function () {
             var isSelected = [];
-            $('#select-empty option').each(function() {
+            $('#select-empty option').each(function () {
                 isSelected.push(Boolean($(this).attr('selected')));
             });
-            expect( isSelected.join(',') ).toEqual('false,true,false,false,false');
+            expect(isSelected.join(',')).toEqual('false,true,false,false,false');
         });
 
-        it('should set multiple value', function() {
+        it('should set multiple value', function () {
             var isSelected = [];
-            $('#select-multiple option').each(function() {
+            $('#select-multiple option').each(function () {
                 isSelected.push(Boolean($(this).attr('selected')));
             });
-            expect( isSelected.join(',') ).toEqual('true,false,true');
+            expect(isSelected.join(',')).toEqual('true,false,true');
         });
 
-        it('and a static <option> should set multiple value', function() {
+        it('and a static <option> should set multiple value', function () {
             var isSelected = [];
-            $('#select-multiple-complex option').each(function() {
+            $('#select-multiple-complex option').each(function () {
                 isSelected.push(Boolean($(this).attr('selected')));
             });
-            expect( isSelected.join(',') ).toEqual('true,false,false,true');
+            expect(isSelected.join(',')).toEqual('true,false,false,true');
         });
     });
 
-    describe('on <input type="checkbox" />', function() {
-        it('should set "checked" if value is Boolean "true"', function() {
-            expect( $('#checkbox input').attr('checked') ).toEqual('checked');
+    describe('on <input type="checkbox" />', function () {
+        it('should set "checked" if value is Boolean "true"', function () {
+            expect($('#checkbox input').attr('checked')).toEqual('checked');
         });
 
-        it('should set "checked" properly if value is an Array', function() {
+        it('should set "checked" properly if value is an Array', function () {
             var isSelected = [];
-            $('#checkbox-multiple input').each(function() {
+            $('#checkbox-multiple input').each(function () {
                 isSelected.push(Boolean($(this).attr('checked')));
             });
-            expect( isSelected.join(',') ).toEqual('false,true');
+            expect(isSelected.join(',')).toEqual('false,true');
         });
 
-        it('should set "checked" properly with a filter if value is an Array', function() {
+        it('should set "checked" properly with a filter if value is an Array', function () {
             var isSelected = [];
-            $('#checkbox-multiple-filter input').each(function() {
+            $('#checkbox-multiple-filter input').each(function () {
                 isSelected.push(Boolean($(this).attr('checked')));
             });
-            expect( isSelected.join(',') ).toEqual('true,false');
+            expect(isSelected.join(',')).toEqual('true,false');
         });
     });
 });

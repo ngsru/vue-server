@@ -8,11 +8,10 @@ var scope = require('./scope.js');
 var compilers = require('./compilers.js');
 var renders = require('./renders.js');
 
-
-var VueRender = function(logger) {
+var VueRender = function (logger) {
     logger = logger || log4js.getLogger('[VueServer]');
 
-    var makeRootVm = function(instance) {
+    var makeRootVm = function (instance) {
         var that = this;
         var vm;
         var compileInProgress = false;
@@ -43,12 +42,13 @@ var VueRender = function(logger) {
             isComponent: true
         });
 
-
         vm
-            .$on('_vueServer.tryBeginCompile', function() {
+            .$on('_vueServer.tryBeginCompile', function () {
                 if (that._checkVmsReady(this)) {
                     if (compileInProgress) {
-                        that.logger.error('Building proccess gone wrong. Some VMs finished compilation after $root Ready');
+                        that.logger.error(
+                            'Building proccess gone wrong. Some VMs finished compilation after $root Ready'
+                        );
                         return;
                     }
 
@@ -56,17 +56,17 @@ var VueRender = function(logger) {
                     this.$emit('_vueServer.readyToCompile');
                     this.$broadcast('_vueServer.readyToCompile');
 
-                    process.nextTick(function() {
+                    process.nextTick(function () {
                         compilers.compile(this);
 
-                        process.nextTick(function() {
+                        process.nextTick(function () {
                             var html = renders.render(this);
                             this.$emit('vueServer.htmlReady', html);
                         }.bind(this));
                     }.bind(this));
                 }
             })
-            .$on('_vueServer.vmReady', function() {
+            .$on('_vueServer.vmReady', function () {
                 this.$emit('_vueServer.tryBeginCompile');
             });
 
@@ -96,12 +96,8 @@ var VueRender = function(logger) {
     return makeRootVm;
 };
 
-
-
-
-
 // Проверка готовности VM-ов
-VueRender.prototype._checkVmsReady = function(vm) {
+VueRender.prototype._checkVmsReady = function (vm) {
     if (!vm._isReady) {
         return false;
     }
@@ -117,9 +113,8 @@ VueRender.prototype._checkVmsReady = function(vm) {
     return true;
 };
 
-
 // Объявление глобальных компонентов
-VueRender.prototype.component = function(id, component) {
+VueRender.prototype.component = function (id, component) {
     if (!component) {
         this.logger.debug('global component\'s content is empty: "' + id + '"');
         return this;
@@ -130,8 +125,7 @@ VueRender.prototype.component = function(id, component) {
     return this;
 };
 
-
-VueRender.prototype.filter = function(id, filter) {
+VueRender.prototype.filter = function (id, filter) {
     if (!filter) {
         this.logger.debug('global filter\'s content is empty: "' + id + '"');
         return this;
@@ -142,8 +136,7 @@ VueRender.prototype.filter = function(id, filter) {
     return this;
 };
 
-
-VueRender.prototype.partial = function(id, partial) {
+VueRender.prototype.partial = function (id, partial) {
     if (!partial) {
         this.logger.debug('global partial\'s content is empty: "' + id + '"');
         return this;
@@ -154,33 +147,32 @@ VueRender.prototype.partial = function(id, partial) {
     return this;
 };
 
-
-VueRender.prototype._initLogger = function(config, logger) {
+VueRender.prototype._initLogger = function (config, logger) {
     return {
         _config: config,
         _logger: logger,
-        debug: function() {
+        debug: function () {
             if (!this._config.silent && this._config.debug) {
                 this._logger.debug.apply(this._logger, arguments);
             }
 
             return this;
         },
-        info: function() {
+        info: function () {
             if (!this._config.silent && this._config.debug) {
                 this._logger.info.apply(this._logger, arguments);
             }
 
             return this;
         },
-        warn: function() {
+        warn: function () {
             if (!this._config.silent) {
                 this._logger.warn.apply(this._logger, arguments);
             }
 
             return this;
         },
-        error: function() {
+        error: function () {
             if (!this._config.silent) {
                 this._logger.error.apply(this._logger, arguments);
             }
@@ -189,6 +181,5 @@ VueRender.prototype._initLogger = function(config, logger) {
         }
     };
 };
-
 
 module.exports = VueRender;

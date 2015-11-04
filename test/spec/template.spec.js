@@ -2,12 +2,12 @@ var wrapComponent = require('./wrapComponent.js');
 var $;
 
 var contentComponent = {
-    data: function() {
+    data: function () {
         return {
             yes: true,
             not: false,
             arr: [1, 2, 3]
-        }  
+        }
     },
     template: [
         '<div>',
@@ -27,37 +27,35 @@ var contentComponent = {
     }
 };
 
-
-beforeAll(function(done) {
-    wrapComponent(contentComponent, function(response) {
+beforeAll(function (done) {
+    wrapComponent(contentComponent, function (response) {
         $ = response;
         done();
     });
 });
 
-
-describe('<template>', function() {
-    it('should be stay if there are no directives', function() {
+describe('<template>', function () {
+    it('should be stay if there are no directives', function () {
         expect($('#one > template').length).toEqual(1);
     });
-    
-    it('should be removed while retaining its content if v-if stated true', function() {
+
+    it('should be removed while retaining its content if v-if stated true', function () {
         expect($('#two').html()).toEqual('content');
     });
 
-    it('should be removed width removing its content if v-if stated false', function() {
+    it('should be removed width removing its content if v-if stated false', function () {
         expect($('#three').html()).toEqual('');
     });
 
-    it('should be able to use v-component', function() {
+    it('should be able to use v-component', function () {
         expect($('#four > article').length).toEqual(1);
     });
 
-    it('should hangle another <template> inside', function() {
+    it('should hangle another <template> inside', function () {
         expect($('#five').html()).toEqual('catdog');
     });
 
-    it('should be able to use v-repeat', function() {
+    it('should be able to use v-repeat', function () {
         expect($('#six').html()).toEqual('123');
     });
 });

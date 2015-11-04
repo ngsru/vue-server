@@ -10,6 +10,6 @@ var vm = new Vue({
     }
 });
 
-vm.$on('vueServer.htmlReady', function(html) {
+vm.$on('vueServer.htmlReady', function (html) {
     console.log(html);
 });

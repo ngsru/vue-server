@@ -1,7 +1,7 @@
 module.exports = {
     template: {path: __dirname + '/templates/index.html'},
 
-    data: function() {
+    data: function () {
         return {
             content: true
         }
@@ -9,18 +9,18 @@ module.exports = {
 
     computed: {
         // get only, just need a function
-        aDouble: function() {
+        aDouble: function () {
             return this.computed.tobeDoubled * 2
         },
 
         // both get and set
         aPlus: {
-            get: function() {
+            get: function () {
                 return this.computed.tobePlused + 5000;
             }
         },
 
-        getUndefined: function() {
+        getUndefined: function () {
             return;
         }
     },
@@ -29,41 +29,40 @@ module.exports = {
         'part1': '<section class="partial-wrap"><div class="value">{{partial.valueForPartial}}</div></section>'
     },
 
-
     methods: {
-        forVText: function() {
+        forVText: function () {
             return this.vText.value;
         },
 
-        forVAttr: function() {
+        forVAttr: function () {
             return this.vAttr.boxWidth;
         },
 
-        forVShowHide: function() {
+        forVShowHide: function () {
             return this.vShow.hide;
         },
 
-        forVShowShow: function() {
+        forVShowShow: function () {
             return this.vShow.show;
         },
 
-        forVStyle: function() {
+        forVStyle: function () {
             return this.vStyle.display;
         },
 
-        forVClass: function() {
+        forVClass: function () {
             return this.vClass.class1;
         },
 
-        forVIfShow: function() {
+        forVIfShow: function () {
             return this.vIf.show;
         },
 
-        forVIfHide: function() {
+        forVIfHide: function () {
             return this.vIf.hide;
         },
 
-        getFnUndefined: function() {
+        getFnUndefined: function () {
             return;
         }
     },
@@ -82,7 +81,6 @@ module.exports = {
             }
         };
 
-
         this.partial = {
             valueForPartial: 'Should result some value',
             partialName: 'part1',
@@ -90,11 +88,9 @@ module.exports = {
             emptyName: ''
         };
 
-
         this.vText = {
             value: 'Value from v-text data'
         };
-
 
         this.vComponent = {
             parentData: 'Parent Data present',
@@ -115,9 +111,7 @@ module.exports = {
                 {value: 'simple array value 3'}
             ],
 
-
             hollowArray: [],
-
 
             arrayForFilter: [
                 {name: 'Andrey', age: 25},
@@ -183,11 +177,9 @@ module.exports = {
 
             textarea1: 'New text came from data',
 
-
             checkbox: true,
 
             radio: 'two',
-
 
             vFilter: {
                 plain: 10,
@@ -204,7 +196,7 @@ module.exports = {
                 list: [
                     {text: 'Купить', value: 'sell'}
                 ]
-            },           
+            },
         };
 
         this.vAttr = {
@@ -248,7 +240,6 @@ module.exports = {
             hide: false
         };
 
-
         this.computed = {
             tobeDoubled: 50,
             tobePlused: 15000
@@ -264,14 +255,14 @@ module.exports = {
             'template': [
                 '<span class="evil-filter">{{boy | evilFilter}}</span>'
             ].join(''),
-            data: function() {
+            data: function () {
                 return {
                     boy: ' boy boy '
                 }
             },
 
             filters: {
-                evilFilter: function(value) {
+                evilFilter: function (value) {
                     return 'evil' + value + 'evil';
                 }
             }
@@ -284,7 +275,7 @@ module.exports = {
                 '</button>',
                 '<span class="nested-filter">{{checkFilter | nestedFilter}}</span>'
             ].join(''),
-            data: function() {
+            data: function () {
                 return {
                     buttons: [
                         {value: 1, label: 'одна'},
@@ -292,7 +283,7 @@ module.exports = {
                         {value: 3, label: 'три'},
                         {value: 4, label: 'четыре'}
                     ],
-                    
+
                     form: {
                         rooms: [2, 3]
                     },
@@ -302,30 +293,30 @@ module.exports = {
             },
 
             filters: {
-                nestedFilter: function(value) {
+                nestedFilter: function (value) {
                     return value + '!?!?!?!';
                 }
             },
-            
+
             methods: {
-                setRoom: function(vm) {
+                setRoom: function (vm) {
                     var index = this.form.rooms.indexOf(vm.value);
-                    
+
                     if (index == -1) {
                         this.form.rooms.push(vm.value);
                     } else {
                         this.form.rooms.splice(index, 1);
                     }
                 },
-                
-                setRoomActive: function(vm) {
+
+                setRoomActive: function (vm) {
                     var result = false;
-                    this.form.rooms.forEach(function(item) {
+                    this.form.rooms.forEach(function (item) {
                         if (item == vm.value) {
                             result = true;
                         }
                     });
-                    
+
                     return result;
                 }
             }
@@ -339,7 +330,7 @@ module.exports = {
                     '<div class="comp-parent-value">{{vRepeat.parentValue}}</div>' +
                     '<div class="comp-with-value">{{withedValue}}</div>' +
                 '</section>',
-            data: function() {
+            data: function () {
                 return {
                     compon1Val: 'Component\'s 1 own value'
                 }
@@ -355,13 +346,12 @@ module.exports = {
                     '<div class="comp-parent-value">{{vRepeat.parentValue}}</div>' +
                     '<div class="comp-with-value">{{withedValue}}</div>' +
                 '</section>',
-            data: function() {
+            data: function () {
                 return {
                     compon1Val: 'Component\'s 1 own value'
                 }
             }
         },
-
 
         'compon2': {
             template: '' +
@@ -370,13 +360,12 @@ module.exports = {
                     '<div class="comp-parent-value">{{vComponent.parentData}}</div>' +
                     '<div class="comp-with-value">{{withed}}</div>' +
                 '</section>',
-            data: function() {
+            data: function () {
                 return {
                     componVal: 'Component\'s 2 own value'
                 }
             }
         },
-
 
         'compon3': {
             inherit: true,
@@ -386,13 +375,12 @@ module.exports = {
                     '<div class="comp-parent-value">{{vComponent.parentData}}</div>' +
                     '<div class="comp-with-value">{{withed}}</div>' +
                 '</section>',
-            data: function() {
+            data: function () {
                 return {
                     componVal: 'Component\'s 3 own value'
                 }
             }
         },
-
 
         'inheritor': {
             template: '' +
@@ -402,24 +390,22 @@ module.exports = {
                 '<span class="filter">{{vComponent.componentName | inheritIndicator}}</span>'
         },
 
-
         'inheritorWrap': {
             template: '<div v-component="inheritor"></div>'
         },
 
         'noTemplate': {
-            data: function() {
+            data: function () {
                 return {
                     value: 'This is no-template value'
                 }
             }
         },
 
-
         'compound': {
             template: '<ul><li v-repeat="item:some" v-component="compoundChild"></li></ul>',
 
-            data: function() {
+            data: function () {
                 return {
                     some: [
                         {value: 'value from v-repeat', test: 'this should not work'}
@@ -430,7 +416,7 @@ module.exports = {
             components: {
                 'compoundChild': {
                     template: '<span class="nested">{{item.value}}</span> <span class="own">{{value}}</span>',
-                    data: function() {
+                    data: function () {
                         return {
                             value: 'Component\'s own value'
                         };
@@ -439,32 +425,29 @@ module.exports = {
             }
         }
 
-
     },
 
-
-
     filters: {
-        inheritIndicator: function() {
+        inheritIndicator: function () {
             return 'Filter inheritance works';
         },
 
-        argumentsTesting: function(value, arg1, arg2) {
+        argumentsTesting: function (value, arg1, arg2) {
             return value + ' ' + arg1 + ' ' + arg2;
         },
 
-        'plain': function(v) {
+        'plain': function (v) {
             return v * 2;
         },
 
         'read': {
-            read: function(v) {
+            read: function (v) {
                 return v * 2;
             }
         },
 
         'write': {
-            write: function(v) {
+            write: function (v) {
                 return v * 2;
             }
         },
@@ -473,7 +456,7 @@ module.exports = {
 
         },
 
-        'nothing': function(value) {
+        'nothing': function (value) {
             return value;
         }
     }

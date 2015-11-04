@@ -6,9 +6,9 @@
  */
 
 exports.isReserved = function (str) {
-  var c = (str + '').charCodeAt(0)
-  return c === 0x24 || c === 0x5F
-}
+    var c = (str + '').charCodeAt(0);
+    return c === 0x24 || c === 0x5F;
+};
 
 /**
  * Guard text output, make sure undefined outputs
@@ -19,10 +19,8 @@ exports.isReserved = function (str) {
  */
 
 exports.toString = function (value) {
-  return value == null
-    ? ''
-    : value.toString()
-}
+    return value === null ? '' : value.toString();
+};
 
 /**
  * Check and convert possible numeric strings to numbers
@@ -33,15 +31,13 @@ exports.toString = function (value) {
  */
 
 exports.toNumber = function (value) {
-  if (typeof value !== 'string') {
-    return value
-  } else {
-    var parsed = Number(value)
-    return isNaN(parsed)
-      ? value
-      : parsed
-  }
-}
+    if (typeof value !== 'string') {
+        return value;
+    } else {
+        var parsed = Number(value);
+        return isNaN(parsed) ? value : parsed;
+    }
+};
 
 /**
  * Convert string boolean literals into real booleans.
@@ -51,12 +47,8 @@ exports.toNumber = function (value) {
  */
 
 exports.toBoolean = function (value) {
-  return value === 'true'
-    ? true
-    : value === 'false'
-      ? false
-      : value
-}
+    return value === 'true' ? true : value === 'false' ? false : value;
+};
 
 /**
  * Strip quotes from a string
@@ -66,12 +58,10 @@ exports.toBoolean = function (value) {
  */
 
 exports.stripQuotes = function (str) {
-  var a = str.charCodeAt(0)
-  var b = str.charCodeAt(str.length - 1)
-  return a === b && (a === 0x22 || a === 0x27)
-    ? str.slice(1, -1)
-    : false
-}
+    var a = str.charCodeAt(0);
+    var b = str.charCodeAt(str.length - 1);
+    return a === b && (a === 0x22 || a === 0x27) ? str.slice(1, -1) : false;
+};
 
 /**
  * Camelize a hyphen-delmited string.
@@ -81,11 +71,11 @@ exports.stripQuotes = function (str) {
  */
 
 exports.camelize = function (str) {
-  return str.replace(/-(\w)/g, toUpper)
-}
+    return str.replace(/-(\w)/g, toUpper);
+};
 
-function toUpper (_, c) {
-  return c ? c.toUpperCase() : ''
+function toUpper(_, c) {
+    return c ? c.toUpperCase() : '';
 }
 
 /**
@@ -96,10 +86,10 @@ function toUpper (_, c) {
  */
 
 exports.hyphenate = function (str) {
-  return str
-    .replace(/([a-z\d])([A-Z])/g, '$1-$2')
-    .toLowerCase()
-}
+    return str
+      .replace(/([a-z\d])([A-Z])/g, '$1-$2')
+      .toLowerCase();
+};
 
 /**
  * Converts hyphen/underscore/slash delimitered names into
@@ -113,10 +103,10 @@ exports.hyphenate = function (str) {
  * @return {String}
  */
 
-var classifyRE = /(?:^|[-_\/])(\w)/g
+var classifyRE = /(?:^|[-_\/])(\w)/g;
 exports.classify = function (str) {
-  return str.replace(classifyRE, toUpper)
-}
+    return str.replace(classifyRE, toUpper);
+};
 
 /**
  * Simple bind, faster than native
@@ -127,15 +117,14 @@ exports.classify = function (str) {
  */
 
 exports.bind = function (fn, ctx) {
-  return function (a) {
-    var l = arguments.length
-    return l
-      ? l > 1
-        ? fn.apply(ctx, arguments)
-        : fn.call(ctx, a)
-      : fn.call(ctx)
-  }
-}
+    return function (a) {
+        var l = arguments.length;
+        return l ? l > 1 ?
+            fn.apply(ctx, arguments)
+                : fn.call(ctx, a)
+                    : fn.call(ctx);
+    };
+};
 
 /**
  * Convert an Array-like object to a real Array.
@@ -146,14 +135,14 @@ exports.bind = function (fn, ctx) {
  */
 
 exports.toArray = function (list, start) {
-  start = start || 0
-  var i = list.length - start
-  var ret = new Array(i)
-  while (i--) {
-    ret[i] = list[i + start]
-  }
-  return ret
-}
+    start = start || 0;
+    var i = list.length - start;
+    var ret = new Array(i);
+    while (i--) {
+        ret[i] = list[i + start];
+    }
+    return ret;
+};
 
 /**
  * Mix properties into target object.
@@ -163,11 +152,11 @@ exports.toArray = function (list, start) {
  */
 
 exports.extend = function (to, from) {
-  for (var key in from) {
-    to[key] = from[key]
-  }
-  return to
-}
+    for (var key in from) {
+        to[key] = from[key];
+    }
+    return to;
+};
 
 /**
  * Quick object check - this is primarily used to tell
@@ -179,8 +168,8 @@ exports.extend = function (to, from) {
  */
 
 exports.isObject = function (obj) {
-  return obj !== null && typeof obj === 'object'
-}
+    return obj !== null && typeof obj === 'object';
+};
 
 /**
  * Strict object type check. Only returns true
@@ -190,11 +179,11 @@ exports.isObject = function (obj) {
  * @return {Boolean}
  */
 
-var toString = Object.prototype.toString
-var OBJECT_STRING = '[object Object]'
+var toString = Object.prototype.toString;
+var OBJECT_STRING = '[object Object]';
 exports.isPlainObject = function (obj) {
-  return toString.call(obj) === OBJECT_STRING
-}
+    return toString.call(obj) === OBJECT_STRING;
+};
 
 /**
  * Array type check.
@@ -203,7 +192,7 @@ exports.isPlainObject = function (obj) {
  * @return {Boolean}
  */
 
-exports.isArray = Array.isArray
+exports.isArray = Array.isArray;
 
 /**
  * Define a non-enumerable property
@@ -215,13 +204,13 @@ exports.isArray = Array.isArray
  */
 
 exports.define = function (obj, key, val, enumerable) {
-  Object.defineProperty(obj, key, {
-    value: val,
-    enumerable: !!enumerable,
-    writable: true,
-    configurable: true
-  })
-}
+    Object.defineProperty(obj, key, {
+        value: val,
+        enumerable: !!enumerable,
+        writable: true,
+        configurable: true
+    });
+};
 
 /**
  * Debounce a function so it only gets called after the
@@ -233,27 +222,29 @@ exports.define = function (obj, key, val, enumerable) {
  */
 
 exports.debounce = function (func, wait) {
-  var timeout, args, context, timestamp, result
-  var later = function () {
-    var last = Date.now() - timestamp
-    if (last < wait && last >= 0) {
-      timeout = setTimeout(later, wait - last)
-    } else {
-      timeout = null
-      result = func.apply(context, args)
-      if (!timeout) context = args = null
-    }
-  }
-  return function () {
-    context = this
-    args = arguments
-    timestamp = Date.now()
-    if (!timeout) {
-      timeout = setTimeout(later, wait)
-    }
-    return result
-  }
-}
+    var timeout, args, context, timestamp, result;
+    var later = function () {
+        var last = Date.now() - timestamp;
+        if (last < wait && last >= 0) {
+            timeout = setTimeout(later, wait - last);
+        } else {
+            timeout = null;
+            result = func.apply(context, args);
+            if (!timeout) {
+                context = args = null;
+            }
+        }
+    };
+    return function () {
+        context = this;
+        args = arguments;
+        timestamp = Date.now();
+        if (!timeout) {
+            timeout = setTimeout(later, wait);
+        }
+        return result;
+    };
+};
 
 /**
  * Manual indexOf because it's slightly faster than
@@ -264,12 +255,14 @@ exports.debounce = function (func, wait) {
  */
 
 exports.indexOf = function (arr, obj) {
-  var i = arr.length
-  while (i--) {
-    if (arr[i] === obj) return i
-  }
-  return -1
-}
+    var i = arr.length;
+    while (i--) {
+        if (arr[i] === obj) {
+            return i;
+        }
+    }
+    return -1;
+};
 
 /**
  * Make a cancellable version of an async callback.
@@ -279,16 +272,16 @@ exports.indexOf = function (arr, obj) {
  */
 
 exports.cancellable = function (fn) {
-  var cb = function () {
-    if (!cb.cancelled) {
-      return fn.apply(this, arguments)
-    }
-  }
-  cb.cancel = function () {
-    cb.cancelled = true
-  }
-  return cb
-}
+    var cb = function () {
+        if (!cb.cancelled) {
+            return fn.apply(this, arguments);
+        }
+    };
+    cb.cancel = function () {
+        cb.cancelled = true;
+    };
+    return cb;
+};
 
 /**
  * Check if two values are loosely equal - that is,
@@ -300,11 +293,11 @@ exports.cancellable = function (fn) {
  */
 
 exports.looseEqual = function (a, b) {
-  /* eslint-disable eqeqeq */
-  return a == b || (
-    exports.isObject(a) && exports.isObject(b)
-      ? JSON.stringify(a) === JSON.stringify(b)
-      : false
-  )
-  /* eslint-enable eqeqeq */
-}
+    /* eslint-disable eqeqeq */
+    return a == b || (
+      exports.isObject(a) && exports.isObject(b)        ?
+      JSON.stringify(a) === JSON.stringify(b)
+        : false
+    );
+    /* eslint-enable eqeqeq */
+};

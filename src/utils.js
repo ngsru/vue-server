@@ -6,16 +6,16 @@ var toString     = ({}).toString,
     THIS_RE      = /[^\w]this[^\w]/,
     BRACKET_RE_S = /\['([^']+)'\]/g,
     BRACKET_RE_D = /\["([^"]+)"\]/g,
-    ViewModel // late def
+    ViewModel; // late def
 
 /**
  *  Normalize keypath with possible brackets into dot notations
  */
-function normalizeKeypath (key) {
-    return key.indexOf('[') < 0
-        ? key
+function normalizeKeypath(key) {
+    return key.indexOf('[') < 0 ?
+        key
         : key.replace(BRACKET_RE_S, '.$1')
-             .replace(BRACKET_RE_D, '.$1')
+             .replace(BRACKET_RE_D, '.$1');
 }
 
 var utils = module.exports = {
@@ -25,16 +25,16 @@ var utils = module.exports = {
      */
     get: function (obj, key) {
         /* jshint eqeqeq: false */
-        key = normalizeKeypath(key)
+        key = normalizeKeypath(key);
         if (key.indexOf('.') < 0) {
-            return obj[key]
+            return obj[key];
         }
         var path = key.split('.'),
-            d = -1, l = path.length
-        while (++d < l && obj != null) {
-            obj = obj[path[d]]
+            d = -1, l = path.length;
+        while (++d < l && obj) {
+            obj = obj[path[d]];
         }
-        return obj
+        return obj;
     },
 
     /**
@@ -42,56 +42,55 @@ var utils = module.exports = {
      */
     set: function (obj, key, val) {
         /* jshint eqeqeq: false */
-        key = normalizeKeypath(key)
+        key = normalizeKeypath(key);
         if (key.indexOf('.') < 0) {
-            obj[key] = val
-            return
+            obj[key] = val;
+            return;
         }
         var path = key.split('.'),
-            d = -1, l = path.length - 1
+            d = -1, l = path.length - 1;
         while (++d < l) {
-            if (obj[path[d]] == null) {
-                obj[path[d]] = {}
+            if (obj[path[d]] === null) {
+                obj[path[d]] = {};
             }
-            obj = obj[path[d]]
+            obj = obj[path[d]];
         }
-        obj[path[d]] = val
+        obj[path[d]] = val;
     },
-    
+
     /**
      *  Create a prototype-less object
      *  which is a better hash/map
      */
     hash: function () {
-        return Object.create(null)
+        return Object.create(null);
     },
-
 
     /**
      *  A less bullet-proof but more efficient type check
      *  than Object.prototype.toString
      */
     isObject: function (obj) {
-        return typeof obj === OBJECT && obj && !Array.isArray(obj)
+        return typeof obj === OBJECT && obj && !Array.isArray(obj);
     },
 
-    
     /**
      *  filter an array with duplicates into uniques
      */
     unique: function (arr) {
         var hash = utils.hash(),
             i = arr.length,
-            key, res = []
+            key, res = [];
         while (i--) {
-            key = arr[i]
-            if (hash[key]) continue
-            hash[key] = 1
-            res.push(key)
+            key = arr[i];
+            if (hash[key]) {
+                continue;
+            }
+            hash[key] = 1;
+            res.push(key);
         }
-        return res
+        return res;
     },
-
 
     /**
      *  Most simple bind
@@ -99,22 +98,21 @@ var utils = module.exports = {
      */
     bind: function (fn, ctx) {
         return function () {
-            return fn.apply(ctx, arguments)
-        }
+            return fn.apply(ctx, arguments);
+        };
     },
-
 
     /**
      * Custom Methods from Andrey Solodovnikov
      */
-    extend: function() {
-        var extend = function(to, from) {
+    extend: function () {
+        var extend = function (to, from) {
             for (var i in from) {
                 to[i] = from[i];
             }
 
             return to;
-        }
+        };
 
         for (var arg in arguments) {
             extend(arguments[0], arguments[Number(arg) + 1]);
@@ -123,9 +121,8 @@ var utils = module.exports = {
         return arguments[0];
     },
 
-
-    clone: function(source) {
-        var obj = {}
+    clone: function (source) {
+        var obj = {};
 
         for (var arg in source) {
             obj[arg] = source[arg];
@@ -134,13 +131,14 @@ var utils = module.exports = {
         return obj;
     },
 
-
-    cloneFull: function(obj) {
+    cloneFull: function (obj) {
         function clone(obj) {
             var copy;
 
             // Handle the 3 simple types, and null or undefined
-            if (null == obj || "object" != typeof obj) return obj;
+            if (null === obj || 'object' != typeof obj) {
+                return obj;
+            }
 
             // Handle Date
             if (obj instanceof Date) {
@@ -162,21 +160,21 @@ var utils = module.exports = {
             if (obj instanceof Object) {
                 copy = {};
                 for (var attr in obj) {
-                    if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+                    if (obj.hasOwnProperty(attr)) {
+                        copy[attr] = clone(obj[attr]);
+                    }
                 }
                 return copy;
             }
 
-            throw new Error("Unable to copy obj! Its type isn't supported.");
+            throw new Error('Unable to copy obj! Its type isn\'t supported.');
         }
-
 
         return clone(obj);
     },
 
-
     // For debuging (to trace problems)
-    recostructTag: function(element) {
+    recostructTag: function (element) {
         if (element.type === 'partial') {
             return '{{> ' + element.name + '}}';
         }
@@ -188,7 +186,7 @@ var utils = module.exports = {
             tag += ' ' + key + '="';
 
             if (typeof element.attribs[key] === 'function') {
-                tag += '[expression]'
+                tag += '[expression]';
             } else {
                 tag += element.attribs[key];
             }
@@ -201,28 +199,27 @@ var utils = module.exports = {
         return tag;
     },
 
-
     /**
      *  Convert an object to Array
      *  used in v-repeat and array filters
      */
     objectToArray: function (obj) {
-        var res = [], val, data
+        var res = [], val, data;
         for (var key in obj) {
-            val = obj[key]
-            data = utils.isObject(val)
-                ? val
-                : { $value: val }
-            data.$key = key
-            res.push(data)
+            val = obj[key];
+            data = utils.isObject(val) ?
+                val
+                : {$value: val};
+            data.$key = key;
+            res.push(data);
         }
-        return res
+        return res;
     }
 
-}
+};
 
-enableDebug()
-function enableDebug () {
+enableDebug();
+function enableDebug() {
     /**
      *  log for debugging
      */
@@ -230,8 +227,8 @@ function enableDebug () {
         if (console && msg) {
             console.log(msg.magenta);
         }
-    }
-    
+    };
+
     utils.warn = function (msg) {
         if (console && msg) {
             console.warn(msg.yellow);
@@ -240,13 +237,13 @@ function enableDebug () {
                 console.trace();
             }
         }
-    }
+    };
 
     utils.error = function (msg) {
-        throw msg;
-
         if (console && console.trace) {
             console.trace();
         }
-    }
+
+        throw msg;
+    };
 }

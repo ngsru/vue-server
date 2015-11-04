@@ -1,4 +1,4 @@
-var _ = require('../util')
+var _ = require('../util');
 
 /**
  * Stringify value.
@@ -7,49 +7,45 @@ var _ = require('../util')
  */
 
 exports.json = {
-  read: function (value, indent) {
-    return typeof value === 'string'
-      ? value
-      : JSON.stringify(value, null, Number(indent) || 2)
-  },
-  write: function (value) {
-    try {
-      return JSON.parse(value)
-    } catch (e) {
-      return value
+    read: function (value, indent) {
+        return typeof value === 'string' ? value : JSON.stringify(value, null, Number(indent) || 2);
+    },
+    write: function (value) {
+        try {
+            return JSON.parse(value);
+        } catch (e) {
+            return value;
+        }
     }
-  }
-}
+};
 
 /**
  * 'abc' => 'Abc'
  */
 
 exports.capitalize = function (value) {
-  if (!value && value !== 0) return ''
-  value = value.toString()
-  return value.charAt(0).toUpperCase() + value.slice(1)
-}
+    if (!value && value !== 0) {
+        return '';
+    }
+    value = value.toString();
+    return value.charAt(0).toUpperCase() + value.slice(1);
+};
 
 /**
  * 'abc' => 'ABC'
  */
 
 exports.uppercase = function (value) {
-  return (value || value === 0)
-    ? value.toString().toUpperCase()
-    : ''
-}
+    return (value || value === 0) ? value.toString().toUpperCase() : '';
+};
 
 /**
  * 'AbC' => 'abc'
  */
 
 exports.lowercase = function (value) {
-  return (value || value === 0)
-    ? value.toString().toLowerCase()
-    : ''
-}
+    return (value || value === 0) ? value.toString().toLowerCase() : '';
+};
 
 /**
  * 12345 => $12,345.00
@@ -57,23 +53,23 @@ exports.lowercase = function (value) {
  * @param {String} sign
  */
 
-var digitsRE = /(\d{3})(?=\d)/g
+var digitsRE = /(\d{3})(?=\d)/g;
 exports.currency = function (value, currency) {
-  value = parseFloat(value)
-  if (!isFinite(value) || (!value && value !== 0)) return ''
-  currency = currency != null ? currency : '$'
-  var stringified = Math.abs(value).toFixed(2)
-  var _int = stringified.slice(0, -3)
-  var i = _int.length % 3
-  var head = i > 0
-    ? (_int.slice(0, i) + (_int.length > 3 ? ',' : ''))
-    : ''
-  var _float = stringified.slice(-3)
-  var sign = value < 0 ? '-' : ''
-  return currency + sign + head +
-    _int.slice(i).replace(digitsRE, '$1,') +
-    _float
-}
+    value = parseFloat(value);
+    if (!isFinite(value) || (!value && value !== 0)) {
+        return '';
+    }
+    currency = currency !== null ? currency : '$';
+    var stringified = Math.abs(value).toFixed(2);
+    var _int = stringified.slice(0, -3);
+    var i = _int.length % 3;
+    var head = i > 0 ? (_int.slice(0, i) + (_int.length > 3 ? ',' : '')) : '';
+    var _float = stringified.slice(-3);
+    var sign = value < 0 ? '-' : '';
+    return currency + sign + head +
+      _int.slice(i).replace(digitsRE, '$1,') +
+      _float;
+};
 
 /**
  * 'item' => 'items'
@@ -89,11 +85,11 @@ exports.currency = function (value, currency) {
  */
 
 exports.pluralize = function (value) {
-  var args = _.toArray(arguments, 1)
-  return args.length > 1
-    ? (args[value % 10 - 1] || args[args.length - 1])
-    : (args[0] + (value === 1 ? '' : 's'))
-}
+    var args = _.toArray(arguments, 1);
+    return args.length > 1      ?
+    (args[value % 10 - 1] || args[args.length - 1])
+      : (args[0] + (value === 1 ? '' : 's'));
+};
 
 /**
  * A special filter that takes a handler function,
@@ -104,43 +100,47 @@ exports.pluralize = function (value) {
  */
 
 var keyCodes = {
-  esc: 27,
-  tab: 9,
-  enter: 13,
-  space: 32,
-  'delete': 46,
-  up: 38,
-  left: 37,
-  right: 39,
-  down: 40
-}
+    esc: 27,
+    tab: 9,
+    enter: 13,
+    space: 32,
+    'delete': 46,
+    up: 38,
+    left: 37,
+    right: 39,
+    down: 40
+};
 
 exports.key = function (handler, key) {
-  if (!handler) return
-  var code = keyCodes[key]
-  if (!code) {
-    code = parseInt(key, 10)
-  }
-  return function (e) {
-    if (e.keyCode === code) {
-      return handler.call(this, e)
+    if (!handler) {
+        return;
     }
-  }
-}
+    var code = keyCodes[key];
+    if (!code) {
+        code = parseInt(key, 10);
+    }
+    return function (e) {
+        if (e.keyCode === code) {
+            return handler.call(this, e);
+        }
+    };
+};
 
 // expose keycode hash
-exports.key.keyCodes = keyCodes
+exports.key.keyCodes = keyCodes;
 
 exports.debounce = function (handler, delay) {
-  if (!handler) return
-  if (!delay) {
-    delay = 300
-  }
-  return _.debounce(handler, delay)
-}
+    if (!handler) {
+        return;
+    }
+    if (!delay) {
+        delay = 300;
+    }
+    return _.debounce(handler, delay);
+};
 
 /**
  * Install special array filters
  */
 
-_.extend(exports, require('./array-filters'))
+_.extend(exports, require('./array-filters'));

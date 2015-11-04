@@ -1,6 +1,6 @@
 var _ = require('underscore');
 var common = require('./common.js');
-var getElementId = function() {
+var getElementId = function () {
     var result = '';
     var time = process.hrtime();
     result += String(time[0]).slice(5) + time[1];
@@ -8,13 +8,13 @@ var getElementId = function() {
 };
 
 var builders = {
-    build: function(vm, callback) {
+    build: function (vm, callback) {
         if (!vm.$el) {
-            vm.$logger.error( 'No $el in ViewModel', common.onLogMessage(vm) );
+            vm.$logger.error('No $el in ViewModel', common.onLogMessage(vm));
             return;
         }
 
-        // Кейс, когда запускается пересборка VM-ов. 
+        // Кейс, когда запускается пересборка VM-ов.
         // Через данную опцию передаётся команда остановить сборку неактуальных VM-ов
         if (vm.$el.__buildingInterrupted) {
             return;
@@ -25,9 +25,9 @@ var builders = {
         builders.buildElements(vm, vm.$el.inner);
 
         if (vm.__states.children.length) {
-            vm.$on('_vueServer.childVmReady', function() {
+            vm.$on('_vueServer.childVmReady', function () {
                 if (!vm.__states.children) {
-                    vm.$logger.error( 'Something went wrong while building children VMs. Please report the error.' );
+                    vm.$logger.error('Something went wrong while building children VMs. Please report the error.');
                     return;
                 }
                 vm.__states.childrenReadyCount++;
@@ -58,11 +58,9 @@ var builders = {
             }
         }
 
-
     },
 
-
-    buildElements: function(vm, elements, customIndex) {
+    buildElements: function (vm, elements, customIndex) {
         var element;
         var repeatElements;
 
@@ -73,15 +71,15 @@ var builders = {
 
                 // trying to check for custom-tag component
                 // <comp-name></comp-name>
-                (function() {
+                (function () {
                     var name;
                     var cameledName;
                     var $components = builders.getAsset(vm, 'components');
-                    if ( $components[element.name] ) {
+                    if ($components[element.name]) {
                         name = element.name;
                     } else {
                         cameledName = common.dashToCamelCase(element.name);
-                        if ( $components[cameledName] ) {
+                        if ($components[cameledName]) {
                             name = cameledName;
                         }
                     }
@@ -93,7 +91,6 @@ var builders = {
                         };
                     }
                 })();
-
 
                 // Конструкция <component is="{{name}}"></component>
                 if (
@@ -127,7 +124,6 @@ var builders = {
                     }
                 }
 
-
                 // v-if
                 if (element.dirs.if) {
                     var vIfResult = common.execute(vm, {
@@ -142,23 +138,21 @@ var builders = {
                         builders.buildElements(vm, elements, i);
                         break;
                     }
-                } 
-
+                }
 
                 // partial
                 if (element.name === 'partial') {
                     builders.getPartial({
                         'vm': vm,
                         'partialName': common.getAttribute(vm, element, 'name'),
-                        'onDoesExist': function(partial) {
+                        'onDoesExist': function (partial) {
                             element.inner = partial();
                         },
-                        'onDoesNotExist': function() {
+                        'onDoesNotExist': function () {
                             element.inner = [];
                         }
                     });
                 }
-
 
                 // v-repeat
                 if (element.dirs.repeat) {
@@ -177,7 +171,6 @@ var builders = {
                         break;
                     }
 
-
                 // v-component
                 } else if (element.dirs.component) {
                     builders.buildComponent(vm, element);
@@ -186,15 +179,13 @@ var builders = {
 
             }
 
-
-            if (element.inner && !(element._isKeyElement && !element._isReadyToBuild) ) {
+            if (element.inner && !(element._isKeyElement && !element._isReadyToBuild)) {
                 builders.buildElements(vm, element.inner);
             }
         }
     },
 
-
-    getPartial: function(meta) {
+    getPartial: function (meta) {
         var vm = meta.vm;
         var partialName = common.getValue(vm, meta.partialName);
         var partial = builders.getAsset(vm, 'partials')[partialName];
@@ -205,16 +196,15 @@ var builders = {
         } else {
             logMsg = 'There is no partial "' + partialName + '"';
             if (meta.partialName) {
-                vm.$logger.warn( logMsg, common.onLogMessage(vm) );
+                vm.$logger.warn(logMsg, common.onLogMessage(vm));
             } else {
-                vm.$logger.debug( logMsg, common.onLogMessage(vm) );
+                vm.$logger.debug(logMsg, common.onLogMessage(vm));
             }
             meta.onDoesNotExist();
         }
     },
 
-
-    getRepeatData: function(vm, dir) {
+    getRepeatData: function (vm, dir) {
         var value = vm.$get(dir.expression);
         var array;
 
@@ -236,20 +226,19 @@ var builders = {
         }
 
         try {
-            value = common.applyFilters(vm, dir.filters, value);    
-        } catch(e) {
-            vm.$logger.warn( e, common.onLogMessage(vm) );
+            value = common.applyFilters(vm, dir.filters, value);
+        } catch (e) {
+            vm.$logger.warn(e, common.onLogMessage(vm));
         }
 
         return value;
     },
 
-
     // Создаём элементы по v-repeat
-    buildRepeatElements: function(vm, elements, element) {
+    buildRepeatElements: function (vm, elements, element) {
         var repeatData = builders.getRepeatData(vm, element.dirs.repeat.value);
         // var repeatDataIsArray = Array.isArray(repeatData);
-        
+
         // Если есть данные по директиве
         if (repeatData && repeatData.length) {
             var repeatElements = [];
@@ -259,7 +248,6 @@ var builders = {
             var repeatElement;
             var repeatDataItem;
             var repeatOptions;
-
 
             // Проходим циклом по данным директивы
             for (var i = 0; i < repeatData.length; i++) {
@@ -313,7 +301,6 @@ var builders = {
                 repeatElement.dirs.component = element.dirs.component;
                 repeatElements.push(repeatElement);
 
-
                 // Создаём контекст данных для элемента
                 if (!element.dirs.component) {
                     vm.$addChild({
@@ -335,9 +322,8 @@ var builders = {
         return false;
     },
 
-
     // Обрабатываем элемент с v-component
-    buildComponent: function(vm, element, options) {
+    buildComponent: function (vm, element, options) {
         var componentName = common.getValue(vm, element.dirs.component.value);
         var component = builders.getAsset(vm, 'components')[componentName];
 
@@ -365,11 +351,11 @@ var builders = {
             // Асинхронный компонент
             if (typeof component === 'function') {
                 component(
-                    function(data) {
+                    function (data) {
                         builders.getAsset(vm, 'components')[componentName] = data;
                         builders.buildComponentContent(vm, element, options, data, componentName);
                     },
-                    function(error) {
+                    function (error) {
                         builders.logComponentResolveError(vm, element, componentName, error);
                     }
                 );
@@ -385,13 +371,12 @@ var builders = {
 
     },
 
-
     // Собственно, кишки
-    buildComponentContent: function(vm, element, options, component, componentName) {
+    buildComponentContent: function (vm, element, options, component, componentName) {
         if (!component.__composed) {
             component.__composed = common.composeComponent(component);
         }
-        
+
         options.component = {
             rawVm: common.extend({}, component.__composed.rawVm),
             options: component.__composed.options
@@ -401,7 +386,6 @@ var builders = {
         if (element.dirs.component.options.waitFor) {
             options.waitFor = element.dirs.component.options.waitFor;
         }
-
 
         if (element.dirs.ref) {
             options.ref = element.dirs.ref;
@@ -413,34 +397,31 @@ var builders = {
             // Здесь интересный момент. Если значение в v-with прописано в формате одного аргумента
             // например v-with="cat", то контекст данных компонента полностью определяется данной директивой,
             // т.е. у компонента будут только данные, содержащиеся в "cat" родителя
-            if (element.dirs.with.value.length === 1 && !element.dirs.with.value[0].arg ) {
+            if (element.dirs.with.value.length === 1 && !element.dirs.with.value[0].arg) {
                 options.withReplaceData = element.dirs.with.value[0].get;
             } else {
                 options.withData = element.dirs.with.value;
             }
         }
 
-        vm.$addChild(options); 
+        vm.$addChild(options);
     },
 
-
-    logComponentResolveError: function(vm, element, componentName, reason) {
-        var logMessage = 'Failed to resolve component: "' + componentName +'"';
+    logComponentResolveError: function (vm, element, componentName, reason) {
+        var logMessage = 'Failed to resolve component: "' + componentName + '"';
 
         if (reason) {
             logMessage += '. Reason: ' + reason;
         }
 
         if (componentName) {
-            vm.$logger.warn( logMessage, common.onLogMessage(vm) );
+            vm.$logger.warn(logMessage, common.onLogMessage(vm));
         } else {
-            vm.$logger.debug( logMessage, common.onLogMessage(vm) );
+            vm.$logger.debug(logMessage, common.onLogMessage(vm));
         }
     },
 
-
-
-    mergeSlotItems: function(vm, tpl) {
+    mergeSlotItems: function (vm, tpl) {
         var slots = {
             unnamed: null,
             named: null
@@ -461,7 +442,7 @@ var builders = {
                     if (!slots.unnamed) {
                         slots.unnamed = tplInner[i];
                     } else {
-                        vm.$logger.warn( 'Duplicate unnamed <slot>', common.onLogMessage(vm) );
+                        vm.$logger.warn('Duplicate unnamed <slot>', common.onLogMessage(vm));
                     }
                 }
             }
@@ -489,8 +470,7 @@ var builders = {
         }
     },
 
-
-    fillSlot: function(element, item) {
+    fillSlot: function (element, item) {
         if (!element.filled) {
             element.inner = [];
             element.filled = true;
@@ -499,20 +479,12 @@ var builders = {
         element.inner.push(item);
     },
 
-
-
-
-
-
-
-
-
     // NEW
     // Building v-for items
-    buildForElements: function(vm, elements, element) {
+    buildForElements: function (vm, elements, element) {
         var repeatData = builders.getRepeatData(vm, element.dirs.for.value);
         // var repeatDataIsArray = Array.isArray(repeatData);
-        
+
         // Если есть данные по директиве
         if (repeatData && repeatData.length) {
             var repeatElements = [];
@@ -523,7 +495,6 @@ var builders = {
             var repeatElementWrapper;
             var repeatDataItem;
             var repeatOptions;
-
 
             // Проходим циклом по данным директивы
             for (var i = 0; i < repeatData.length; i++) {
@@ -601,8 +572,7 @@ var builders = {
         return false;
     },
 
-
-    getAsset: function(vm, asset) {
+    getAsset: function (vm, asset) {
         if (vm.__states.notPublic) {
             return this.getAsset(vm.$parent, asset);
         }
@@ -610,7 +580,5 @@ var builders = {
     }
 
 };
-
-
 
 module.exports = builders;

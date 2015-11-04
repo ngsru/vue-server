@@ -36,18 +36,18 @@ var excludeInstanceOptions = {
 };
 
 var common = {
-    getValue: function(vm, value) {
+    getValue: function (vm, value) {
         var result;
 
         if (typeof value === 'function') {
             try {
                 result = value.call(vm, vm);
-            } catch(e) {
+            } catch (e) {
                 vm.$logger.warn('Error executing expression [begin]', common.onLogMessage(vm));
                 vm.$logger.warn(e.toString());
                 vm.$logger.warn(value.toString());
                 vm.$logger.warn('Error executing expression [end]');
-            } 
+            }
         } else {
             result = value;
         }
@@ -55,7 +55,7 @@ var common = {
         return result;
     },
 
-    execute: function(vm, value, options) {
+    execute: function (vm, value, options) {
         var result = '';
 
         if (typeof value === 'object' && value !== null) {
@@ -72,15 +72,15 @@ var common = {
         }
     },
 
-    executeSingle: function(vm, config, options) {
+    executeSingle: function (vm, config, options) {
         var value = this.getValue(vm, config.value);
 
         try {
             value = this.applyFilters(vm, config.filters, value);
-        } catch(e) {
-            vm.$logger.warn( 'Error executing filter:', e.toString(), common.onLogMessage(vm) );
-        } 
-        
+        } catch (e) {
+            vm.$logger.warn('Error executing filter:', e.toString(), common.onLogMessage(vm));
+        }
+
         if (options) {
             this.extend(config, options);
         }
@@ -93,15 +93,14 @@ var common = {
             value = this.cleanValue(value);
         }
 
-        return value; 
+        return value;
     },
 
-
-    getAttribute: function(vm, element, name) {
+    getAttribute: function (vm, element, name) {
         var value;
         if (element.dirs.bind && element.dirs.bind[name]) {
             value = common.execute(
-                vm, 
+                vm,
                 {
                     value: element.dirs.bind[name].value.get,
                     filters: element.dirs.bind[name].value.filters,
@@ -126,25 +125,24 @@ var common = {
         return value;
     },
 
-
-    applyFilters: function(vm, filters, value) {
+    applyFilters: function (vm, filters, value) {
         if (filters) {
             for (var i = 0; i < filters.length; i++) {
-                value = this.applyFilter( vm, filters[i], value );
+                value = this.applyFilter(vm, filters[i], value);
             }
         }
 
         return value;
     },
 
-    applyFilter: function(vm, meta, value) {
+    applyFilter: function (vm, meta, value) {
         var filter = vm.$options.filters[meta.name];
-        var replacement = function(v) {
+        var replacement = function (v) {
             return v;
         };
 
         if (!filter) {
-            vm.$logger.warn( 'Unknown filter "' + meta.name + '"', common.onLogMessage(vm) );
+            vm.$logger.warn('Unknown filter "' + meta.name + '"', common.onLogMessage(vm));
             filter = replacement;
         }
 
@@ -157,9 +155,9 @@ var common = {
         if (meta.args) {
             for (var i = 0; i < meta.args.length; i++) {
                 if (!meta.args[i].dynamic) {
-                    args.push( meta.args[i].value );
+                    args.push(meta.args[i].value);
                 } else {
-                    args.push( vm.$get(meta.args[i].value) );
+                    args.push(vm.$get(meta.args[i].value));
                 }
             }
         }
@@ -167,10 +165,9 @@ var common = {
         return filter.apply(vm, args);
     },
 
-
     // Brand new strip function
     // Better than any "replace" version;
-    escapeHtml: function(str) {
+    escapeHtml: function (str) {
         if (typeof str === 'string') {
             return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         }
@@ -178,15 +175,15 @@ var common = {
         return str;
     },
 
-    cleanValue: function(value) {
+    cleanValue: function (value) {
         if (value === undefined || value === null) {
             return '';
-        } else { 
+        } else {
             return value;
         }
     },
 
-    isPresent: function(value) {
+    isPresent: function (value) {
         if (value === undefined || value === null) {
             return false;
         }
@@ -194,7 +191,7 @@ var common = {
         return true;
     },
 
-    setElement: function(element) {
+    setElement: function (element) {
         // Перенастраиваем цикл из-за изменений в порядке элементов
         if (element) {
             element.dirs = element.dirs || {};
@@ -204,8 +201,7 @@ var common = {
         }
     },
 
-
-    onLogMessage: function(vm) {
+    onLogMessage: function (vm) {
         if (vm.$logger._config.onLogMessage) {
             return vm.$logger._config.onLogMessage(vm);
         }
@@ -213,8 +209,8 @@ var common = {
         return '';
     },
 
-    extend: function() {
-        return Array.prototype.reduce.call(arguments, function(previousValue, currentValue) {
+    extend: function () {
+        return Array.prototype.reduce.call(arguments, function (previousValue, currentValue) {
             for (var item in currentValue) {
                 previousValue[item] = currentValue[item];
             }
@@ -223,9 +219,7 @@ var common = {
         });
     },
 
-
-
-    composeComponent: function(component) {
+    composeComponent: function (component) {
         var options = {};
         var rawVm = {};
 
@@ -233,11 +227,10 @@ var common = {
 
         var instancePropsMap = common.getObjectPropNames(component);
 
-
         // Теперь нужно пробежаться по всем свойствам объекта-класса и пробросить все
         // свойства, являющиеся функциями в methods
         for (var i = instancePropsMap.length - 1; i >= 0; i--) {
-            (function() {
+            (function () {
                 var name = instancePropsMap[i],
                     item = component[name];
 
@@ -258,9 +251,9 @@ var common = {
         if (options.partials) {
 
             for (var name in options.partials) {
-                (function() {
+                (function () {
                     options.partials[name] = common.prepareTemplate(
-                        options.partials[name], 
+                        options.partials[name],
                         'Partial "' + name + '"'
                     );
                 })();
@@ -271,9 +264,7 @@ var common = {
         return {options: options, rawVm: rawVm};
     },
 
-
-
-    prepareTemplate: function(template, logName) {
+    prepareTemplate: function (template, logName) {
         var tplTypeof;
 
         if (template) {
@@ -296,7 +287,7 @@ var common = {
     // Прикол в том, что разные компиляторы es6 в es5 по разному обращаются с этими свойствами
     // Кто-то кладёт их напрямую в объект с enumerable: false, кто-то же просто использует
     // прототипирование, в результате чего свойства класса попадают в __proto__
-    getObjectPropNames: function(object, isModern) {
+    getObjectPropNames: function (object, isModern) {
         if (isModern) {
             return this.getObjectPropNamesModern(object);
         } else {
@@ -304,8 +295,7 @@ var common = {
         }
     },
 
-
-    getObjectPropNamesLegacy: function(object) {
+    getObjectPropNamesLegacy: function (object) {
         var names = Object.keys(object);
         var objectProto = Object.getPrototypeOf(object);
 
@@ -318,10 +308,9 @@ var common = {
         return names;
     },
 
-
-    getObjectPropNamesModern: function(object) {
+    getObjectPropNamesModern: function (object) {
         var names = Object.keys(object).concat(gogo(object));
-        
+
         function gogo(obj) {
             var objectProto = Object.getPrototypeOf(obj);
             var protoNames;
@@ -349,15 +338,14 @@ var common = {
         return newNames;
     },
 
-
-    dashToCamelCase: function(value) {
-        return value.replace(/-(\w)/g, function(a, b){
+    dashToCamelCase: function (value) {
+        return value.replace(/-(\w)/g, function (a, b) {
             return b.toUpperCase();
         });
     },
 
-    camelToDashCase: function(value) {
-        return value.replace(/[A-Z]/g, function(a) { return '-' + a.toLowerCase() });
+    camelToDashCase: function (value) {
+        return value.replace(/[A-Z]/g, function (a) { return '-' + a.toLowerCase() });
     }
 };
 

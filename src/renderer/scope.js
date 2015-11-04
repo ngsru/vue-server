@@ -7,7 +7,7 @@ var util = require('util');
 
 var scope = {
     // Инициализация VM-ов для компонентов и repeat-item-ов
-    initViewModel: function(contexts) {
+    initViewModel: function (contexts) {
         var options = {};
         var data = {};
         var rawVm = {};
@@ -43,7 +43,6 @@ var scope = {
             vm.__states.isComponent = true;
         }
 
-
         if (this.config.strict) {
             options.filters = common.extend({}, this.filters, options.filters);
             options.partials = common.extend({}, this.partials, options.partials);
@@ -54,9 +53,7 @@ var scope = {
             options.components = common.extend({}, this.components, contexts.components, options.components);
         }
 
-
         vm.$logger = this.$logger;
-        
 
         vm.$ = {};
         vm.$$ = {};
@@ -100,7 +97,6 @@ var scope = {
                 };
             }
 
-
             // Прокидываем методы компонента в VM
             common.extend(vm, vm.$options.methods);
 
@@ -108,7 +104,6 @@ var scope = {
         }
 
         scope.markKeyElement(vm);
-
 
         // Инициализируем личные данные компонента (data)
         common.extend(vm, scope.initData(vm));
@@ -119,7 +114,6 @@ var scope = {
         if (contexts.repeatData) {
             common.extend(vm, contexts.repeatData);
         }
-
 
         // миксины серверного Created
         if (vm.$options.mixins) {
@@ -136,24 +130,22 @@ var scope = {
             vm.$emit('hook:createdBe');
         }
 
-
         scope.buildWithedData(vm, contexts);
         scope.buildComputedProps(vm);
 
-        process.nextTick(function() {
+        process.nextTick(function () {
             var isCompiledBePresent = false;
 
-            builders.build(vm, function() {
+            builders.build(vm, function () {
                 vm._isCompiled = true;
 
                 if (!vm.$options.activateBe && contexts.waitFor) {
-                    vm.$on(contexts.waitFor, function() {
+                    vm.$on(contexts.waitFor, function () {
                         scope.buildWithedData(vm, contexts);
                         scope.pullPropsData(vm, true);
                         scope.resetVmInstance(vm);
                     });
                 }
-
 
                 // миксины серверного Compiled
                 if (vm.$options.mixins) {
@@ -173,14 +165,13 @@ var scope = {
                 }
 
                 if (vm.$options.activateBe) {
-                    vm.$options.activateBe.call(vm, function() {
+                    vm.$options.activateBe.call(vm, function () {
                         scope.buildWithedData(vm, contexts);
                         scope.pullPropsData(vm, true);
                         scope.resetVmInstance(vm);
                     });
                     vm.$emit('hook:activateBe');
                 }
-
 
                 if (!contexts.waitFor && !vm.$options.activateBe) {
                     // Страшная опция.
@@ -193,27 +184,24 @@ var scope = {
             });
         });
 
-
         return vm;
     },
 
-
-
-    initVmSystemMethods: function(vm) {
+    initVmSystemMethods: function (vm) {
         // Прокидываем методы контроля событий
         common.extend(vm, events);
 
-        vm.$set = function(keypath, value) {
+        vm.$set = function (keypath, value) {
             utils.set(this, keypath, value);
             return this;
         };
 
-        vm.$get = function(keypath, mode) {
+        vm.$get = function (keypath, mode) {
             var result = utils.get(this, keypath);
             return result;
         };
 
-        vm.$addChild = function(options) {
+        vm.$addChild = function (options) {
             var newVm;
             var presentVm;
             var $target = scope.getRealParent(vm);
@@ -223,7 +211,7 @@ var scope = {
                 this.__states.VMsDetached[options.element.id + options.component.name] = undefined;
             }
 
-            if ( !presentVm ) {
+            if (!presentVm) {
                 newVm = scope.initViewModel(
                     common.extend({
                         parent: this,
@@ -242,7 +230,6 @@ var scope = {
                 newVm = presentVm;
             }
 
-
             // Заморочки нужны для поддержки асинхронного компонента
             // Его vm создаёт не сразу
             if (options.childIndex !== undefined) {
@@ -251,14 +238,11 @@ var scope = {
                 this.__states.children.push(newVm);
             }
 
-            
             // VM-ы от v-for не нужно добавлять в $children
             $target.$children.push(newVm);
 
-
-
             if (options.ref) {
-                (function() {
+                (function () {
                     var prop = options.ref.options.target;
                     var name = common.dashToCamelCase(options.ref.value);
 
@@ -278,7 +262,7 @@ var scope = {
             }
         };
 
-        vm.$addLightChild = function(options) {
+        vm.$addLightChild = function (options) {
             var newVm = scope.initLightViewModel(
                 common.extend({
                     parent: this,
@@ -287,7 +271,6 @@ var scope = {
                     components: this.$options.components
                 }, options)
             );
-
 
             // Заморочки нужны для поддержки асинхронного компонента
             // Его vm создаёт не сразу
@@ -298,17 +281,15 @@ var scope = {
             }
         };
 
-        vm.$nextTick = function(cb) {
+        vm.$nextTick = function (cb) {
             var self = this;
-            process.nextTick(function() {
+            process.nextTick(function () {
                 cb.call(self);
             });
         };
     },
 
-
-
-    resetVmInstance: function(vm) {
+    resetVmInstance: function (vm) {
         // Передаём команду остановить сборку неактуальных дочерних VM-ов
         vm.$broadcast('_vueServer.stopBuilding');
         vm.$ = {};
@@ -331,23 +312,22 @@ var scope = {
         scope.buildComputedProps(vm);
         scope.markKeyElement(vm);
         scope.setSystemEventListeners(vm);
-        process.nextTick(function() {
-            builders.build(vm, function() {
+        process.nextTick(function () {
+            builders.build(vm, function () {
                 vm._isReady = true;
                 vm.$root.$emit('_vueServer.tryBeginCompile');
             });
         });
     },
 
-
-    setKeyElementInner: function(vm, tpl) {
+    setKeyElementInner: function (vm, tpl) {
         var shouldReplace = this.config.replace;
 
         if (vm.$options.replace !== undefined) {
             shouldReplace = vm.$options.replace;
         }
-        
-        if (tpl) {            
+
+        if (tpl) {
             // Хитрый режим сочленения элементов
             if (shouldReplace) {
 
@@ -372,8 +352,7 @@ var scope = {
         }
     },
 
-
-    setSystemEventListeners: function(vm) {
+    setSystemEventListeners: function (vm) {
         vm.$on('vueServer:action.rebuildComputed', function () {
             scope.buildComputedProps(vm);
         });
@@ -393,15 +372,14 @@ var scope = {
             }
 
             // серверный ready
-            if (vm.$options.readyBe) { 
+            if (vm.$options.readyBe) {
                 vm.$options.readyBe.call(vm);
                 vm.$emit('hook:readyBe');
             }
         });
     },
 
-
-    buildWithedData: function(vm, contexts) {
+    buildWithedData: function (vm, contexts) {
         var withReplaceData;
         var name;
         var value;
@@ -426,9 +404,7 @@ var scope = {
         }
     },
 
-
-
-    isSystemProp: function(name) {
+    isSystemProp: function (name) {
         var char = name.charAt(0);
         if (char === '$' || char === '_') {
             return true;
@@ -437,21 +413,17 @@ var scope = {
         return false;
     },
 
-
-
-
-    markKeyElement: function(vm) {
+    markKeyElement: function (vm) {
         // Помечаем, что элемент является ключевым для какого-то vm-а
         vm.$el._isKeyElement = true;
         vm.$el._isReadyToBuild = false;
         if (vm.__states.isComponent && !vm.__states.isRepeat) {
             vm.$el._compileSelfInParentVm = true;
-        } 
+        }
     },
 
-
     // Выставляем контекст данных с проверкой на валидность этих данных
-    initData: function(vm) {
+    initData: function (vm) {
         var ownData = scope.initDataUnit(vm, vm.$options.data);
         var mixinResults;
         var result;
@@ -460,7 +432,7 @@ var scope = {
             mixinResults = [];
             for (var i = vm.$options.mixins.length - 1; i >= 0; i--) {
                 if (vm.$options.mixins[i].data) {
-                    mixinResults.push( scope.initDataUnit(vm, vm.$options.mixins[i].data) );
+                    mixinResults.push(scope.initDataUnit(vm, vm.$options.mixins[i].data));
                 }
             }
 
@@ -474,8 +446,7 @@ var scope = {
         return result;
     },
 
-
-    initDataUnit: function(vm, data) {
+    initDataUnit: function (vm, data) {
         var result = {};
         if (data) {
             var dataType = typeof data;
@@ -490,14 +461,13 @@ var scope = {
             if (dataType === 'function') {
                 result = data.call(vm) || {};
             } else {
-                vm.$logger.warn( 'The "data" option type is not valid', common.onLogMessage(vm) );
+                vm.$logger.warn('The "data" option type is not valid', common.onLogMessage(vm));
             }
         }
         return result;
     },
 
-
-    initTemplate: function(vm) {
+    initTemplate: function (vm) {
         if (vm.$options.template) {
             return vm.$options.template();
         } else {
@@ -505,10 +475,8 @@ var scope = {
         }
     },
 
-
-
     // Подсчитываем computed
-    buildComputedProps: function(vm) {
+    buildComputedProps: function (vm) {
         if (vm.$options.computed) {
             var item;
             for (var name in vm.$options.computed) {
@@ -529,8 +497,7 @@ var scope = {
         return this;
     },
 
-
-    pullPropsData: function(vm, excludeOwnDataProps) {
+    pullPropsData: function (vm, excludeOwnDataProps) {
         var props = vm.$options.props;
 
         if (typeof props === 'object') {
@@ -549,8 +516,7 @@ var scope = {
         }
     },
 
-
-    pullPropsDataItem: function(vm, name, config) {
+    pullPropsDataItem: function (vm, name, config) {
         var attrName = common.camelToDashCase(name);
         var propName = common.dashToCamelCase(name);
         var descriptor;
@@ -576,7 +542,7 @@ var scope = {
                 descriptor.type = config;
             } else {
                 common.extend(descriptor, config);
-            }       
+            }
         }
 
         // Контекст для v-for
@@ -588,13 +554,13 @@ var scope = {
 
         // Реализация протяжки свойств через новый формат - v-bind:
         if (vm.$el.dirs.bind) {
-            for (var name in vm.$el.dirs.bind) {
-                if (name === attrName) {
+            for (var item in vm.$el.dirs.bind) {
+                if (item === attrName) {
                     rawValue = {
-                        value: vm.$el.dirs.bind[name].value.get,
-                        filters: vm.$el.dirs.bind[name].value.filters
+                        value: vm.$el.dirs.bind[item].value.get,
+                        filters: vm.$el.dirs.bind[item].value.filters
                     };
-                    vm.$el.dirs.bind[name].isCompiled = true;
+                    vm.$el.dirs.bind[item].isCompiled = true;
                     break;
                 }
             }
@@ -634,7 +600,8 @@ var scope = {
                             type = value.constructor.name;
                         }
                         vm.$logger.warn(
-                            'Invalid prop: type check failed for "' + propName + '". Expected ' + descriptor.type.name + ', got ' + type,
+                            'Invalid prop: type check failed for "' + propName + '". Expected ' +
+                                descriptor.type.name + ', got ' + type,
                             common.onLogMessage(vm)
                         );
                         return;
@@ -643,13 +610,12 @@ var scope = {
 
                 // Валидация данных
                 if (rawValue && descriptor.validator && !descriptor.validator(value)) {
-                    vm.$logger.warn( 'Invalid prop: custom validator check failed for "' + propName + '"', common.onLogMessage(vm) );
+                    vm.$logger.warn('Invalid prop: custom validator check failed for "' + propName +
+                        '"', common.onLogMessage(vm));
                     return;
                 }
             }
         }
-
-
 
         // Наследование колбеков от родителя
         if (typeof value === 'function') {
@@ -659,8 +625,7 @@ var scope = {
         }
     },
 
-
-    inheritData: function(dataTo, dataFrom) {
+    inheritData: function (dataTo, dataFrom) {
         for (var key in dataFrom) {
             if (scope.isSystemProp(key) || dataTo[key] || dataFrom.$options.methods[key]) {
                 continue;
@@ -671,13 +636,8 @@ var scope = {
         return dataTo;
     },
 
-
-
-
-
-
     // Инициализация VM-ов для v-for
-    initLightViewModel: function(contexts) {
+    initLightViewModel: function (contexts) {
         var options = {};
         var vm = {};
 
@@ -697,9 +657,8 @@ var scope = {
             options.filters = common.extend({}, this.filters, contexts.filters, options.filters);
         }
 
-
         vm.$logger = this.$logger;
-        
+
         vm.$refs = {};
         vm.$els = {};
         vm.$el = contexts.element;
@@ -727,18 +686,16 @@ var scope = {
             common.extend(vm, contexts.repeatData);
         }
 
-        process.nextTick(function() {
-            builders.build(vm, function() {
+        process.nextTick(function () {
+            builders.build(vm, function () {
                 vm._isReady = true;
             });
         });
 
-
         return vm;
     },
 
-
-    getRealParent: function(vm) {
+    getRealParent: function (vm) {
         if (vm.__states.notPublic) {
             return this.getRealParent(vm.__states.parent);
         }
@@ -746,6 +703,5 @@ var scope = {
         return vm;
     }
 };
-
 
 module.exports = scope;

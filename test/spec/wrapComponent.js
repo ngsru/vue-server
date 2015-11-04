@@ -5,8 +5,8 @@ var VueServer = require('../../index.js');
 var VueCompile = VueServer.compiler;
 var VueRender = VueServer.renderer;
 
-module.exports = function(content, callback, config) {
-    (function() {
+module.exports = function (content, callback, config) {
+    (function () {
         if (typeof content.template === 'string') {
             // content.template = VueCompile(content.template);
         } else {
@@ -15,22 +15,21 @@ module.exports = function(content, callback, config) {
 
         // Чтобы не париться на тему этого хука
         if (!content.compiledBe) {
-            content.compiledBe = function() {
+            content.compiledBe = function () {
                 this.$emit('loaded');
             };
         }
-        
+
         // var prepareComponents = function(components) {
         //     _.each(components, function(component) {
         //         if (component.template) {
-        //            component.template = VueCompile(component.template); 
+        //            component.template = VueCompile(component.template);
         //         }
         //         preparePartials(component.partials);
 
         //         prepareComponents(component.components);
         //     });
         // };
-
 
         // var preparePartials = function(partials) {
         //     _.each(partials, function(partial, name) {
@@ -62,7 +61,7 @@ module.exports = function(content, callback, config) {
         }
     });
 
-    vm.$on('vueServer.htmlReady', function(html) {
+    vm.$on('vueServer.htmlReady', function (html) {
         $ = cheerio.load(html);
         callback($);
     });

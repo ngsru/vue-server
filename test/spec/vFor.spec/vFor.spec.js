@@ -4,7 +4,7 @@ var $;
 var contentComponent = {
 
     template: tools.getTpl(__dirname + '/vFor.spec.html', true),
-    data: function() {
+    data: function () {
         return {
             arr: [3,2,1],
             arr2: {
@@ -40,14 +40,14 @@ var contentComponent = {
             'template': [
                 '<span class="evil-filter">{{boy | evilFilter}}</span>'
             ].join(''),
-            data: function() {
+            data: function () {
                 return {
                     boy: ' boy boy '
                 }
             },
 
             filters: {
-                'evilFilter': function(value) {
+                'evilFilter': function (value) {
                     return 'evil' + value + 'evil';
                 }
             }
@@ -58,7 +58,7 @@ var contentComponent = {
 
             replace: false,
 
-            data: function() {
+            data: function () {
                 return {
                     some: [
                         {value: 'value from v-repeat', test: 'this should not work'}
@@ -73,7 +73,7 @@ var contentComponent = {
                         item: null
                     },
                     template: '<span class="nested">{{item.value}}</span> <span class="own">{{value}}</span>',
-                    data: function() {
+                    data: function () {
                         return {
                             value: 'Component\'s own value'
                         };
@@ -105,7 +105,7 @@ var contentComponent = {
                 '</button>',
                 '<span class="nested-filter">{{checkFilter | nestedFilter}}</span>'
             ].join(''),
-            data: function() {
+            data: function () {
                 return {
                     buttons: [
                         {value: 1, label: 'одна'},
@@ -113,7 +113,7 @@ var contentComponent = {
                         {value: 3, label: 'три'},
                         {value: 4, label: 'четыре'}
                     ],
-                    
+
                     form: {
                         rooms: [2, 3]
                     },
@@ -123,30 +123,30 @@ var contentComponent = {
             },
 
             filters: {
-                nestedFilter: function(value) {
+                nestedFilter: function (value) {
                     return value + '!?!?!?!';
                 }
             },
-            
+
             methods: {
-                setRoom: function(vm) {
+                setRoom: function (vm) {
                     var index = this.form.rooms.indexOf(vm.value);
-                    
+
                     if (index == -1) {
                         this.form.rooms.push(vm.value);
                     } else {
                         this.form.rooms.splice(index, 1);
                     }
                 },
-                
-                setRoomActive: function(vm) {
+
+                setRoomActive: function (vm) {
                     var result = false;
-                    this.form.rooms.forEach(function(item) {
+                    this.form.rooms.forEach(function (item) {
                         if (item == vm.value) {
                             result = true;
                         }
                     });
-                    
+
                     return result;
                 }
             }
@@ -154,11 +154,11 @@ var contentComponent = {
     },
 
     // Убеждаемся, что перетёрли этот хук
-    compiledBe: function() {
-        
+    compiledBe: function () {
+
     },
 
-    activateBe: function(insert) {
+    activateBe: function (insert) {
         this.vRepeat = {
             parentValue: 'i\'m parent\'s value',
             simpleArray: [
@@ -167,9 +167,7 @@ var contentComponent = {
                 {value: 'simple array value 3'}
             ],
 
-
             hollowArray: [],
-
 
             arrayForFilter: [
                 {name: 'Andrey', age: 25},
@@ -232,93 +230,90 @@ var contentComponent = {
     },
 
     filters: {
-        reduce: function(value) {
+        reduce: function (value) {
             return [value[0], value[2]];
         }
     }
 };
 
-
-beforeAll(function(done) {
-    wrapComponent(contentComponent, function(response) {
+beforeAll(function (done) {
+    wrapComponent(contentComponent, function (response) {
         $ = response;
         done();
     }, {replace: true});
 });
 
-
-describe('v-for', function() {
-    it('on simple array to work fine', function() {
-        expect( $('#simple').html() ).toEqual('<i>1</i><i>3</i><i>5</i>');
+describe('v-for', function () {
+    it('on simple array to work fine', function () {
+        expect($('#simple').html()).toEqual('<i>1</i><i>3</i><i>5</i>');
     });
 
-    it('on simple array with explict index param definition to work fine', function() {
-        expect( $('#simple-explict').html() ).toEqual('<i>1</i><i>3</i><i>5</i>');
+    it('on simple array with explict index param definition to work fine', function () {
+        expect($('#simple-explict').html()).toEqual('<i>1</i><i>3</i><i>5</i>');
     });
 
-    it('on simple array + filter to work fine', function() {
-        expect( $('#simple-filter').html() ).toEqual('<i>1</i><i>4</i>');
+    it('on simple array + filter to work fine', function () {
+        expect($('#simple-filter').html()).toEqual('<i>1</i><i>4</i>');
     });
 
-    it('on object to work fine', function() {
-        expect( $('#object').html() ).toEqual('<i>1</i><i>3</i><i>5</i>');
+    it('on object to work fine', function () {
+        expect($('#object').html()).toEqual('<i>1</i><i>3</i><i>5</i>');
     });
 
-    it('on object + filter to work fine', function() {
-        expect( $('#object-filter').html() ).toEqual('<i>1</i><i>4</i>');
+    it('on object + filter to work fine', function () {
+        expect($('#object-filter').html()).toEqual('<i>1</i><i>4</i>');
     });
 
-    it('on component via custom tag to work fine', function() {
-        expect( $('#component').html() ).toEqual('<i>0|1</i><i>1|2</i><i>2|3</i>');
+    it('on component via custom tag to work fine', function () {
+        expect($('#component').html()).toEqual('<i>0|1</i><i>1|2</i><i>2|3</i>');
     });
 
-    it('on component via custom tag + filter to work fine', function() {
-        expect( $('#component-filter').html() ).toEqual('<i>0|1</i><i>1|3</i>');
+    it('on component via custom tag + filter to work fine', function () {
+        expect($('#component-filter').html()).toEqual('<i>0|1</i><i>1|3</i>');
     });
 
-    it('on component via custom tag + filter with explict index param definition to work fine', function() {
-        expect( $('#component-filter-explict').html() ).toEqual('<i>0|1</i><i>1|3</i>');
+    it('on component via custom tag + filter with explict index param definition to work fine', function () {
+        expect($('#component-filter-explict').html()).toEqual('<i>0|1</i><i>1|3</i>');
     });
 
-    it('on component via custom tag and object to work fine', function() {
-        expect( $('#component-object').html() ).toEqual('<i>0|1</i><i>1|2</i><i>2|3</i>');
+    it('on component via custom tag and object to work fine', function () {
+        expect($('#component-object').html()).toEqual('<i>0|1</i><i>1|2</i><i>2|3</i>');
     });
 
-    it('on component via custom tag and object + filter to work fine', function() {
-        expect( $('#component-object-filter').html() ).toEqual('<i>0|1</i><i>1|3</i>');
+    it('on component via custom tag and object + filter to work fine', function () {
+        expect($('#component-object-filter').html()).toEqual('<i>0|1</i><i>1|3</i>');
     });
 
-    it('on component via custom tag to work fine', function() {
-        expect( $('#component-compound').html() ).toEqual('<i>0|1|compParted</i><i>1|2|compParted</i><i>2|3|compParted</i>');
+    it('on component via custom tag to work fine', function () {
+        expect($('#component-compound').html()).toEqual(
+            '<i>0|1|compParted</i><i>1|2|compParted</i><i>2|3|compParted</i>'
+        );
     });
 
-    it('on component via <component> to work fine', function() {
-        expect( $('#component2').html() ).toEqual('<i>0|1</i><i>1|2</i><i>2|3</i>');
+    it('on component via <component> to work fine', function () {
+        expect($('#component2').html()).toEqual('<i>0|1</i><i>1|2</i><i>2|3</i>');
     });
 });
 
-
-
 // v-repeat - begin
-describe("v-for", function() {
+describe('v-for', function () {
 
-    it("should be able to render arrays", function() {
-        expect( $('#v-repeat .simple-array').find('li').length ).toEqual(3);
+    it('should be able to render arrays', function () {
+        expect($('#v-repeat .simple-array').find('li').length).toEqual(3);
     });
 
-    it("should not display any items if value in undefined", function() {
-        expect( $('#v-repeat .undefined').find('li').length ).toEqual(0);
+    it('should not display any items if value in undefined', function () {
+        expect($('#v-repeat .undefined').find('li').length).toEqual(0);
     });
 
-    it("should not display any items if array in empty", function() {
-        expect( $('#v-repeat .hollow').find('li').length ).toEqual(0);
+    it('should not display any items if array in empty', function () {
+        expect($('#v-repeat .hollow').find('li').length).toEqual(0);
     });
 
-    it("should be able to use a filter", function() {
-        expect( $('#v-repeat .array-filter-by').find('li').length ).toEqual(2);
-        expect( $('#v-repeat .array-filter-by').find('li').eq(1).find('.age').text() ).toEqual('32');
+    it('should be able to use a filter', function () {
+        expect($('#v-repeat .array-filter-by').find('li').length).toEqual(2);
+        expect($('#v-repeat .array-filter-by').find('li').eq(1).find('.age').text()).toEqual('32');
     });
-
 
     // !!!!!!!!!!!!!!!!
     // it("should be able to use multiple filters", function() {
@@ -326,51 +321,46 @@ describe("v-for", function() {
     //     expect( $('#v-repeat .array-filter-by-multiple').find('li').eq(0).find('.age').text() ).toEqual('25');
     // });
 
-
-    it("should be able to render objects", function() {
-        expect( $('#v-repeat .object').find('li').length ).toEqual(3);
+    it('should be able to render objects', function () {
+        expect($('#v-repeat .object').find('li').length).toEqual(3);
     });
 
-    it("should be able to display array items' values", function() {
+    it('should be able to display array items\' values', function () {
         var $items = $('#v-repeat .simple-array').find('li .value');
-        expect( $items.eq(2).text() ).toEqual( 'simple array value 3' );
+        expect($items.eq(2).text()).toEqual('simple array value 3');
     });
 
-    it("array items' should not inherit prev item's values", function() {
+    it('array items\' should not inherit prev item\'s values', function () {
         var $items = $('#v-repeat .simple-array').find('li .dont-inherit');
-        expect( $items.eq(0).text() ).toEqual( 'me' );
-        expect( $items.eq(1).text() ).toEqual( '' );
+        expect($items.eq(0).text()).toEqual('me');
+        expect($items.eq(1).text()).toEqual('');
     });
 
-    it("in array items' parent's values should be available", function() {
+    it('in array items\' parent\'s values should be available', function () {
         var $items = $('#v-repeat .simple-array').find('li .parent-value');
-        expect( $items.eq(2).text() ).toEqual( 'i\'m parent\'s value' );
+        expect($items.eq(2).text()).toEqual('i\'m parent\'s value');
     });
-
-
 
     // it("should be able to use separated datas (parent & repeat-item) in methods", function() {
     //     expect( $('#v-repeat .syntetic .active').length ).toEqual( 2 );
     // });
 
-
     // it("should be able to use component's filters inside component's v-repeat", function() {
     //     expect( $('#v-repeat .syntetic .in-repeat-nested-filter').eq(1).text() ).toEqual( 'ok!?!?!?!' );
     // });
 
-    it("should be able to use component's filters inside v-repeat", function() {
-        expect( $('#v-repeat .filter-repeated.evil-filter').eq(1).text() ).toEqual( 'evil boy boy evil' );
+    it('should be able to use component\'s filters inside v-repeat', function () {
+        expect($('#v-repeat .filter-repeated.evil-filter').eq(1).text()).toEqual('evil boy boy evil');
     });
 
-    describe("with a component", function() {
-        it("should be able to render component's items", function() {
-            expect( $('#v-repeat .repeat-component').find('i').length ).toEqual(3);
+    describe('with a component', function () {
+        it('should be able to render component\'s items', function () {
+            expect($('#v-repeat .repeat-component').find('i').length).toEqual(3);
         });
 
-        it("should not leave default content inside", function() {
-            expect( $('#v-repeat .repeat-component').find('.should-not-be-there').length ).toEqual(0);
+        it('should not leave default content inside', function () {
+            expect($('#v-repeat .repeat-component').find('.should-not-be-there').length).toEqual(0);
         });
-
 
         // it("should display data from repeating items", function() {
         //     var $items = $('#v-repeat .repeat-component').find('li .comp-repeat-value');
@@ -382,57 +372,55 @@ describe("v-for", function() {
         //     expect( $items.eq(2).text() ).toEqual( 'Component\'s 1 own value' );
         // });
 
-        it("should display parent component's data values", function() {
+        it('should display parent component\'s data values', function () {
             var $items = $('#v-repeat .repeat-component').find('li .comp-parent-value');
-            expect( $items.eq(2).text() ).not.toBe( 'i\'m parent\'s value' );
+            expect($items.eq(2).text()).not.toBe('i\'m parent\'s value');
         });
 
-
-
-        describe("with items namespace", function() {
-            it("should display values with namespace", function() {
-                expect( $('#v-repeat .compound-nesting .nested').text() ).toEqual('value from v-repeat');
+        describe('with items namespace', function () {
+            it('should display values with namespace', function () {
+                expect($('#v-repeat .compound-nesting .nested').text()).toEqual('value from v-repeat');
             });
 
-            it("should display component's values", function() {
-                expect( $('#v-repeat .compound-nesting .own').text() ).toEqual('Component\'s own value');
+            it('should display component\'s values', function () {
+                expect($('#v-repeat .compound-nesting .own').text()).toEqual('Component\'s own value');
             });
         });
 
     });
 
+    describe('with setting namespace for children', function () {
 
-
-    describe("with setting namespace for children", function() {
-
-        it("should render items", function() {
-            expect( $('#v-repeat .name-seting').length ).toEqual( 3 );
-        });
-        
-        it("should properly display items' values", function() {
-            expect( $('#v-repeat .name-seting').eq(1).find('.item-value').text() ).toEqual( 'simple array value 2' );
+        it('should render items', function () {
+            expect($('#v-repeat .name-seting').length).toEqual(3);
         });
 
-        describe("in 2nd level repeat without setting namespace", function() {
-            it("should render items", function() {
-                expect( $('#v-repeat .name-seting').eq(2).find('.item-array .item-array-unit').length ).toEqual( 2 );
+        it('should properly display items\' values', function () {
+            expect($('#v-repeat .name-seting').eq(1).find('.item-value').text()).toEqual('simple array value 2');
+        });
+
+        describe('in 2nd level repeat without setting namespace', function () {
+            it('should render items', function () {
+                expect($('#v-repeat .name-seting').eq(2).find('.item-array .item-array-unit').length).toEqual(2);
             });
 
-            it("should properly display items' values", function() {
-                expect( $('#v-repeat .name-seting').eq(1).find('.item-array .item-array-unit').eq(1).text() ).toEqual( '222222' );
+            it('should properly display items\' values', function () {
+                expect($('#v-repeat .name-seting').eq(1).find('.item-array .item-array-unit')
+                    .eq(1).text()).toEqual('222222');
             });
         });
 
-        describe("in 2nd level repeat with setting namespace", function() {
-            it("should render items", function() {
-                expect( $('#v-repeat .name-seting').eq(2).find('.item-array-nesting .item-array-nesting-unit').length ).toEqual( 2 );
+        describe('in 2nd level repeat with setting namespace', function () {
+            it('should render items', function () {
+                expect($('#v-repeat .name-seting')
+                    .eq(2).find('.item-array-nesting .item-array-nesting-unit').length).toEqual(2);
             });
 
-            it("should properly display items' values", function() {
-                expect( $('#v-repeat .name-seting').eq(1).find('.item-array-nesting .item-array-nesting-unit').eq(1).text() ).toEqual( '222222' );
+            it('should properly display items\' values', function () {
+                expect($('#v-repeat .name-seting').eq(1).find('.item-array-nesting .item-array-nesting-unit')
+                    .eq(1).text()).toEqual('222222');
             });
         });
     });
-
 
 });

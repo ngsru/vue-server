@@ -1,7 +1,7 @@
 function stringify(obj) {
     var result = '';
 
-    var cycle = function(source) {
+    var cycle = function (source) {
 
         if (typeof source !== 'object') {
             // Function & Boolean & Number
@@ -13,17 +13,17 @@ function stringify(obj) {
             // String
             } else {
                 result += '"' + source.replace(/"/g, '\\"') + '"';
-            } 
+            }
         } else {
             // Array
             if (source instanceof Array) {
                 result += '[';
 
-                source.forEach(function(item, index) {
+                source.forEach(function (item, index) {
                     cycle(item);
 
                     if (index != source.length - 1) {
-                       result += ','
+                        result += ','
                     }
                 });
 
@@ -56,12 +56,10 @@ function stringify(obj) {
         }
     }
 
-
     cycle(obj)
 
     return result.replace(/\n|\r|\t/g, ' ');
 
 };
-
 
 module.exports = stringify;

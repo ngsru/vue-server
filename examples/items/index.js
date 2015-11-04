@@ -15,7 +15,7 @@ Vue.component('item', {
     data: function () {
         return {
             isVisible: false
-        }
+        };
     },
     computed: {
         header: function () {
@@ -34,7 +34,7 @@ Vue.component('item', {
             return '--=' + value + '=--';
         }
     }
-})
+});
 
 // boot up the demo
 var demo = new Vue({
@@ -57,6 +57,6 @@ var demo = new Vue({
     }
 });
 
-demo.$on('vueServer.htmlReady', function(html) {
+demo.$on('vueServer.htmlReady', function (html) {
     console.log(html);
 });

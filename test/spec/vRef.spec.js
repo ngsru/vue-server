@@ -7,7 +7,7 @@ var contentComponent = {
             '<div id="dash-to-camel"><compName v-ref:ref-name></compName></div>',
         '</div>'
     ].join(''),
-    data: function() {
+    data: function () {
         return {
             childValue: 'content',
             parto: 'compParted',
@@ -17,7 +17,7 @@ var contentComponent = {
 
     components: {
         compName: {
-            data: function() {
+            data: function () {
                 return {
                     prop: 123
                 };
@@ -27,27 +27,25 @@ var contentComponent = {
     },
 
     // Убеждаемся, что перетёрли этот хук
-    compiledBe: function() {
-        
+    compiledBe: function () {
+
     },
 
-    activateBe: function(insert) {
+    activateBe: function (insert) {
         this.$refs.refName.prop = 'modified';
         insert();
     }
 };
 
-
-beforeAll(function(done) {
-    wrapComponent(contentComponent, function(response) {
+beforeAll(function (done) {
+    wrapComponent(contentComponent, function (response) {
         $ = response;
         done();
     }, {replace: true});
 });
 
-
-describe('v-ref', function() {
-    it('should work and autorename to camelCase', function() {
-        expect( $('#dash-to-camel').html() ).toEqual('<i>modified</i>');
+describe('v-ref', function () {
+    it('should work and autorename to camelCase', function () {
+        expect($('#dash-to-camel').html()).toEqual('<i>modified</i>');
     });
 });

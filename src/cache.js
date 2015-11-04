@@ -11,14 +11,14 @@
  * @constructor
  */
 
-function Cache (limit) {
-  this.size = 0
-  this.limit = limit
-  this.head = this.tail = undefined
-  this._keymap = {}
+function Cache(limit) {
+    this.size = 0;
+    this.limit = limit;
+    this.head = this.tail = undefined;
+    this._keymap = {};
 }
 
-var p = Cache.prototype
+var p = Cache.prototype;
 
 /**
  * Put <value> into the cache associated with <key>.
@@ -32,24 +32,24 @@ var p = Cache.prototype
  */
 
 p.put = function (key, value) {
-  var entry = {
-    key: key,
-    value: value
-  }
-  this._keymap[key] = entry
-  if (this.tail) {
-    this.tail.newer = entry
-    entry.older = this.tail
-  } else {
-    this.head = entry
-  }
-  this.tail = entry
-  if (this.size === this.limit) {
-    return this.shift()
-  } else {
-    this.size++
-  }
-}
+    var entry = {
+        key: key,
+        value: value
+    };
+    this._keymap[key] = entry;
+    if (this.tail) {
+        this.tail.newer = entry;
+        entry.older = this.tail;
+    } else {
+        this.head = entry;
+    }
+    this.tail = entry;
+    if (this.size === this.limit) {
+        return this.shift();
+    } else {
+        this.size++;
+    }
+};
 
 /**
  * Purge the least recently used (oldest) entry from the
@@ -58,15 +58,15 @@ p.put = function (key, value) {
  */
 
 p.shift = function () {
-  var entry = this.head
-  if (entry) {
-    this.head = this.head.newer
-    this.head.older = undefined
-    entry.newer = entry.older = undefined
-    this._keymap[entry.key] = undefined
-  }
-  return entry
-}
+    var entry = this.head;
+    if (entry) {
+        this.head = this.head.newer;
+        this.head.older = undefined;
+        entry.newer = entry.older = undefined;
+        this._keymap[entry.key] = undefined;
+    }
+    return entry;
+};
 
 /**
  * Get and register recent use of <key>. Returns the value
@@ -78,36 +78,34 @@ p.shift = function () {
  */
 
 p.get = function (key, returnEntry) {
-  return null;
-  var entry = this._keymap[key]
-  if (entry === undefined) return
-  if (entry === this.tail) {
-    return returnEntry
-      ? entry
-      : entry.value
-  }
-  // HEAD--------------TAIL
-  //   <.older   .newer>
-  //  <--- add direction --
-  //   A  B  C  <D>  E
-  if (entry.newer) {
-    if (entry === this.head) {
-      this.head = entry.newer
+    return null;
+    var entry = this._keymap[key];
+    if (entry === undefined) {
+        return;
     }
-    entry.newer.older = entry.older // C <-- E.
-  }
-  if (entry.older) {
-    entry.older.newer = entry.newer // C. --> E
-  }
-  entry.newer = undefined // D --x
-  entry.older = this.tail // D. --> E
-  if (this.tail) {
-    this.tail.newer = entry // E. <-- D
-  }
-  this.tail = entry
-  return returnEntry
-    ? entry
-    : entry.value
-}
+    if (entry === this.tail) {
+        return returnEntry ? entry : entry.value;
+    }
+    // HEAD--------------TAIL
+    //   <.older   .newer>
+    //  <--- add direction --
+    //   A  B  C  <D>  E
+    if (entry.newer) {
+        if (entry === this.head) {
+            this.head = entry.newer;
+        }
+        entry.newer.older = entry.older; // C <-- E.
+    }
+    if (entry.older) {
+        entry.older.newer = entry.newer; // C. --> E
+    }
+    entry.newer = undefined; // D --x
+    entry.older = this.tail; // D. --> E
+    if (this.tail) {
+        this.tail.newer = entry; // E. <-- D
+    }
+    this.tail = entry;
+    return returnEntry ? entry : entry.value;
+};
 
-module.exports = Cache
+module.exports = Cache;

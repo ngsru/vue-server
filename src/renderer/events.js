@@ -1,14 +1,14 @@
 var _ = {
-  toArray: function (list, start) {
-    start = start || 0
-    var i = list.length - start
-    var ret = new Array(i)
-    while (i--) {
-      ret[i] = list[i + start]
+    toArray: function (list, start) {
+        start = start || 0;
+        var i = list.length - start;
+        var ret = new Array(i);
+        while (i--) {
+            ret[i] = list[i + start];
+        }
+        return ret;
     }
-    return ret
-  }
-}
+};
 
 /**
  * Listen on the given `event` with `fn`.
@@ -18,11 +18,11 @@ var _ = {
  */
 
 exports.$on = function (event, fn) {
-  (this._events[event] || (this._events[event] = []))
-    .push(fn)
-  modifyListenerCount(this, event, 1)
-  return this
-}
+    (this._events[event] || (this._events[event] = []))
+      .push(fn);
+    modifyListenerCount(this, event, 1);
+    return this;
+};
 
 /**
  * Adds an `event` listener that will be invoked a single
@@ -33,15 +33,15 @@ exports.$on = function (event, fn) {
  */
 
 exports.$once = function (event, fn) {
-  var self = this
-  function on () {
-    self.$off(event, on)
-    fn.apply(this, arguments)
-  }
-  on.fn = fn
-  this.$on(event, on)
-  return this
-}
+    var self = this;
+    function on() {
+        self.$off(event, on);
+        fn.apply(this, arguments);
+    }
+    on.fn = fn;
+    this.$on(event, on);
+    return this;
+};
 
 /**
  * Remove the given callback for `event` or all
@@ -52,43 +52,43 @@ exports.$once = function (event, fn) {
  */
 
 exports.$off = function (event, fn) {
-  var cbs
-  // all
-  if (!arguments.length) {
-    if (this.$parent) {
-      for (event in this._events) {
-        cbs = this._events[event]
-        if (cbs) {
-          modifyListenerCount(this, event, -cbs.length)
+    var cbs;
+    // all
+    if (!arguments.length) {
+        if (this.$parent) {
+            for (event in this._events) {
+                cbs = this._events[event];
+                if (cbs) {
+                    modifyListenerCount(this, event, -cbs.length);
+                }
+            }
         }
-      }
+        this._events = {};
+        return this;
     }
-    this._events = {}
-    return this
-  }
-  // specific event
-  cbs = this._events[event]
-  if (!cbs) {
-    return this
-  }
-  if (arguments.length === 1) {
-    modifyListenerCount(this, event, -cbs.length)
-    this._events[event] = null
-    return this
-  }
-  // specific handler
-  var cb
-  var i = cbs.length
-  while (i--) {
-    cb = cbs[i]
-    if (cb === fn || cb.fn === fn) {
-      modifyListenerCount(this, event, -1)
-      cbs.splice(i, 1)
-      break
+    // specific event
+    cbs = this._events[event];
+    if (!cbs) {
+        return this;
     }
-  }
-  return this
-}
+    if (arguments.length === 1) {
+        modifyListenerCount(this, event, -cbs.length);
+        this._events[event] = null;
+        return this;
+    }
+    // specific handler
+    var cb;
+    var i = cbs.length;
+    while (i--) {
+        cb = cbs[i];
+        if (cb === fn || cb.fn === fn) {
+            modifyListenerCount(this, event, -1);
+            cbs.splice(i, 1);
+            break;
+        }
+    }
+    return this;
+};
 
 /**
  * Trigger an event on self.
@@ -97,28 +97,28 @@ exports.$off = function (event, fn) {
  */
 
 exports.$emit = function (event) {
-  this._eventCancelled = false
-  var cbs = this._events[event]
-  if (cbs) {
-    // avoid leaking arguments:
-    // http://jsperf.com/closure-with-arguments
-    var i = arguments.length - 1
-    var args = new Array(i)
-    while (i--) {
-      args[i] = arguments[i + 1]
+    this._eventCancelled = false;
+    var cbs = this._events[event];
+    if (cbs) {
+        // avoid leaking arguments:
+        // http://jsperf.com/closure-with-arguments
+        var i = arguments.length - 1;
+        var args = new Array(i);
+        while (i--) {
+            args[i] = arguments[i + 1];
+        }
+        i = 0;
+        cbs = cbs.length > 1          ?
+      _.toArray(cbs)
+          : cbs;
+        for (var l = cbs.length; i < l; i++) {
+            if (cbs[i].apply(this, args) === false) {
+                this._eventCancelled = true;
+            }
+        }
     }
-    i = 0
-    cbs = cbs.length > 1
-      ? _.toArray(cbs)
-      : cbs
-    for (var l = cbs.length; i < l; i++) {
-      if (cbs[i].apply(this, args) === false) {
-        this._eventCancelled = true
-      }
-    }
-  }
-  return this
-}
+    return this;
+};
 
 /**
  * Recursively broadcast an event to all children instances.
@@ -128,21 +128,23 @@ exports.$emit = function (event) {
  */
 
 exports.$broadcast = function (event) {
-  // if no child has registered for this event,
-  // then there's no need to broadcast.
-  if (!this._eventsCount[event]) return
-  var children = this.$children
-  if (children) {
-    for (var i = 0, l = children.length; i < l; i++) {
-      var child = children[i]
-      child.$emit.apply(child, arguments)
-      if (!child._eventCancelled) {
-        child.$broadcast.apply(child, arguments)
-      }
+    // if no child has registered for this event,
+    // then there's no need to broadcast.
+    if (!this._eventsCount[event]) {
+        return;
     }
-  }
-  return this
-}
+    var children = this.$children;
+    if (children) {
+        for (var i = 0, l = children.length; i < l; i++) {
+            var child = children[i];
+            child.$emit.apply(child, arguments);
+            if (!child._eventCancelled) {
+                child.$broadcast.apply(child, arguments);
+            }
+        }
+    }
+    return this;
+};
 
 /**
  * Recursively propagate an event up the parent chain.
@@ -152,15 +154,13 @@ exports.$broadcast = function (event) {
  */
 
 exports.$dispatch = function () {
-  var parent = this.$parent
-  while (parent) {
-    parent.$emit.apply(parent, arguments)
-    parent = parent._eventCancelled
-      ? null
-      : parent.$parent
-  }
-  return this
-}
+    var parent = this.$parent;
+    while (parent) {
+        parent.$emit.apply(parent, arguments);
+        parent = parent._eventCancelled ? null : parent.$parent;
+    }
+    return this;
+};
 
 /**
  * Modify the listener counts on all parents.
@@ -172,15 +172,16 @@ exports.$dispatch = function () {
  * @param {Number} count
  */
 
-var hookRE = /^hook:/
-function modifyListenerCount (vm, event, count) {
-  var parent = vm.$parent
-  // hooks do not get broadcasted so no need
-  // to do bookkeeping for them
-  if (!parent || !count || hookRE.test(event)) return
-  while (parent) {
-    parent._eventsCount[event] =
-      (parent._eventsCount[event] || 0) + count
-    parent = parent.$parent
-  }
+var hookRE = /^hook:/;
+function modifyListenerCount(vm, event, count) {
+    var parent = vm.$parent;
+    // hooks do not get broadcasted so no need
+    // to do bookkeeping for them
+    if (!parent || !count || hookRE.test(event)) {
+        return;
+    }
+    while (parent) {
+        parent._eventsCount[event] = (parent._eventsCount[event] || 0) + count;
+        parent = parent.$parent;
+    }
 }

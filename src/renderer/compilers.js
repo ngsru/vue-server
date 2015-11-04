@@ -2,20 +2,20 @@ var cssParser = require('../css');
 var common = require('./common.js');
 var _ = require('underscore');
 
-
 var compilers = {
-    compile: function(vm) {
+    compile: function (vm) {
         compilers.compileViewModels(vm);
         return vm;
     },
 
-
-    compileViewModels: function(vm) {
+    compileViewModels: function (vm) {
         var childVm;
 
         compilers.compileElements(vm, [vm.$el]);
 
-        if (!vm.__states.children) return;
+        if (!vm.__states.children) {
+            return;
+        }
 
         for (var i = 0, l = vm.__states.children.length; i < l; i++) {
             childVm = vm.__states.children[i];
@@ -23,18 +23,16 @@ var compilers = {
         }
     },
 
-
-    compileElements: function(vm, elements) {
+    compileElements: function (vm, elements) {
         var element;
 
         for (var i = 0, l = elements.length; i < l; i++) {
             element = common.setElement(elements[i]);
-            compilers.compileElement(vm, element); 
+            compilers.compileElement(vm, element);
         }
     },
 
-
-    compileElement: function(vm, element) {
+    compileElement: function (vm, element) {
         var foreignKeyElement = false;
 
         // В зависимости от того, является ли этот элемент ключевым для контекста v-repeat-а или нет
@@ -62,25 +60,22 @@ var compilers = {
             element.text = common.execute(vm, element.text);
         }
 
-
         // Дочерние элементы тега
         if (element.inner) {
             compilers.compileElements(vm, element.inner);
         }
     },
 
-
-    compileTag: function(vm, element) {
+    compileTag: function (vm, element) {
         if (element.compiled) {
             return;
         }
-        
+
         if (element.type === 'tag') {
             // v-model
             if (element.dirs.model) {
                 compilers.compileDirectiveModel(vm, element);
             }
-            
 
             // v-text
             if (element.dirs.text) {
@@ -95,7 +90,6 @@ var compilers = {
                 );
             }
 
-
             // v-html
             if (element.dirs.html) {
                 compilers.setInnerText(
@@ -109,7 +103,6 @@ var compilers = {
                 );
             }
 
-
             // v-el
             if (element.dirs.el) {
                 // Not done yet
@@ -122,18 +115,15 @@ var compilers = {
 
             compilers.compileAttributeDirectives(vm, element);
 
-
-
-
             // NEW SYNTAX
             // v-bind:
             if (element.dirs.bind) {
                 for (var name in element.dirs.bind) {
-                    (function() {
+                    (function () {
                         if (element.dirs.bind[name].isCompiled) {
                             return;
                         }
-                        
+
                         var value = common.execute(vm, {
                             value: element.dirs.bind[name].value.get,
                             filters: element.dirs.bind[name].value.filters,
@@ -158,7 +148,7 @@ var compilers = {
                         }
 
                         if (name === 'class') {
-                            (function() {
+                            (function () {
                                 var classList = [];
                                 var vClassItem;
 
@@ -189,10 +179,10 @@ var compilers = {
                     })();
                 }
             }
-            
+
             // v-bind="{...}"
             if (element.dirs.bindMany) {
-               (function() {
+                (function () {
                     var value = common.execute(vm, {
                         value: element.dirs.bindMany.value.get,
                         filters: element.dirs.bindMany.value.filters,
@@ -201,7 +191,6 @@ var compilers = {
                     common.extend(element.attribs, value);
                 })();
             }
-
 
             // setSelected (hack for v-for <select> options)
             if (element.dirs.setSelected) {
@@ -214,20 +203,18 @@ var compilers = {
                 }
             }
 
-
-
             element.compiled = true;
         }
     },
 
-    setInnerText: function(element, text) {
+    setInnerText: function (element, text) {
         element.inner = [{
             'type': 'text',
             'text': text
         }];
     },
 
-    compileAttributeDirectives: function(vm, element) {
+    compileAttributeDirectives: function (vm, element) {
         // v-class
         if (element.dirs.class) {
             var classList;
@@ -247,7 +234,7 @@ var compilers = {
                 for (var i = 0; i < element.dirs.class.value.length; i++) {
                     vClassItem = element.dirs.class.value[i];
 
-                    if ( common.execute(vm, {value: vClassItem.get}) ) {
+                    if (common.execute(vm, {value: vClassItem.get})) {
                         classList.push(vClassItem.arg);
                     }
                 }
@@ -265,7 +252,7 @@ var compilers = {
 
             element.attribs.class = _.uniq(classList).join(' ');
         }
-        
+
         // v-style && v-show
         var styles = {};
         var originalStyle = element.attribs.style;
@@ -282,7 +269,7 @@ var compilers = {
                     compilers.compileDirectiveStyle(vm, element),
                     compilers.compileDirectiveShow(vm, element, originalStyle)
                 );
-                
+
             } else {
                 common.extend(
                     styles,
@@ -300,7 +287,7 @@ var compilers = {
             styles = compilers.compileDirectiveShow(vm, element, originalStyle);
         }
 
-        if ( _.size(styles) ) {
+        if (_.size(styles)) {
             if (originalStyle) {
                 element.attribs.style = cssParser.stringify(common.extend(originalStyle, styles));
             } else {
@@ -309,15 +296,13 @@ var compilers = {
         }
     },
 
-
     // v-model
-    compileDirectiveModel: function(vm, element) {
+    compileDirectiveModel: function (vm, element) {
         var selectOptions;
         var vModelValue;
         var attrValue;
         var selectValueMap;
         var selectStaticOption;
-
 
         attrValue = common.execute(vm, element.attribs.value);
 
@@ -353,7 +338,7 @@ var compilers = {
                 if (attrValue == vModelValue) {
                     element.attribs.checked = 'checked';
                 } else {
-                   delete element.attribs.checked;
+                    delete element.attribs.checked;
                 }
             }
         }
@@ -399,13 +384,12 @@ var compilers = {
                 }
             }
 
-
             // Значения select multiple приходят в виде массива
             // Создаём карту значений, чтобы не бегать по массиву 100500 раз
             if (element.attribs.multiple !== undefined) {
                 if (vModelValue) {
-                    for (var i = 0, l = vModelValue.length; i < l; i++) {
-                        selectValueMap[vModelValue[i]] = true;
+                    for (var j = 0, n = vModelValue.length; j < n; j++) {
+                        selectValueMap[vModelValue[j]] = true;
                     }
                 }
 
@@ -414,8 +398,8 @@ var compilers = {
                 selectValueMap[vModelValue] = true;
             }
 
-            for (var i = 0, l = element.inner.length; i < l; i++) {
-                var item = element.inner[i];
+            for (var k = 0, o = element.inner.length; k < o; k++) {
+                var item = element.inner[k];
                 compilers.prepareSelecOption(vm, item, vModelValue, selectValueMap);
             }
         }
@@ -425,9 +409,7 @@ var compilers = {
         }
     },
 
-
-
-    prepareSelecOption: function(vm, item, vModelValue, selectValueMap) {
+    prepareSelecOption: function (vm, item, vModelValue, selectValueMap) {
         if (item.name === '$merge') {
             compilers.prepareSelecOption(vm, item.inner[0], vModelValue, selectValueMap);
             return;
@@ -441,7 +423,7 @@ var compilers = {
                 }
             };
             if (selectValueMap[common.getValue(vm, item.attribs.value)]) {
-                item.attribs.selected = "selected";
+                item.attribs.selected = 'selected';
             } else {
                 // На всякий случай, чтобы удалить нежелательные selected,
                 // которые могли быть в разметке
@@ -450,12 +432,11 @@ var compilers = {
         }
     },
 
-
     // v-style
-    compileDirectiveStyle: function(vm, element) {
+    compileDirectiveStyle: function (vm, element) {
         var styleObject = {};
 
-        if ( Array.isArray(element.dirs.style.value) ) {
+        if (Array.isArray(element.dirs.style.value)) {
             element.dirs.style.value.forEach(function (item) {
                 styleObject[item.arg] = common.getValue(vm, item.get);
             });
@@ -466,22 +447,20 @@ var compilers = {
         return styleObject;
     },
 
-
     // v-show
-    compileDirectiveShow: function(vm, element, originalStyle) {
+    compileDirectiveShow: function (vm, element, originalStyle) {
         var elStyles = {};
         var isToShow = common.getValue(vm, element.dirs.show.value.get);
-        if (isToShow && originalStyle && originalStyle.display === 'none') {    
+        if (isToShow && originalStyle && originalStyle.display === 'none') {
             elStyles.display = '';
         }
 
-        if (!isToShow) {    
+        if (!isToShow) {
             elStyles.display = 'none';
         }
 
         return elStyles;
     }
 };
-
 
 module.exports = compilers;

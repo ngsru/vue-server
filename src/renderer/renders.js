@@ -1,12 +1,11 @@
 var _ = require('underscore');
 
 var renders = {
-    render: function(vm) {
+    render: function (vm) {
         return renders.renderTemplate(vm.$el.inner);
     },
 
-
-    renderTemplate: function(elements) {
+    renderTemplate: function (elements) {
         var html = '',
             element;
 
@@ -20,7 +19,7 @@ var renders = {
                     element.name === 'slot'
                 ) {
                     html += renders.renderTemplate(element.inner);
-                } else if (element.name === '$merge') { 
+                } else if (element.name === '$merge') {
                     html += renders.renderMergedTags(element);
                 } else {
                     html += renders.renderTag(element);
@@ -35,13 +34,12 @@ var renders = {
         return html;
     },
 
-
     // Отрсиовываем тег-ноды
-    renderText: function(element) {
+    renderText: function (element) {
         return element.text;
     },
 
-    renderTag: function(element) {
+    renderTag: function (element) {
         var tag = '<' + element.name;
 
         // Проходим по аттибутам тега, собираем директивы vue
@@ -70,8 +68,7 @@ var renders = {
         return tag;
     },
 
-
-    renderMergedTags: function(element) {
+    renderMergedTags: function (element) {
         var elementChild = element.inner[0];
 
         // Случай v-if + v-for
@@ -108,19 +105,16 @@ var renders = {
         return renders.renderTag(element);
     },
 
-
-    mergeAttribute: function(element, elementChild, name) {
+    mergeAttribute: function (element, elementChild, name) {
         if (element.attribs[name] && elementChild.attribs[name]) {
             element.attribs[name] = element.attribs[name] + ' ' + elementChild.attribs[name];
         }
-        
+
         if (!element.attribs[name] && elementChild.attribs[name]) {
             element.attribs[name] = elementChild.attribs[name];
         }
     }
 
 };
-
-
 
 module.exports = renders;

@@ -1,9 +1,9 @@
-var _ = require('../util')
-var config = require('../config')
-var Dep = require('./dep')
-var arrayMethods = require('./array')
-var arrayKeys = Object.getOwnPropertyNames(arrayMethods)
-require('./object')
+var _ = require('../util');
+var config = require('../config');
+var Dep = require('./dep');
+var arrayMethods = require('./array');
+var arrayKeys = Object.getOwnPropertyNames(arrayMethods);
+require('./object');
 
 /**
  * Observer class that are attached to each observed
@@ -15,19 +15,17 @@ require('./object')
  * @constructor
  */
 
-function Observer (value) {
-  this.value = value
-  this.dep = new Dep()
-  _.define(value, '__ob__', this)
-  if (_.isArray(value)) {
-    var augment = config.proto && _.hasProto
-      ? protoAugment
-      : copyAugment
-    augment(value, arrayMethods, arrayKeys)
-    this.observeArray(value)
-  } else {
-    this.walk(value)
-  }
+function Observer(value) {
+    this.value = value;
+    this.dep = new Dep();
+    _.define(value, '__ob__', this);
+    if (_.isArray(value)) {
+        var augment = config.proto && _.hasProto ? protoAugment : copyAugment;
+        augment(value, arrayMethods, arrayKeys);
+        this.observeArray(value);
+    } else {
+        this.walk(value);
+    }
 }
 
 // Static methods
@@ -44,27 +42,27 @@ function Observer (value) {
  */
 
 Observer.create = function (value, vm) {
-  if (!value || typeof value !== 'object') {
-    return
-  }
-  var ob
-  if (
-    value.hasOwnProperty('__ob__') &&
-    value.__ob__ instanceof Observer
-  ) {
-    ob = value.__ob__
-  } else if (
-    (_.isArray(value) || _.isPlainObject(value)) &&
-    !Object.isFrozen(value) &&
-    !value._isVue
-  ) {
-    ob = new Observer(value)
-  }
-  if (ob && vm) {
-    ob.addVm(vm)
-  }
-  return ob
-}
+    if (!value || typeof value !== 'object') {
+        return;
+    }
+    var ob;
+    if (
+      value.hasOwnProperty('__ob__') &&
+      value.__ob__ instanceof Observer
+    ) {
+        ob = value.__ob__;
+    } else if (
+      (_.isArray(value) || _.isPlainObject(value)) &&
+      !Object.isFrozen(value) &&
+      !value._isVue
+    ) {
+        ob = new Observer(value);
+    }
+    if (ob && vm) {
+        ob.addVm(vm);
+    }
+    return ob;
+};
 
 // Instance methods
 
@@ -77,12 +75,12 @@ Observer.create = function (value, vm) {
  */
 
 Observer.prototype.walk = function (obj) {
-  var keys = Object.keys(obj)
-  var i = keys.length
-  while (i--) {
-    this.convert(keys[i], obj[keys[i]])
-  }
-}
+    var keys = Object.keys(obj);
+    var i = keys.length;
+    while (i--) {
+        this.convert(keys[i], obj[keys[i]]);
+    }
+};
 
 /**
  * Observe a list of Array items.
@@ -91,14 +89,14 @@ Observer.prototype.walk = function (obj) {
  */
 
 Observer.prototype.observeArray = function (items) {
-  var i = items.length
-  while (i--) {
-    var ob = Observer.create(items[i])
-    if (ob) {
-      (ob.parents || (ob.parents = [])).push(this)
+    var i = items.length;
+    while (i--) {
+        var ob = Observer.create(items[i]);
+        if (ob) {
+            (ob.parents || (ob.parents = [])).push(this);
+        }
     }
-  }
-}
+};
 
 /**
  * Remove self from the parent list of removed objects.
@@ -107,14 +105,14 @@ Observer.prototype.observeArray = function (items) {
  */
 
 Observer.prototype.unobserveArray = function (items) {
-  var i = items.length
-  while (i--) {
-    var ob = items[i] && items[i].__ob__
-    if (ob) {
-      ob.parents.$remove(this)
+    var i = items.length;
+    while (i--) {
+        var ob = items[i] && items[i].__ob__;
+        if (ob) {
+            ob.parents.$remove(this);
+        }
     }
-  }
-}
+};
 
 /**
  * Notify self dependency, and also parent Array dependency
@@ -122,15 +120,15 @@ Observer.prototype.unobserveArray = function (items) {
  */
 
 Observer.prototype.notify = function () {
-  this.dep.notify()
-  var parents = this.parents
-  if (parents) {
-    var i = parents.length
-    while (i--) {
-      parents[i].notify()
+    this.dep.notify();
+    var parents = this.parents;
+    if (parents) {
+        var i = parents.length;
+        while (i--) {
+            parents[i].notify();
+        }
     }
-  }
-}
+};
 
 /**
  * Convert a property into getter/setter so we can emit
@@ -141,8 +139,8 @@ Observer.prototype.notify = function () {
  */
 
 Observer.prototype.convert = function (key, val) {
-  defineReactive(this.value, key, val)
-}
+    defineReactive(this.value, key, val);
+};
 
 /**
  * Add an owner vm, so that when $add/$delete mutations
@@ -154,8 +152,8 @@ Observer.prototype.convert = function (key, val) {
  */
 
 Observer.prototype.addVm = function (vm) {
-  (this.vms || (this.vms = [])).push(vm)
-}
+    (this.vms || (this.vms = [])).push(vm);
+};
 
 /**
  * Remove an owner vm. This is called when the object is
@@ -165,8 +163,8 @@ Observer.prototype.addVm = function (vm) {
  */
 
 Observer.prototype.removeVm = function (vm) {
-  this.vms.$remove(vm)
-}
+    this.vms.$remove(vm);
+};
 
 // helpers
 
@@ -178,8 +176,8 @@ Observer.prototype.removeVm = function (vm) {
  * @param {Object} proto
  */
 
-function protoAugment (target, src) {
-  target.__proto__ = src
+function protoAugment(target, src) {
+    target.__proto__ = src;
 }
 
 /**
@@ -190,13 +188,13 @@ function protoAugment (target, src) {
  * @param {Object} proto
  */
 
-function copyAugment (target, src, keys) {
-  var i = keys.length
-  var key
-  while (i--) {
-    key = keys[i]
-    _.define(target, key, src[key])
-  }
+function copyAugment(target, src, keys) {
+    var i = keys.length;
+    var key;
+    while (i--) {
+        key = keys[i];
+        _.define(target, key, src[key]);
+    }
 }
 
 /**
@@ -207,31 +205,33 @@ function copyAugment (target, src, keys) {
  * @param {*} val
  */
 
-function defineReactive (obj, key, val) {
-  var dep = new Dep()
-  var childOb = Observer.create(val)
-  Object.defineProperty(obj, key, {
-    enumerable: true,
-    configurable: true,
-    get: function metaGetter () {
-      if (Dep.target) {
-        dep.depend()
-        if (childOb) {
-          childOb.dep.depend()
+function defineReactive(obj, key, val) {
+    var dep = new Dep();
+    var childOb = Observer.create(val);
+    Object.defineProperty(obj, key, {
+        enumerable: true,
+        configurable: true,
+        get: function metaGetter() {
+            if (Dep.target) {
+                dep.depend();
+                if (childOb) {
+                    childOb.dep.depend();
+                }
+            }
+            return val;
+        },
+        set: function metaSetter(newVal) {
+            if (newVal === val) {
+                return;
+            }
+            val = newVal;
+            childOb = Observer.create(newVal);
+            dep.notify();
         }
-      }
-      return val
-    },
-    set: function metaSetter (newVal) {
-      if (newVal === val) return
-      val = newVal
-      childOb = Observer.create(newVal)
-      dep.notify()
-    }
-  })
+    });
 }
 
 // Attach to the util object so it can be used elsewhere.
-_.defineReactive = defineReactive
+_.defineReactive = defineReactive;
 
-module.exports = Observer
+module.exports = Observer;

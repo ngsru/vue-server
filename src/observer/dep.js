@@ -8,9 +8,9 @@ var uid = 0
  * @constructor
  */
 
-function Dep () {
-  this.id = uid++
-  this.subs = []
+function Dep() {
+    this.id = uid++
+    this.subs = []
 }
 
 // the current target watcher being evaluated.
@@ -25,7 +25,7 @@ Dep.target = null
  */
 
 Dep.prototype.addSub = function (sub) {
-  this.subs.push(sub)
+    this.subs.push(sub)
 }
 
 /**
@@ -35,7 +35,7 @@ Dep.prototype.addSub = function (sub) {
  */
 
 Dep.prototype.removeSub = function (sub) {
-  this.subs.$remove(sub)
+    this.subs.$remove(sub)
 }
 
 /**
@@ -43,7 +43,7 @@ Dep.prototype.removeSub = function (sub) {
  */
 
 Dep.prototype.depend = function () {
-  Dep.target.addDep(this)
+    Dep.target.addDep(this)
 }
 
 /**
@@ -51,11 +51,11 @@ Dep.prototype.depend = function () {
  */
 
 Dep.prototype.notify = function () {
-  // stablize the subscriber list first
-  var subs = _.toArray(this.subs)
-  for (var i = 0, l = subs.length; i < l; i++) {
-    subs[i].update()
-  }
+    // stablize the subscriber list first
+    var subs = _.toArray(this.subs)
+    for (var i = 0, l = subs.length; i < l; i++) {
+        subs[i].update()
+    }
 }
 
 module.exports = Dep

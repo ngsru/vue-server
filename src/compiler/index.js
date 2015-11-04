@@ -27,22 +27,22 @@ var parsers = {
     text: require('./../parsers/text')
 };
 
-var tokensToFn = function(tokens) {
+var tokensToFn = function (tokens) {
     var expr = parsers.text.tokensToExp(tokens);
     return parsers.expression.parse(expr).get;
 };
 
-var textToFn = function(text) {
+var textToFn = function (text) {
     var tokens = parsers.text.parse(text);
     var expr = parsers.text.tokensToExp(tokens);
     return parsers.expression.parse(expr).get;
 };
 
-var parseDirective = function(value) {
+var parseDirective = function (value) {
     var result = parsers.directive.parse(value);
     var error = false;
 
-    result.forEach(function(item) {
+    result.forEach(function (item) {
         if (error) {
             return;
         }
@@ -61,19 +61,19 @@ var parseDirective = function(value) {
     return result;
 };
 
-var getMetaValue = function(value) {
+var getMetaValue = function (value) {
     var result = [];
     var tokens = parsers.text.parse(value);
     var error = false;
 
     if (tokens) {
-        tokens.forEach(function(token) {
+        tokens.forEach(function (token) {
             if (error) {
                 return;
             }
-            
+
             if (token.tag) {
-               
+
                 var parsedToken = parsers.directive.parse(token.value)[0];
                 var exp = parsers.expression.parse(parsedToken.expression);
 
@@ -123,7 +123,7 @@ var getMetaValue = function(value) {
     }
 };
 
-var makeTxtNode = function(current, value) {
+var makeTxtNode = function (current, value) {
     if (value) {
         current.inner.push({
             'type': 'text',
@@ -132,17 +132,12 @@ var makeTxtNode = function(current, value) {
     }
 };
 
-
-
-var getElementId = function() {
+var getElementId = function () {
     var result = '';
     var time = process.hrtime();
     result += String(time[0]).slice(5) + time[1];
     return result;
 };
-
-
-
 
 var bindRE = /^:|^v-bind:/;
 var refRE = /^v-ref:/;
@@ -151,10 +146,8 @@ var onRE = /^@/;
 var argRE = /:(.*)$/;
 var vForValRE = /\((.+)\)/;
 
-
-
 // Конвертируем голый HTML в специальное дерево массивов-объектов
-var Compile = function(template) {
+var Compile = function (template) {
     if (template === undefined || template === null) {
         template = '';
     }
@@ -163,7 +156,7 @@ var Compile = function(template) {
         console.log('vue-html-compile: template is not fit for compiling');
         return template;
     }
-    
+
     var mass = {'inner': []},
         current = mass,
         preIsActive = false,
@@ -172,15 +165,10 @@ var Compile = function(template) {
         // нужно, чтобы знать, когда снять флаг preIsActive
         preIsActiveDepth = 0;
 
-
     var repeatItems = [];
 
-
-
-
-
     var parser = new htmlparser.Parser({
-        onopentag: function(name, attribs) {
+        onopentag: function (name, attribs) {
             var element;
 
             if ('v-pre' in attribs && !preIsActive) {
@@ -197,14 +185,13 @@ var Compile = function(template) {
 
                 current = element;
 
-                _.each(attribs, function(attrVal, attr) {
+                _.each(attribs, function (attrVal, attr) {
                     // Удаляем из дерева vue-директивы
-                    if ( attr.match(/^v-/) ) {
+                    if (attr.match(/^v-/)) {
                         delete attribs[attr];
                     }
                 });
             }
-
 
             // Если элемент находится внутри директивы v-pre
             if (preIsActive) {
@@ -235,20 +222,18 @@ var Compile = function(template) {
                     'pre': false
                 };
 
-
                 // Теги, которые не должны иметь закрывающего тега
-                if ( noCloseTags[element.name] ) {
+                if (noCloseTags[element.name]) {
                     element.close = false;
                 }
-
 
                 var attribsForExclude = {};
                 var attribsCounter = 0;
 
-                _.each(attribs, function(value, name) {
+                _.each(attribs, function (value, name) {
                     // v-bind
                     if (name.match(bindRE)) {
-                        (function() {
+                        (function () {
                             var attr = name.match(argRE)[1].replace(/\.sync$|\.once$/, '');
 
                             element.dirs.bind = element.dirs.bind || {};
@@ -262,7 +247,7 @@ var Compile = function(template) {
                             }
                         })();
                     } else if (name === 'v-bind') {
-                        (function() {
+                        (function () {
                             element.dirs.bindMany = element.dirs.bindMany || {};
 
                             var dirValue = parseDirective(attribs[name]);
@@ -277,7 +262,7 @@ var Compile = function(template) {
 
                     // v-ref:name
                     if (name.match(refRE)) {
-                        (function() {
+                        (function () {
                             var ref = name.match(argRE)[1];
 
                             if (ref) {
@@ -293,7 +278,7 @@ var Compile = function(template) {
 
                     // v-el:name
                     if (name.match(elRE)) {
-                        (function() {
+                        (function () {
                             var el = name.match(argRE)[1];
 
                             if (el) {
@@ -309,9 +294,9 @@ var Compile = function(template) {
 
                     // v-for
                     if (name === 'v-for' && attribs['v-for']) {
-                        (function() {
+                        (function () {
                             var text = attribs['v-for'].split(' in ');
-                            var expression = text[1]
+                            var expression = text[1];
                             var arg = text[0].match(vForValRE);
                             var index;
 
@@ -344,14 +329,15 @@ var Compile = function(template) {
 
                     }
 
-
                     if (name === 'v-else') {
                         // Ищим ближайший тег, проверяем его на v-if
-                        (function() {
+                        (function () {
                             for (var i = current.inner.length - 1; i >= 0; i--) {
                                 if (current.inner[i].type === 'tag') {
                                     if (current.inner[i].dirs && current.inner[i].dirs.if) {
-                                        var vIfDir = parseDirective('!(' + current.inner[i].dirs.if.value.expression + ')');
+                                        var vIfDir = parseDirective(
+                                            '!(' + current.inner[i].dirs.if.value.expression + ')'
+                                        );
                                         if (vIfDir) {
                                             element.dirs.if = {
                                                 value: vIfDir[0]
@@ -363,9 +349,6 @@ var Compile = function(template) {
                             }
                         })();
                     }
-
-
-
 
                     if (name === 'v-text') {
                         var vTextDir = parseDirective(attribs['v-text']);
@@ -402,8 +385,8 @@ var Compile = function(template) {
                                 options: {}
                             };
 
-                            if (attribs['options']) {
-                                var vModelDirOptions = parseDirective(attribs['options']);
+                            if (attribs.options) {
+                                var vModelDirOptions = parseDirective(attribs.options);
                                 if (vModelDirOptions) {
                                     element.dirs.model.options.options = vModelDirOptions[0];
                                 }
@@ -412,7 +395,7 @@ var Compile = function(template) {
                     }
 
                     if (name === 'v-component') {
-                        (function() {
+                        (function () {
                             element.dirs.component = {
                                 options: {}
                             };
@@ -447,7 +430,7 @@ var Compile = function(template) {
                     }
 
                     if (name === 'v-class') {
-                        var vClassDir = parseDirective(attribs['v-class'])
+                        var vClassDir = parseDirective(attribs['v-class']);
 
                         if (vClassDir) {
                             element.dirs.class = {
@@ -465,9 +448,8 @@ var Compile = function(template) {
                         }
                     }
 
-
                     if (name === 'v-style') {
-                        var vStyleDir = parseDirective(attribs['v-style'])
+                        var vStyleDir = parseDirective(attribs['v-style']);
 
                         if (vStyleDir) {
                             element.dirs.style = {
@@ -485,7 +467,6 @@ var Compile = function(template) {
                             }
                         }
                     }
-
 
                     if (name === 'v-attr') {
                         var vAttrDir = parseDirective(attribs['v-attr']);
@@ -524,10 +505,9 @@ var Compile = function(template) {
                         };
                     }
 
-
                     // Аттрибуты-опции директив, которые нужны будет исключить из списка атрибутов
                     if (directiveOptions[name]) {
-                        directiveOptions[name].forEach(function(item) {
+                        directiveOptions[name].forEach(function (item) {
                             attribsForExclude[item] = true;
                         });
                     }
@@ -535,12 +515,10 @@ var Compile = function(template) {
                     attribsCounter++;
                 });
 
-
-
-                _.each(attribs, function(value, name) {
+                _.each(attribs, function (value, name) {
                     // Удаляем из дерева vue-директивы кроме v-clock (нефиг их рендерить)
-                    if ( 
-                        ( !name.match(/^v-/) || name.match(/^v-cloak$/) ) &&
+                    if (
+                        (!name.match(/^v-/) || name.match(/^v-cloak$/)) &&
                         !name.match(/^:(.+)/) &&
                         !name.match(onRE) &&
                         !attribsForExclude[name]
@@ -549,10 +527,9 @@ var Compile = function(template) {
                     }
                 });
 
-
                 // Кишки от директивы v-attr
                 if (element.dirs.attr) {
-                    element.dirs.attr.value.forEach(function(item) {
+                    element.dirs.attr.value.forEach(function (item) {
                         element.attribs[item.arg] = {
                             value: item.get
                         };
@@ -564,7 +541,6 @@ var Compile = function(template) {
                     delete element.dirs;
                 }
 
-
                 current.inner.push(element);
 
                 current = element;
@@ -573,7 +549,7 @@ var Compile = function(template) {
 
         },
 
-        ontext: function(text) {
+        ontext: function (text) {
             var caret;
 
             // Если элемент находится внутри директивы v-pre
@@ -581,12 +557,12 @@ var Compile = function(template) {
                 current.text += text;
 
             } else {
-                makeTxtNode( current, text.substring(caret, text.length) );
+                makeTxtNode(current, text.substring(caret, text.length));
             }
 
         },
 
-        onclosetag: function(name) {
+        onclosetag: function (name) {
             var now;
 
             // Если элемент находится внутри директивы v-pre
@@ -596,10 +572,10 @@ var Compile = function(template) {
                 // на котором началась директива v-pre
                 preIsActiveDepth--;
 
-                if ( noCloseTags[name] ) {
+                if (noCloseTags[name]) {
                     current.text += '</' + name + '>';
                 }
-            } 
+            }
 
             if (!preIsActive || !preIsActiveDepth) {
                 preIsActive = false;
@@ -612,7 +588,7 @@ var Compile = function(template) {
         },
 
         // тут идёт доктайп
-        onprocessinginstruction: function(name, data) {
+        onprocessinginstruction: function (name, data) {
             // Если элемент находится внутри директивы v-pre
             if (preIsActive) {
                 current.text += '<' + data + '>';
@@ -627,25 +603,25 @@ var Compile = function(template) {
 
         // Сюда так же идут conditional comments
         // Нужно ли здесь вводить обработку выражений? а хз
-        oncomment: function(data) {
+        oncomment: function (data) {
             if (preIsActive) {
                 current.text += '<!-- ' + data + ' -->';
             } else {
-                if ( data.match(/^\[CDATA\[/) && data.match(/\]\]$/) ) {
+                if (data.match(/^\[CDATA\[/) && data.match(/\]\]$/)) {
                     current.inner.push({
                         'type': 'text',
                         'text': '<!' + data + '>'
-                    }); 
+                    });
                 } else {
                     current.inner.push({
                         'type': 'text',
                         'text': '<!-- ' + data + ' -->'
-                    }); 
+                    });
                 }
             }
         },
 
-        onerror: function(error) {
+        onerror: function (error) {
             utils.warn(error);
         }
     },
@@ -656,17 +632,12 @@ var Compile = function(template) {
     parser.write(template);
     parser.end();
 
-
     for (var i = repeatItems.length - 1; i >= 0; i--) {
-        var clone = new Function( 'return ' + strFnObj( repeatItems[i] ) );
+        var clone = new Function('return ' + strFnObj(repeatItems[i]));
         repeatItems[i].clone = clone;
     }
-    
 
-    return new Function( 'return ' + strFnObj(mass.inner) );
+    return new Function('return ' + strFnObj(mass.inner));
 };
-
-
-
 
 module.exports = Compile;

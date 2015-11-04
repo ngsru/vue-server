@@ -2,7 +2,7 @@ var wrapComponent = require('./wrapComponent.js');
 var $;
 
 var contentComponent = {
-    data: function() {
+    data: function () {
         return {
             transmit: 'value present'
         };
@@ -40,7 +40,7 @@ var contentComponent = {
                     type: Number
                 }
             },
-            template: '<div>{{value}}</div>' 
+            template: '<div>{{value}}</div>'
         },
 
         'type-default': {
@@ -50,7 +50,7 @@ var contentComponent = {
                     default: 100
                 }
             },
-            template: '<div>{{value}}</div>' 
+            template: '<div>{{value}}</div>'
         },
 
         'default-straight': {
@@ -59,18 +59,18 @@ var contentComponent = {
                     default: 100
                 }
             },
-            template: '<div>{{value}}</div>' 
+            template: '<div>{{value}}</div>'
         },
 
         'default-function': {
             props: {
                 value: {
-                    default: function() {
+                    default: function () {
                         return 123;
                     }
                 }
             },
-            template: '<div>{{value}}</div>' 
+            template: '<div>{{value}}</div>'
         },
 
         'validator': {
@@ -81,7 +81,7 @@ var contentComponent = {
                     }
                 }
             },
-            template: '<div>{{value}}</div>' 
+            template: '<div>{{value}}</div>'
         },
 
         'validator-default': {
@@ -93,58 +93,56 @@ var contentComponent = {
                     default: 100
                 }
             },
-            template: '<div>{{value}}</div>' 
+            template: '<div>{{value}}</div>'
         }
     }
 };
 
-
-beforeAll(function(done) {
-    wrapComponent(contentComponent, function(response) {
+beforeAll(function (done) {
+    wrapComponent(contentComponent, function (response) {
         $ = response;
         done();
     });
 });
 
-
-describe('props should be able', function() {
-    it('to work in array format', function() {
+describe('props should be able', function () {
+    it('to work in array format', function () {
         expect($('as-array > div').text()).toEqual('value present');
     });
 
-    it('to work in object format', function() {
+    it('to work in object format', function () {
         expect($('as-object#plain > div').text()).toEqual('value present');
     });
 
-    it('to work in object format binded via v-bind', function() {
+    it('to work in object format binded via v-bind', function () {
         expect($('as-object#v-bind > div').text()).toEqual('value present');
     });
 
-    it('to use type option', function() {
+    it('to use type option', function () {
         expect($('type > div').text()).toEqual('');
     });
 
-    it('to use type option with default option correctly', function() {
+    it('to use type option with default option correctly', function () {
         expect($('type-default > div').text()).toEqual('');
     });
 
-    it('to use type option with default option correctly', function() {
+    it('to use type option with default option correctly', function () {
         expect($('type-default > div').text()).toEqual('');
     });
 
-    it('to use default option as straight value', function() {
+    it('to use default option as straight value', function () {
         expect($('default-straight > div').text()).toEqual('100');
     });
 
-    it('to use default option as function', function() {
+    it('to use default option as function', function () {
         expect($('default-function > div').text()).toEqual('123');
     });
 
-    it('to use validator option', function() {
+    it('to use validator option', function () {
         expect($('validator > div').text()).toEqual('');
     });
 
-    it('to use validator option with default correctly', function() {
+    it('to use validator option with default correctly', function () {
         expect($('validator > div').text()).toEqual('');
     });
 });
