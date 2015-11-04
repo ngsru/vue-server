@@ -142,7 +142,7 @@ var scope = {
                 if (!vm.$options.activateBe && contexts.waitFor) {
                     vm.$on(contexts.waitFor, function () {
                         scope.buildWithedData(vm, contexts);
-                        scope.pullPropsData(vm, true);
+                        scope.pullPropsData(vm);
                         scope.resetVmInstance(vm);
                     });
                 }
@@ -167,7 +167,7 @@ var scope = {
                 if (vm.$options.activateBe) {
                     vm.$options.activateBe.call(vm, function () {
                         scope.buildWithedData(vm, contexts);
-                        scope.pullPropsData(vm, true);
+                        scope.pullPropsData(vm);
                         scope.resetVmInstance(vm);
                     });
                     vm.$emit('hook:activateBe');
@@ -225,7 +225,7 @@ var scope = {
                 options.element._components = presentVm.__states.VMs;
                 presentVm.$el = options.element;
                 scope.buildWithedData(presentVm, options);
-                scope.pullPropsData(presentVm, true);
+                scope.pullPropsData(presentVm);
                 scope.resetVmInstance(presentVm);
                 newVm = presentVm;
             }
@@ -246,7 +246,7 @@ var scope = {
                     var prop = options.ref.options.target;
                     var name = common.dashToCamelCase(options.ref.value);
 
-                    if (newVm.__states.isRepeat || newVm.__states.notPublic) {
+                    if (newVm.__states.isRepeat || newVm.__states.parent.__states.notPublic) {
                         $target[prop][name] = $target[prop][name] || [];
                         $target[prop][name].push(newVm);
                     } else {
@@ -256,7 +256,7 @@ var scope = {
                 })();
             }
 
-            if (options.component && !options.repeatData) {
+            if (!this.__states.notPublic && options.component && !options.repeatData) {
                 this.__states.VMs = this.__states.VMs || {};
                 this.__states.VMs[options.element.id + options.component.name] = newVm;
             }
@@ -266,9 +266,7 @@ var scope = {
             var newVm = scope.initLightViewModel(
                 common.extend({
                     parent: this,
-                    filters: this.$options.filters,
-                    partials: this.$options.partials,
-                    components: this.$options.components
+                    filters: this.$options.filters
                 }, options)
             );
 
@@ -497,7 +495,7 @@ var scope = {
         return this;
     },
 
-    pullPropsData: function (vm, excludeOwnDataProps) {
+    pullPropsData: function (vm) {
         var props = vm.$options.props;
 
         if (typeof props === 'object') {
@@ -553,17 +551,12 @@ var scope = {
         var rawValue = vm.$el.props[attrName];
 
         // Реализация протяжки свойств через новый формат - v-bind:
-        if (vm.$el.dirs.bind) {
-            for (var item in vm.$el.dirs.bind) {
-                if (item === attrName) {
-                    rawValue = {
-                        value: vm.$el.dirs.bind[item].value.get,
-                        filters: vm.$el.dirs.bind[item].value.filters
-                    };
-                    vm.$el.dirs.bind[item].isCompiled = true;
-                    break;
-                }
-            }
+        if (vm.$el.dirs.bind && vm.$el.dirs.bind[attrName]) {
+            rawValue = {
+                value: vm.$el.dirs.bind[attrName].value.get,
+                filters: vm.$el.dirs.bind[attrName].value.filters
+            };
+            vm.$el.dirs.bind[attrName].isCompiled = true;
         }
 
         if (rawValue) {
@@ -664,7 +657,7 @@ var scope = {
         vm.$el = contexts.element;
         vm.$options = options;
         vm.$parent = contexts.parentLink ? contexts.parentLink : contexts.parent;
-        vm.$root = contexts.parent ? contexts.parent.$root : vm;
+        vm.$root = contexts.parent.$root;
 
         // events bookkeeping
         vm._events = {};

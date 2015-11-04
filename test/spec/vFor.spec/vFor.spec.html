@@ -21,9 +21,26 @@
     </div>
     <div id="component-object"><comp-name v-for="a in arr2" :item="a" :index="$index"></comp-name></div>
     <div id="component-object-filter"><comp-name v-for="a in arr2 | reduce" :item="a" :index="$index"></comp-name></div>
-
-
-
+    
+    <div id="v-if">
+        <i v-for="a in arr" v-if="a != 2">{{a}}</i>
+    </div>
+    <div id="v-if-tree">
+        <span v-for="(ind, bush) in tree">
+            <comp-name :item="bush.name" :index="ind"></comp-name>
+            <i v-for="a in bush.array" v-if="bush.name && a != 2">{{a}}</i>
+        </span>
+    </div>
+    <div id="v-if-component">
+        <span 
+            is="compName"
+            v-for="a in arr"
+            v-if="a != 2"
+            :item="a"
+            :index="$index"
+        >
+        </span>
+    </div>
 
 
 

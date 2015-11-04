@@ -6,6 +6,37 @@ var contentComponent = {
     template: tools.getTpl(__dirname + '/vFor.spec.html', true),
     data: function () {
         return {
+            vRepeat: {
+                parentValue: '',
+                simpleArray: [],
+
+                hollowArray: [1],
+
+                arrayForFilter: [],
+
+                searchText: '',
+
+                forWith: '',
+                forWith2: {
+                    compon1Val: ''
+                },
+
+                object: {
+                    item1: {
+                        value: 0
+                    }
+                },
+
+                nameNesting: [
+                    {
+                        value: '',
+                        array: [
+                            {newValue: 0}
+                        ]
+                    }
+                ]
+            },
+
             arr: [3,2,1],
             arr2: {
                 niff: 3,
@@ -226,6 +257,14 @@ var contentComponent = {
             nuff: 2,
             naff: 3
         };
+
+        this.tree = [
+            {
+                name: 'example',
+                array: [1,2,3]
+            }
+        ];
+
         insert();
     },
 
@@ -292,6 +331,18 @@ describe('v-for', function () {
 
     it('on component via <component> to work fine', function () {
         expect($('#component2').html()).toEqual('<i>0|1</i><i>1|2</i><i>2|3</i>');
+    });
+
+    it('should work with v-if', function () {
+        expect($('#v-if').html()).toEqual('<i>1</i><i>3</i>');
+    });
+
+    it('should work with v-if', function () {
+        expect($('#v-if-tree').html()).toEqual('<span><i>0|example</i><i>1</i><i>3</i></span>');
+    });
+
+    it('should work with v-if and component', function () {
+        expect($('#v-if-component').html()).toEqual('<i>0|1</i><i>2|3</i>');
     });
 });
 
