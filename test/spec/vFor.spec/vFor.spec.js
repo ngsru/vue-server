@@ -43,7 +43,7 @@ var contentComponent = {
             data: function () {
                 return {
                     boy: ' boy boy '
-                }
+                };
             },
 
             filters: {
@@ -119,7 +119,7 @@ var contentComponent = {
                     },
 
                     checkFilter: 'ok'
-                }
+                };
             },
 
             filters: {

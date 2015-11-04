@@ -701,7 +701,7 @@ describe('v-class', function () {
         it('should not keep default class', function () {
             var $el = $('#v-class-v-attr');
             expect($el.hasClass('simple')).not.toBe(true);
-        })
+        });
 
         it('should set v-attr class', function () {
             var $el = $('#v-class-v-attr');

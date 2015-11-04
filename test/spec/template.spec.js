@@ -7,7 +7,7 @@ var contentComponent = {
             yes: true,
             not: false,
             arr: [1, 2, 3]
-        }
+        };
     },
     template: [
         '<div>',

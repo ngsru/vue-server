@@ -4,13 +4,13 @@ module.exports = {
     data: function () {
         return {
             content: true
-        }
+        };
     },
 
     computed: {
         // get only, just need a function
         aDouble: function () {
-            return this.computed.tobeDoubled * 2
+            return this.computed.tobeDoubled * 2;
         },
 
         // both get and set
@@ -258,7 +258,7 @@ module.exports = {
             data: function () {
                 return {
                     boy: ' boy boy '
-                }
+                };
             },
 
             filters: {
@@ -289,7 +289,7 @@ module.exports = {
                     },
 
                     checkFilter: 'ok'
-                }
+                };
             },
 
             filters: {
@@ -333,7 +333,7 @@ module.exports = {
             data: function () {
                 return {
                     compon1Val: 'Component\'s 1 own value'
-                }
+                };
             }
         },
 
@@ -349,7 +349,7 @@ module.exports = {
             data: function () {
                 return {
                     compon1Val: 'Component\'s 1 own value'
-                }
+                };
             }
         },
 
@@ -363,7 +363,7 @@ module.exports = {
             data: function () {
                 return {
                     componVal: 'Component\'s 2 own value'
-                }
+                };
             }
         },
 
@@ -378,7 +378,7 @@ module.exports = {
             data: function () {
                 return {
                     componVal: 'Component\'s 3 own value'
-                }
+                };
             }
         },
 
@@ -398,7 +398,7 @@ module.exports = {
             data: function () {
                 return {
                     value: 'This is no-template value'
-                }
+                };
             }
         },
 

@@ -1,5 +1,5 @@
-var _ = require('./index')
-var config = require('../config')
+var _ = require('./index');
+var config = require('../config');
 
 /**
  * Query an element selector if it's not an element already.
@@ -10,16 +10,16 @@ var config = require('../config')
 
 exports.query = function (el) {
     if (typeof el === 'string') {
-        var selector = el
-        el = document.querySelector(el)
+        var selector = el;
+        el = document.querySelector(el);
         if (!el) {
             process.env.NODE_ENV !== 'production' && _.warn(
               'Cannot find element: ' + selector
-            )
+            );
         }
     }
-    return el
-}
+    return el;
+};
 
 /**
  * Check if a node is in the document.
@@ -34,12 +34,12 @@ exports.query = function (el) {
  */
 
 exports.inDoc = function (node) {
-    var doc = document.documentElement
-    var parent = node && node.parentNode
+    var doc = document.documentElement;
+    var parent = node && node.parentNode;
     return doc === node ||
       doc === parent ||
-      !!(parent && parent.nodeType === 1 && (doc.contains(parent)))
-}
+      !!(parent && parent.nodeType === 1 && (doc.contains(parent)));
+};
 
 /**
  * Extract an attribute from a node.
@@ -50,13 +50,13 @@ exports.inDoc = function (node) {
  */
 
 exports.attr = function (node, attr) {
-    attr = config.prefix + attr
-    var val = node.getAttribute(attr)
+    attr = config.prefix + attr;
+    var val = node.getAttribute(attr);
     if (val !== null) {
-        node.removeAttribute(attr)
+        node.removeAttribute(attr);
     }
-    return val
-}
+    return val;
+};
 
 /**
  * Get an attribute with colon or bind- prefix.
@@ -67,31 +67,31 @@ exports.attr = function (node, attr) {
  */
 
 exports.getBindAttr = function (node, name) {
-    var attr = ':' + name
-    var val = node.getAttribute(attr)
+    var attr = ':' + name;
+    var val = node.getAttribute(attr);
     if (val === null) {
-        attr = config.prefix + 'bind:' + name
-        val = node.getAttribute(attr)
+        attr = config.prefix + 'bind:' + name;
+        val = node.getAttribute(attr);
     }
     if (val !== null) {
-        node.removeAttribute(attr)
+        node.removeAttribute(attr);
     }
-    return val
-}
+    return val;
+};
 
-var refRE = /^v-ref:/
+var refRE = /^v-ref:/;
 exports.findRef = function (node) {
     if (node.hasAttributes()) {
-        var attrs = node.attributes
+        var attrs = node.attributes;
         for (var i = 0, l = attrs.length; i < l; i++) {
-            var name = attrs[i].name
+            var name = attrs[i].name;
             if (refRE.test(name)) {
-                node.removeAttribute(name)
-                return _.camelize(name.replace(refRE, ''))
+                node.removeAttribute(name);
+                return _.camelize(name.replace(refRE, ''));
             }
         }
     }
-}
+};
 
 /**
  * Insert el before target
@@ -101,8 +101,8 @@ exports.findRef = function (node) {
  */
 
 exports.before = function (el, target) {
-    target.parentNode.insertBefore(el, target)
-}
+    target.parentNode.insertBefore(el, target);
+};
 
 /**
  * Insert el after target
@@ -113,11 +113,11 @@ exports.before = function (el, target) {
 
 exports.after = function (el, target) {
     if (target.nextSibling) {
-        exports.before(el, target.nextSibling)
+        exports.before(el, target.nextSibling);
     } else {
-        target.parentNode.appendChild(el)
+        target.parentNode.appendChild(el);
     }
-}
+};
 
 /**
  * Remove el from DOM
@@ -126,8 +126,8 @@ exports.after = function (el, target) {
  */
 
 exports.remove = function (el) {
-    el.parentNode.removeChild(el)
-}
+    el.parentNode.removeChild(el);
+};
 
 /**
  * Prepend el to target
@@ -138,11 +138,11 @@ exports.remove = function (el) {
 
 exports.prepend = function (el, target) {
     if (target.firstChild) {
-        exports.before(el, target.firstChild)
+        exports.before(el, target.firstChild);
     } else {
-        target.appendChild(el)
+        target.appendChild(el);
     }
-}
+};
 
 /**
  * Replace target with el
@@ -152,11 +152,11 @@ exports.prepend = function (el, target) {
  */
 
 exports.replace = function (target, el) {
-    var parent = target.parentNode
+    var parent = target.parentNode;
     if (parent) {
-        parent.replaceChild(el, target)
+        parent.replaceChild(el, target);
     }
-}
+};
 
 /**
  * Add event listener shorthand.
@@ -167,8 +167,8 @@ exports.replace = function (target, el) {
  */
 
 exports.on = function (el, event, cb) {
-    el.addEventListener(event, cb)
-}
+    el.addEventListener(event, cb);
+};
 
 /**
  * Remove event listener shorthand.
@@ -179,8 +179,8 @@ exports.on = function (el, event, cb) {
  */
 
 exports.off = function (el, event, cb) {
-    el.removeEventListener(event, cb)
-}
+    el.removeEventListener(event, cb);
+};
 
 /**
  * Add class with compatibility for IE & SVG
@@ -191,14 +191,14 @@ exports.off = function (el, event, cb) {
 
 exports.addClass = function (el, cls) {
     if (el.classList) {
-        el.classList.add(cls)
+        el.classList.add(cls);
     } else {
-        var cur = ' ' + (el.getAttribute('class') || '') + ' '
+        var cur = ' ' + (el.getAttribute('class') || '') + ' ';
         if (cur.indexOf(' ' + cls + ' ') < 0) {
-            el.setAttribute('class', (cur + cls).trim())
+            el.setAttribute('class', (cur + cls).trim());
         }
     }
-}
+};
 
 /**
  * Remove class with compatibility for IE & SVG
@@ -209,19 +209,19 @@ exports.addClass = function (el, cls) {
 
 exports.removeClass = function (el, cls) {
     if (el.classList) {
-        el.classList.remove(cls)
+        el.classList.remove(cls);
     } else {
-        var cur = ' ' + (el.getAttribute('class') || '') + ' '
-        var tar = ' ' + cls + ' '
+        var cur = ' ' + (el.getAttribute('class') || '') + ' ';
+        var tar = ' ' + cls + ' ';
         while (cur.indexOf(tar) >= 0) {
-            cur = cur.replace(tar, ' ')
+            cur = cur.replace(tar, ' ');
         }
-        el.setAttribute('class', cur.trim())
+        el.setAttribute('class', cur.trim());
     }
     if (!el.className) {
-        el.removeAttribute('class')
+        el.removeAttribute('class');
     }
-}
+};
 
 /**
  * Extract raw content inside an element into a temporary
@@ -233,28 +233,28 @@ exports.removeClass = function (el, cls) {
  */
 
 exports.extractContent = function (el, asFragment) {
-    var child
-    var rawContent
+    var child;
+    var rawContent;
     /* istanbul ignore if */
     if (
       exports.isTemplate(el) &&
       el.content instanceof DocumentFragment
     ) {
-        el = el.content
+        el = el.content;
     }
     if (el.hasChildNodes()) {
-        exports.trimNode(el)
+        exports.trimNode(el);
         rawContent = asFragment          ?
       document.createDocumentFragment()
-          : document.createElement('div')
+          : document.createElement('div');
         /* eslint-disable no-cond-assign */
         while (child = el.firstChild) {
             /* eslint-enable no-cond-assign */
-            rawContent.appendChild(child)
+            rawContent.appendChild(child);
         }
     }
-    return rawContent
-}
+    return rawContent;
+};
 
 /**
  * Trim possible empty head/tail textNodes inside a parent.
@@ -263,13 +263,13 @@ exports.extractContent = function (el, asFragment) {
  */
 
 exports.trimNode = function (node) {
-    trim(node, node.firstChild)
-    trim(node, node.lastChild)
-}
+    trim(node, node.firstChild);
+    trim(node, node.lastChild);
+};
 
 function trim(parent, node) {
     if (node && node.nodeType === 3 && !node.data.trim()) {
-        parent.removeChild(node)
+        parent.removeChild(node);
     }
 }
 
@@ -283,8 +283,8 @@ function trim(parent, node) {
 
 exports.isTemplate = function (el) {
     return el.tagName &&
-      el.tagName.toLowerCase() === 'template'
-}
+      el.tagName.toLowerCase() === 'template';
+};
 
 /**
  * Create an "anchor" for performing dom insertion/removals.
@@ -307,5 +307,5 @@ exports.isTemplate = function (el) {
 exports.createAnchor = function (content, persist) {
     return config.debug      ?
     document.createComment(content)
-      : document.createTextNode(persist ? ' ' : '')
-}
+      : document.createTextNode(persist ? ' ' : '');
+};

@@ -345,7 +345,7 @@ var common = {
     },
 
     camelToDashCase: function (value) {
-        return value.replace(/[A-Z]/g, function (a) { return '-' + a.toLowerCase() });
+        return value.replace(/[A-Z]/g, function (a) { return '-' + a.toLowerCase(); });
     }
 };
 

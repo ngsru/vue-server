@@ -23,7 +23,7 @@ function stringify(obj) {
                     cycle(item);
 
                     if (index != source.length - 1) {
-                        result += ','
+                        result += ',';
                     }
                 });
 
@@ -40,7 +40,7 @@ function stringify(obj) {
 
                     result += '"' + item + '":';
                     cycle(source[item]);
-                    result += ','
+                    result += ',';
                 }
 
                 if (notEmpty) {
@@ -54,12 +54,12 @@ function stringify(obj) {
                 result += 'null';
             }
         }
-    }
+    };
 
-    cycle(obj)
+    cycle(obj);
 
     return result.replace(/\n|\r|\t/g, ' ');
 
-};
+}
 
 module.exports = stringify;

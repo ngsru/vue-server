@@ -4,14 +4,14 @@
 
 if (process.env.NODE_ENV !== 'production') {
 
-    var config = require('../config')
-    var hasConsole = typeof console !== 'undefined'
+    var config = require('../config');
+    var hasConsole = typeof console !== 'undefined';
 
     /**
      * Load deprecation warning functions
      */
 
-    exports.deprecations = require('../deprecations')
+    exports.deprecations = require('../deprecations');
 
     /**
      * Log a message.
@@ -21,9 +21,9 @@ if (process.env.NODE_ENV !== 'production') {
 
     exports.log = function (msg) {
         if (hasConsole && config.debug) {
-            console.log('[Vue info]: ' + msg)
+            console.log('[Vue info]: ' + msg);
         }
-    }
+    };
 
     /**
      * We've got a problem here.
@@ -33,13 +33,13 @@ if (process.env.NODE_ENV !== 'production') {
 
     exports.warn = function (msg, e) {
         if (hasConsole && (!config.silent || config.debug)) {
-            console.warn('[Vue warn]: ' + msg)
+            console.warn('[Vue warn]: ' + msg);
             /* istanbul ignore if */
             if (config.debug) {
-                console.warn((e || new Error('Warning Stack Trace')).stack)
+                console.warn((e || new Error('Warning Stack Trace')).stack);
             }
         }
-    }
+    };
 
     /**
      * Assert asset exists
@@ -47,7 +47,7 @@ if (process.env.NODE_ENV !== 'production') {
 
     exports.assertAsset = function (val, type, id) {
         if (!val) {
-            exports.warn('Failed to resolve ' + type + ': ' + id)
+            exports.warn('Failed to resolve ' + type + ': ' + id);
         }
-    }
+    };
 }

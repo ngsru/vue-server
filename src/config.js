@@ -94,7 +94,7 @@ module.exports = {
 
     _maxUpdateCount: 100
 
-}
+};
 
 /**
  * The prefix to look for when parsing directives.
@@ -102,18 +102,18 @@ module.exports = {
  * @type {String}
  */
 
-var prefix = 'v-'
+var prefix = 'v-';
 Object.defineProperty(module.exports, 'prefix', {
     get: function () {
-        return prefix
+        return prefix;
     },
     set: function (val) {
-        prefix = val
+        prefix = val;
         if (process.env.NODE_ENV !== 'production') {
-            require('./util').deprecation.PREFIX()
+            require('./util').deprecation.PREFIX();
         }
     }
-})
+});
 
 /**
  * Interpolation delimiters. Changing these would trigger
@@ -122,36 +122,36 @@ Object.defineProperty(module.exports, 'prefix', {
  * @type {Array<String>}
  */
 
-var delimiters = ['{{', '}}']
-var unsafeDelimiters = ['{{{', '}}}']
-var textParser = require('./parsers/text')
+var delimiters = ['{{', '}}'];
+var unsafeDelimiters = ['{{{', '}}}'];
+var textParser = require('./parsers/text');
 
 Object.defineProperty(module.exports, 'delimiters', {
     get: function () {
-        return delimiters
+        return delimiters;
     },
     set: function (val) {
-        delimiters = val
-        var unsafeOpen = val[0].charAt(0) + val[0]
-        var unsafeClose = val[1] + val[1].slice(-1)
-        unsafeDelimiters = [unsafeOpen, unsafeClose]
+        delimiters = val;
+        var unsafeOpen = val[0].charAt(0) + val[0];
+        var unsafeClose = val[1] + val[1].slice(-1);
+        unsafeDelimiters = [unsafeOpen, unsafeClose];
         if (process.env.NODE_ENV !== 'production') {
             require('./util').log(
               'Interpolation delimiters for unsafe HTML will ' +
               'need to be configured separately as ' +
               'Vue.config.unsafeDelimiters in 1.0.0.'
-            )
+            );
         }
-        textParser.compileRegex()
+        textParser.compileRegex();
     }
-})
+});
 
 Object.defineProperty(module.exports, 'unsafeDelimiters', {
     get: function () {
-        return unsafeDelimiters
+        return unsafeDelimiters;
     },
     set: function (val) {
-        unsafeDelimiters = val
-        textParser.compileRegex()
+        unsafeDelimiters = val;
+        textParser.compileRegex();
     }
-})
+});
