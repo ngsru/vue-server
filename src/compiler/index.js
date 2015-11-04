@@ -146,7 +146,7 @@ var onRE = /^@/;
 var argRE = /:(.*)$/;
 var vForValRE = /\((.+)\)/;
 
-// Конвертируем голый HTML в специальное дерево массивов-объектов
+// Converting raw HTML into special array-objects tree
 var Compile = function (template) {
     if (template === undefined || template === null) {
         template = '';
@@ -161,8 +161,8 @@ var Compile = function (template) {
         current = mass,
         preIsActive = false,
 
-        // Индикатор углубление в dom tree относительно директивы v-pre
-        // нужно, чтобы знать, когда снять флаг preIsActive
+        // v-pre directive dom tree depth count
+        // Need to know when to remove preIsActive flag
         preIsActiveDepth = 0;
 
     var repeatItems = [];
@@ -186,14 +186,14 @@ var Compile = function (template) {
                 current = element;
 
                 _.each(attribs, function (attrVal, attr) {
-                    // Удаляем из дерева vue-директивы
+                    // Removing Vue-directives from tree
                     if (attr.match(/^v-/)) {
                         delete attribs[attr];
                     }
                 });
             }
 
-            // Если элемент находится внутри директивы v-pre
+            // If element is inside of v-pre directive
             if (preIsActive) {
                 preIsActiveDepth++;
 
@@ -222,7 +222,7 @@ var Compile = function (template) {
                     'pre': false
                 };
 
-                // Теги, которые не должны иметь закрывающего тега
+                // Tags that do not need to have a closing tag
                 if (noCloseTags[element.name]) {
                     element.close = false;
                 }
@@ -330,7 +330,7 @@ var Compile = function (template) {
                     }
 
                     if (name === 'v-else') {
-                        // Ищим ближайший тег, проверяем его на v-if
+                        // Searching for nearest tag, checking it for v-if
                         (function () {
                             for (var i = current.inner.length - 1; i >= 0; i--) {
                                 if (current.inner[i].type === 'tag') {
@@ -437,11 +437,11 @@ var Compile = function (template) {
                                 value: null
                             };
 
-                            // Когда классы в самой директивы
+                            // When classes is inside directive
                             if (vClassDir[0].arg) {
                                 element.dirs.class.value = vClassDir;
 
-                            // Когда в директиву передаём объект
+                            // When directive value is Object
                             } else {
                                 element.dirs.class.value = parsers.expression.parse(vClassDir[0].expression);
                             }
@@ -457,11 +457,11 @@ var Compile = function (template) {
                                 order: attribsCounter
                             };
 
-                            // Когда классы в самой директивы
+                            // When classes is inside directive
                             if (vStyleDir[0].arg) {
                                 element.dirs.style.value = vStyleDir;
 
-                            // Когда в директиву передаём объект
+                            // When directive value is Object
                             } else {
                                 element.dirs.style.value = parsers.expression.parse(vStyleDir[0].expression);
                             }
@@ -505,7 +505,7 @@ var Compile = function (template) {
                         };
                     }
 
-                    // Аттрибуты-опции директив, которые нужны будет исключить из списка атрибутов
+                    // Directive options that need to be excluded
                     if (directiveOptions[name]) {
                         directiveOptions[name].forEach(function (item) {
                             attribsForExclude[item] = true;
@@ -516,7 +516,7 @@ var Compile = function (template) {
                 });
 
                 _.each(attribs, function (value, name) {
-                    // Удаляем из дерева vue-директивы кроме v-clock (нефиг их рендерить)
+                    // Removing Vue-directives from tree except v-clock
                     if (
                         (!name.match(/^v-/) || name.match(/^v-cloak$/)) &&
                         !name.match(/^:(.+)/) &&
@@ -527,7 +527,7 @@ var Compile = function (template) {
                     }
                 });
 
-                // Кишки от директивы v-attr
+                // v-attr
                 if (element.dirs.attr) {
                     element.dirs.attr.value.forEach(function (item) {
                         element.attribs[item.arg] = {
@@ -536,7 +536,7 @@ var Compile = function (template) {
                     });
                 }
 
-                // Убираем пустой объект dirs из тега
+                // Removing empty object dirs from tag
                 if (!_.size(element.dirs)) {
                     delete element.dirs;
                 }
@@ -552,7 +552,7 @@ var Compile = function (template) {
         ontext: function (text) {
             var caret;
 
-            // Если элемент находится внутри директивы v-pre
+            // If element is inside v-pre directive
             if (preIsActive) {
                 current.text += text;
 
@@ -565,11 +565,10 @@ var Compile = function (template) {
         onclosetag: function (name) {
             var now;
 
-            // Если элемент находится внутри директивы v-pre
+            // If element is inside v-pre directive
             if (preIsActive) {
-                // На каждом закрывающем теге мы поднимаемся вверх по дереву
-                // Как только preIsActiveDepth станет пустым, это будет означать, что мы достигли элемента
-                // на котором началась директива v-pre
+                // At each closing tag, we climb up the tree
+                // Once preIsActiveDepth becomes 0 it will mean that we have reached an initial element
                 preIsActiveDepth--;
 
                 if (noCloseTags[name]) {
@@ -587,9 +586,9 @@ var Compile = function (template) {
             }
         },
 
-        // тут идёт доктайп
+        // Doctype
         onprocessinginstruction: function (name, data) {
-            // Если элемент находится внутри директивы v-pre
+            // If element is inside v-pre directive
             if (preIsActive) {
                 current.text += '<' + data + '>';
 
@@ -601,8 +600,7 @@ var Compile = function (template) {
             }
         },
 
-        // Сюда так же идут conditional comments
-        // Нужно ли здесь вводить обработку выражений? а хз
+        // Conditional comments
         oncomment: function (data) {
             if (preIsActive) {
                 current.text += '<!-- ' + data + ' -->';

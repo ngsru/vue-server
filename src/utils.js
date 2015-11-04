@@ -181,7 +181,7 @@ var utils = module.exports = {
 
         var tag = '<' + element.name;
 
-        // Проходим по аттибутам тега, собираем директивы vue
+        // Walk though tag attributes, collect vue directives
         for (var key in element.attribs) {
             tag += ' ' + key + '="';
 

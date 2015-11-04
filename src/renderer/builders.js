@@ -8,8 +8,8 @@ var builders = {
             return;
         }
 
-        // Кейс, когда запускается пересборка VM-ов.
-        // Через данную опцию передаётся команда остановить сборку неактуальных VM-ов
+        // Case when VM rebuilding starts
+        // This option is passed through the command to stop the build irrelevant VMs
         if (vm.$el.__buildingInterrupted) {
             return;
         }
@@ -86,7 +86,7 @@ var builders = {
                     }
                 })();
 
-                // Конструкция <component is="{{name}}"></component>
+                // Statement <component is="{{name}}"></component>
                 if (
                     element.attribs.is ||
                     (
@@ -109,7 +109,7 @@ var builders = {
                         repeatElements = builders.buildForElements(vm, elements, element);
 
                         if (repeatElements) {
-                            // Вставляем получившиеся элементы в псведо-dom
+                            // Insert resulting elements into "pseudo DOM"
                             Array.prototype.splice.apply(elements, [i, 0].concat(repeatElements));
                         }
 
@@ -157,7 +157,7 @@ var builders = {
                         repeatElements = builders.buildRepeatElements(vm, elements, element);
 
                         if (repeatElements) {
-                            // Вставляем получившиеся элементы в псведо-dom
+                            // Insert resulting elements into "pseudo DOM"
                             Array.prototype.splice.apply(elements, [i, 0].concat(repeatElements));
                         }
 
@@ -228,12 +228,12 @@ var builders = {
         return value;
     },
 
-    // Создаём элементы по v-repeat
+    // Creating elements from v-repeat
     buildRepeatElements: function (vm, elements, element) {
         var repeatData = builders.getRepeatData(vm, element.dirs.repeat.value);
         // var repeatDataIsArray = Array.isArray(repeatData);
 
-        // Если есть данные по директиве
+        // If directive data exists
         if (repeatData && repeatData.length) {
             var repeatElements = [];
             var cloneElement = element.clone;
@@ -243,31 +243,31 @@ var builders = {
             var repeatDataItem;
             var repeatOptions;
 
-            // Проходим циклом по данным директивы
+            // Walk through directive data
             for (var i = 0; i < repeatData.length; i++) {
                 repeatDataItem = {};
 
-                // Когда репитим объект
+                // When object is repeated
                 if (repeatData[i].$value) {
                     item = repeatData[i].$value;
 
-                // Когда просто массив
+                // When array is repeated
                 } else {
                     item = repeatData[i];
                 }
 
-                // Случай с созданием неймспейса для данных вложенных в v-repeat
-                // например v-repeat="item: data"
+                // Case with the creation of a namespace for "v-repeat" data
+                // Eg. v-repeat="item: data"
                 if (element.dirs.repeat.value.arg) {
                     repeatDataItem[element.dirs.repeat.value.arg] = item;
 
-                // Без неймспейса
+                // Without namespace
                 } else {
-                    // Данные - объект
+                    // Data is object
                     if (typeof item === 'object' && !Array.isArray(item)) {
                         repeatDataItem = item;
 
-                    // Данные - что-то другое
+                    // Data is not an object
                     } else {
                         repeatDataItem.$value = item;
                     }
@@ -277,25 +277,25 @@ var builders = {
                     repeatDataItem.$key = repeatData[i].$key;
                 }
 
-                // Кастомное определения имени параметра с индексом
-                // вид v-for="(index, value) in array"
+                // Custom defenition of parameter name with index
+                // Eg. v-for="(index, value) in array"
                 if (element.dirs.repeat.value.index) {
                     repeatDataItem[element.dirs.repeat.value.index] = i;
                 } else {
                     repeatDataItem.$index = i;
                 }
 
-                // Создаём клон псевдо-dom элемента
+                // Creating "pseudo DOM" element clone
                 repeatElement = cloneElement();
                 repeatElement.dirs.repeat.isCompiled = true;
 
-                // repeatElement - репликация element, образ которого создаёт compiler
-                // Если компонент вставляется через тег, то у него изначально директива v-component не прописана
-                // и у реплицированного компонента её тоже не будет, поэтому - прокидываем
+                // repeatElement - replication of element which creates compiler
+                // If component is custom tag then it has not "v-component" directive
+                // so setting it manually
                 repeatElement.dirs.component = element.dirs.component;
                 repeatElements.push(repeatElement);
 
-                // Создаём контекст данных для элемента
+                // Creating data context for element
                 if (!element.dirs.component) {
                     vm.$addChild({
                         isRepeat: true,
@@ -316,7 +316,7 @@ var builders = {
         return false;
     },
 
-    // Обрабатываем элемент с v-component
+    // Drop element with "v-component" directive
     buildComponent: function (vm, element, options) {
         var componentName = common.getValue(vm, element.dirs.component.value);
         var component = builders.getAsset(vm, 'components')[componentName];
@@ -328,7 +328,7 @@ var builders = {
         element.attribs.is = undefined;
         element.attribs['wait-for'] = undefined;
 
-        // Такой компонент есть
+        // If component exists
         if (component) {
             options = common.extend({
                 element: element,
@@ -338,11 +338,10 @@ var builders = {
                 isComponent: true
             }, options);
 
-            // Забиваем себе местечко под солнцем
             options.childIndex = vm.__states.children.length;
             vm.__states.children.push({});
 
-            // Асинхронный компонент
+            // Async component
             if (typeof component === 'function') {
                 component(
                     function (data) {
@@ -357,7 +356,7 @@ var builders = {
                 builders.buildComponentContent(vm, element, options, component, componentName);
             }
 
-        // Такого компонента нет
+        // If component not exists
         } else {
             element.inner = [];
             builders.logComponentResolveError(vm, element, componentName);
@@ -365,7 +364,6 @@ var builders = {
 
     },
 
-    // Собственно, кишки
     buildComponentContent: function (vm, element, options, component, componentName) {
         if (!component.__composed) {
             component.__composed = common.composeComponent(component);
@@ -376,7 +374,7 @@ var builders = {
             options: component.__composed.options
         };
 
-        // Опция директивы wait-for (компонент ждёт срабатывания события перед тем как покажется)
+        // "wait-for" directive option (component waits for event before it shows)
         if (element.dirs.component.options.waitFor) {
             options.waitFor = element.dirs.component.options.waitFor;
         }
@@ -388,9 +386,9 @@ var builders = {
         options.component.name = componentName;
 
         if (element.dirs.with) {
-            // Здесь интересный момент. Если значение в v-with прописано в формате одного аргумента
-            // например v-with="cat", то контекст данных компонента полностью определяется данной директивой,
-            // т.е. у компонента будут только данные, содержащиеся в "cat" родителя
+            // If "v-with" directive value is single argument (Eg. v-with="cat") then data context
+            // for component is completely determined by this directive
+            // i.e. component will have data contained in parent's "cat"
             if (element.dirs.with.value.length === 1 && !element.dirs.with.value[0].arg) {
                 options.withReplaceData = element.dirs.with.value[0].get;
             } else {
@@ -440,24 +438,24 @@ var builders = {
                     }
                 }
             }
-        };
+        }
 
         if (slots.unnamed || slots.named) {
-            for (var i = elInner.length - 1; i >= 0; i--) {
+            for (var j = elInner.length - 1; j >= 0; j--) {
                 if (
-                    elInner[i].attribs &&
-                    elInner[i].attribs.slot &&
+                    elInner[j].attribs &&
+                    elInner[j].attribs.slot &&
                     slots.named &&
-                    slots.named[elInner[i].attribs.slot]
+                    slots.named[elInner[j].attribs.slot]
                 ) {
                     builders.fillSlot(
-                        slots.named[elInner[i].attribs.slot],
-                        elInner[i]
+                        slots.named[elInner[j].attribs.slot],
+                        elInner[j]
                     );
                 } else if (slots.unnamed) {
                     builders.fillSlot(
                         slots.unnamed,
-                        elInner[i]
+                        elInner[j]
                     );
                 }
             }
@@ -479,7 +477,7 @@ var builders = {
         var repeatData = builders.getRepeatData(vm, element.dirs.for.value);
         // var repeatDataIsArray = Array.isArray(repeatData);
 
-        // Если есть данные по директиве
+        // If repeat data is exists
         if (repeatData && repeatData.length) {
             var repeatElements = [];
             var cloneElement = element.clone;
@@ -490,31 +488,31 @@ var builders = {
             var repeatDataItem;
             var repeatOptions;
 
-            // Проходим циклом по данным директивы
+            // Walk through direcitve data
             for (var i = 0; i < repeatData.length; i++) {
                 repeatDataItem = {};
 
-                // Когда репитим объект
+                // When data is Object
                 if (repeatData[i].$value) {
                     item = repeatData[i].$value;
 
-                // Когда просто массив
+                // When data is Array
                 } else {
                     item = repeatData[i];
                 }
 
-                // Случай с созданием неймспейса для данных вложенных в v-repeat
-                // например v-repeat="item: data"
+                // Case with the creation of a namespace for "v-repeat" data
+                // Eg. v-repeat="item: data"
                 if (element.dirs.for.value.arg) {
                     repeatDataItem[element.dirs.for.value.arg] = item;
 
-                // Без неймспейса
+                // Without namespace
                 } else {
-                    // Данные - объект
+                    // Data is Object
                     if (typeof item === 'object' && !Array.isArray(item)) {
                         repeatDataItem = item;
 
-                    // Данные - что-то другое
+                    // Data is not an Object
                     } else {
                         repeatDataItem.$value = item;
                     }
@@ -524,21 +522,21 @@ var builders = {
                     repeatDataItem.$key = repeatData[i].$key;
                 }
 
-                // Кастомное определения имени параметра с индексом
-                // вид v-for="(index, value) in array"
+                // Custom defenition of parameter name with index
+                // Eg. v-for="(index, value) in array"
                 if (element.dirs.for.value.index) {
                     repeatDataItem[element.dirs.for.value.index] = i;
                 } else {
                     repeatDataItem.$index = i;
                 }
 
-                // Создаём клон псевдо-dom элемента
+                // Creating "pseudo DOM" element clone
                 repeatElement = cloneElement();
                 repeatElement.dirs.for.isCompiled = true;
 
-                // repeatElement - репликация element, образ которого создаёт compiler
-                // Если компонент вставляется через тег, то у него изначально директива v-component не прописана
-                // и у реплицированного компонента её тоже не будет, поэтому - прокидываем
+                // repeatElement - replication of element which creates compiler
+                // If component is custom tag then it has not "v-component" directive
+                // so setting it manually
                 repeatElement.dirs.component = element.dirs.component;
 
                 repeatElementWrapper = {

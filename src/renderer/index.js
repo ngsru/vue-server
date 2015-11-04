@@ -97,7 +97,7 @@ var VueRender = function (logger) {
     return makeRootVm;
 };
 
-// Проверка готовности VM-ов
+// Check for VM ready
 VueRender.prototype._checkVmsReady = function (vm) {
     if (!vm._isReady) {
         return false;
@@ -114,7 +114,7 @@ VueRender.prototype._checkVmsReady = function (vm) {
     return true;
 };
 
-// Объявление глобальных компонентов
+// Declaring global components
 VueRender.prototype.component = function (id, component) {
     if (!component) {
         this.logger.debug('global component\'s content is empty: "' + id + '"');

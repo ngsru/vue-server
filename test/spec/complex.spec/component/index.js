@@ -194,7 +194,7 @@ module.exports = {
             props: {
                 value: 'sell',
                 list: [
-                    {text: 'Купить', value: 'sell'}
+                    {text: 'Sell', value: 'sell'}
                 ]
             },
         };
@@ -278,10 +278,10 @@ module.exports = {
             data: function () {
                 return {
                     buttons: [
-                        {value: 1, label: 'одна'},
-                        {value: 2, label: 'две'},
-                        {value: 3, label: 'три'},
-                        {value: 4, label: 'четыре'}
+                        {value: 1, label: 'one'},
+                        {value: 2, label: 'two'},
+                        {value: 3, label: 'three'},
+                        {value: 4, label: 'four'}
                     ],
 
                     form: {

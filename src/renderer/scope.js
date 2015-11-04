@@ -6,7 +6,7 @@ var events = require('./events.js');
 var util = require('util');
 
 var scope = {
-    // Инициализация VM-ов для компонентов и repeat-item-ов
+    // Init VMs for components and repeat items
     initViewModel: function (contexts) {
         var options = {};
         var data = {};
@@ -16,7 +16,7 @@ var scope = {
             options = contexts.component.options;
             rawVm = contexts.component.rawVm;
 
-        // Наследуем данные в контексты элементов v-repeat
+        // Inherit data to v-repeat items contexts
         } else if (contexts.isRepeat) {
             for (var key in contexts.parent) {
                 if (scope.isSystemProp(key) || data[key]) {
@@ -26,12 +26,12 @@ var scope = {
             }
         }
 
-        // Наследуем данные от родителя
+        // Inherit parent data
         if (contexts.parent && options.inherit) {
             scope.inheritData(data, contexts.parent);
         }
 
-        // "Инициализируем" контекст
+        // Init context
         var vm = common.extend(rawVm, data);
         vm.__states = {};
         vm.__states.parent = contexts.parent;
@@ -80,13 +80,14 @@ var scope = {
 
         scope.initVmSystemMethods(vm);
 
-        // Инициализация ТОЛЬКО для компонентов
+        // Init ONLY for components
         if (vm.__states.isComponent) {
             var tpl = scope.initTemplate(vm);
 
             if (vm.__states.parent) {
                 scope.setKeyElementInner(vm, tpl);
-            // Если нет родителя, то это рутовый компонент и создадим для него специальный элемент-контейнер
+            // If threre are no parent, then we have root component
+            // Creating special container for root component
             } else {
                 if (!tpl) {
                     vm.$logger.error('There is no $root template. Can\'t start rendering');
@@ -98,7 +99,7 @@ var scope = {
                 vm.__states.TIMER = 0;
             }
 
-            // Прокидываем методы компонента в VM
+            // Setting component method to VM
             common.extend(vm, vm.$options.methods);
 
             scope.setSystemEventListeners(vm);
@@ -106,17 +107,17 @@ var scope = {
 
         scope.markKeyElement(vm);
 
-        // Инициализируем личные данные компонента (data)
+        // Init component private data
         common.extend(vm, scope.initData(vm));
 
-        // Подтягиваем данные по props
+        // Pull props data
         scope.pullPropsData(vm);
 
         if (contexts.repeatData) {
             common.extend(vm, contexts.repeatData);
         }
 
-        // миксины серверного Created
+        // Server Created mixins
         if (vm.$options.mixins) {
             for (var i = 0; i < vm.$options.mixins.length; i++) {
                 if (vm.$options.mixins[i].createdBe) {
@@ -125,7 +126,7 @@ var scope = {
             }
         }
 
-        // серверный Created
+        // Server Created hook
         if (vm.$options.createdBe) {
             vm.$options.createdBe.call(vm);
             vm.$emit('hook:createdBe');
@@ -148,7 +149,7 @@ var scope = {
                     });
                 }
 
-                // миксины серверного Compiled
+                // Server Compiled mixins
                 if (vm.$options.mixins) {
                     for (var i = 0; i < vm.$options.mixins.length; i++) {
                         if (vm.$options.mixins[i].compiledBe) {
@@ -158,7 +159,7 @@ var scope = {
                     }
                 }
 
-                // серверный Compiled
+                // Server Compiled hook
                 if (vm.$options.compiledBe) {
                     isCompiledBePresent = true;
                     vm.$options.compiledBe.call(vm);
@@ -175,7 +176,7 @@ var scope = {
                 }
 
                 if (!contexts.waitFor && !vm.$options.activateBe) {
-                    // Страшная опция.
+                    // Experimental option
                     if (isCompiledBePresent && vm !== vm.$root) {
                         scope.resetVmInstance(vm);
                     } else {
@@ -189,7 +190,7 @@ var scope = {
     },
 
     initVmSystemMethods: function (vm) {
-        // Прокидываем методы контроля событий
+        // Setting event control methods
         common.extend(vm, events);
 
         vm.$set = function (keypath, value) {
@@ -231,15 +232,15 @@ var scope = {
                 newVm = presentVm;
             }
 
-            // Заморочки нужны для поддержки асинхронного компонента
-            // Его vm создаёт не сразу
+            // Needed for async component support
+            // Async component is not created immediately
             if (options.childIndex !== undefined) {
                 this.__states.children[options.childIndex] = newVm;
             } else {
                 this.__states.children.push(newVm);
             }
 
-            // VM-ы от v-for не нужно добавлять в $children
+            // VMs from v-for no need to add in $children
             $target.$children.push(newVm);
 
             if (options.ref) {
@@ -271,8 +272,8 @@ var scope = {
                 }, options)
             );
 
-            // Заморочки нужны для поддержки асинхронного компонента
-            // Его vm создаёт не сразу
+            // Needed for async component support
+            // Async component is not created immediately
             if (options.childIndex !== undefined) {
                 this.__states.children[options.childIndex] = newVm;
             } else {
@@ -293,7 +294,7 @@ var scope = {
     },
 
     resetVmInstance: function (vm) {
-        // Передаём команду остановить сборку неактуальных дочерних VM-ов
+        // Command to stop building not relevant children VMs
         vm.$broadcast('_vueServer.stopBuilding');
         vm.$ = {};
         vm.$$ = {};
@@ -331,16 +332,16 @@ var scope = {
         }
 
         if (tpl) {
-            // Хитрый режим сочленения элементов
+            // Element merge mode
             if (shouldReplace) {
 
-                // Если элемент верхнего уровня - единственный
+                // If there is only one top level element
                 if (!tpl[1]) {
                     builders.mergeSlotItems(vm, tpl);
                     vm.$el.name = '$merge';
                     vm.$el.inner = tpl;
 
-                // Если элементов верхнего уровня домуя
+                // If there are many top level elements
                 } else {
                     vm.$el.name = 'partial';
                     vm.$el.attribs = {};
@@ -365,7 +366,7 @@ var scope = {
         });
 
         vm.$on('_vueServer.readyToCompile', function () {
-            // миксины серверного ready
+            // Server Ready mixins
             if (vm.$options.mixins) {
                 for (var i = 0; i < vm.$options.mixins.length; i++) {
                     if (vm.$options.mixins[i].readyBe) {
@@ -374,7 +375,7 @@ var scope = {
                 }
             }
 
-            // серверный ready
+            // Server Ready hook
             if (vm.$options.readyBe) {
                 vm.$options.readyBe.call(vm);
                 vm.$emit('hook:readyBe');
@@ -386,7 +387,7 @@ var scope = {
         var withReplaceData;
         var name;
         var value;
-        // Заменяем полностью контекст данных через "плоское" наследование v-with
+        // Replace data context by w-with "flat" inheritance
         if (contexts.withReplaceData) {
             for (var key in vm) {
                 if (scope.isSystemProp(key) || vm.$options.methods[key]) {
@@ -417,7 +418,7 @@ var scope = {
     },
 
     markKeyElement: function (vm) {
-        // Помечаем, что элемент является ключевым для какого-то vm-а
+        // Mark the key element for VM
         vm.$el._isKeyElement = true;
         vm.$el._isReadyToBuild = false;
         if (vm.__states.isComponent && !vm.__states.isRepeat) {
@@ -425,7 +426,7 @@ var scope = {
         }
     },
 
-    // Выставляем контекст данных с проверкой на валидность этих данных
+    // Set data context and validate data
     initData: function (vm) {
         var ownData = scope.initDataUnit(vm, vm.$options.data);
         var mixinResults;
@@ -478,7 +479,7 @@ var scope = {
         }
     },
 
-    // Подсчитываем computed
+    // Compute "computed" props
     buildComputedProps: function (vm) {
         if (vm.$options.computed) {
             var item;
@@ -508,13 +509,13 @@ var scope = {
         var props = vm.$options.props;
 
         if (typeof props === 'object') {
-            // Если props - массив
+            // If props is Array
             if (Array.isArray(props)) {
                 for (var i = 0, l = props.length; i < l; i++) {
                     this.pullPropsDataItem(vm, props[i]);
                 }
 
-            // Если сложный вид объектом
+            // If props is Object
             } else {
                 for (var name in props) {
                     this.pullPropsDataItem(vm, name, props[name]);
@@ -528,15 +529,15 @@ var scope = {
         var propName = common.dashToCamelCase(name);
         var descriptor;
 
-        // Небольшой костыль, чтобы с точки входа контентного компонента
-        // не удалялись атрибуты, которые нужны для props, раньше времени
+        // It is to point to the entrance of the component content
+        // not to prematurely remove the attributes required for props
         vm.$el.props = vm.$el.props || {};
         if (vm.$el.attribs[attrName] !== undefined) {
             vm.$el.props[attrName] = vm.$el.attribs[attrName];
             vm.$el.attribs[attrName] = undefined;
         }
 
-        // Сложный формат props (объектом)
+        // If props is Object
         if (config !== undefined) {
             descriptor = {
                 type: null,
@@ -552,14 +553,14 @@ var scope = {
             }
         }
 
-        // Контекст для v-for
+        // v-for context
         // var parentScope = vm.__states.vForScope ? vm.__states.vForScope: vm.$parent;
 
         var value;
 
         var rawValue = vm.$el.props[attrName];
 
-        // Реализация протяжки свойств через новый формат - v-bind:
+        // Implementation of setting props by v-bind
         if (vm.$el.dirs.bind && vm.$el.dirs.bind[attrName]) {
             rawValue = {
                 value: vm.$el.dirs.bind[attrName].value.get,
@@ -577,7 +578,7 @@ var scope = {
 
         if (descriptor) {
             if (!rawValue) {
-                // Дефолтное значение
+                // Default value
                 if (descriptor.default) {
                     if (typeof descriptor.default === 'function') {
                         value = descriptor.default();
@@ -586,13 +587,13 @@ var scope = {
                     }
                 }
 
-                // Необходимое поле
+                // Required field
                 if (descriptor.required) {
                     vm.$logger.warn('Property"' + propName + '" is required');
                     return;
                 }
             } else {
-                // Типизация данных
+                // Data types
                 if (descriptor.type) {
                     if (!value || value.constructor != descriptor.type) {
                         var type;
@@ -610,7 +611,7 @@ var scope = {
                     }
                 }
 
-                // Валидация данных
+                // Data validation
                 if (rawValue && descriptor.validator && !descriptor.validator(value)) {
                     vm.$logger.warn('Invalid prop: custom validator check failed for "' + propName +
                         '"', common.onLogMessage(vm));
@@ -619,7 +620,7 @@ var scope = {
             }
         }
 
-        // Наследование колбеков от родителя
+        // Callback inheritance from parent
         if (typeof value === 'function') {
             vm[propName] = utils.bind(value, vm.__states.parent);
         } else {
@@ -638,7 +639,7 @@ var scope = {
         return dataTo;
     },
 
-    // Инициализация VM-ов для v-for
+    // Init VMs for v-for
     initLightViewModel: function (contexts) {
         var options = {};
         var vm = {};

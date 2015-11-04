@@ -34,7 +34,7 @@ var contentComponent = {
         }
     },
 
-    // Убеждаемся, что перетёрли этот хук
+    // Redefine compiledBe hook
     compiledBe: function () {
 
     },

@@ -13,7 +13,7 @@ module.exports = function (content, callback, config) {
             content.template = VueCompile(fs.readFileSync(content.template.path, 'utf-8'));
         }
 
-        // Чтобы не париться на тему этого хука
+        // Not to bother about this hook
         if (!content.compiledBe) {
             content.compiledBe = function () {
                 this.$emit('loaded');

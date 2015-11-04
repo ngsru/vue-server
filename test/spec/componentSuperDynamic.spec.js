@@ -1,4 +1,4 @@
-// кейсы типа v-component="{{filter[value].omg}}" с подменяющимися значениями и компонентами внутри compiledBe при wait-for
+// Cases like v-component="{{filter[value].omg}}" with dynamically changed values and components in compiledBe at wait-for
 
 // var wrapComponent = require('./wrapComponent.js');
 // var $;

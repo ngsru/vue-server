@@ -34,7 +34,7 @@ var renders = {
         return html;
     },
 
-    // Отрсиовываем тег-ноды
+    // Render node text
     renderText: function (element) {
         return element.text;
     },
@@ -42,7 +42,7 @@ var renders = {
     renderTag: function (element) {
         var tag = '<' + element.name;
 
-        // Проходим по аттибутам тега, собираем директивы vue
+        // Walk through tag attributes, collectig Vue directives
         for (var key in element.attribs) {
             if (
                 element.attribs[key] === undefined ||
@@ -60,7 +60,7 @@ var renders = {
             tag += renders.renderTemplate(element.inner);
         }
 
-        // Если тег должен иметь закрывающей тег
+        // If tag has closing tag
         if (element.close) {
             tag += '</' + element.name + '>';
         }
@@ -71,12 +71,12 @@ var renders = {
     renderMergedTags: function (element) {
         var elementChild = element.inner[0];
 
-        // Случай v-if + v-for
+        // v-if + v-for case
         if (!elementChild) {
             return '';
         }
 
-        // Если много вложенных $merge
+        // If there are many nested $merge
         if (elementChild.name === '$merge') {
             return renders.renderTemplate(element.inner);
         }

@@ -35,16 +35,14 @@ var compilers = {
     compileElement: function (vm, element) {
         var foreignKeyElement = false;
 
-        // В зависимости от того, является ли этот элемент ключевым для контекста v-repeat-а или нет
-        // нужно по-разному его компилировать
-        // если это элемент v-repeat-а, то и он сам и его кишки компилируются в контексте repeat-а
-        // если же это элемент ТОЛЬКО компонента, то его собственные аттрибуты компилируются
-        // в контексте родительского vm-а, а кишки - в собственном контексте
+        // Depending on whether the element is a key to the v-repeat context or no, need to differently to compile it.
+        // If it is v-repeat element then we need to compile it inside repeat context
+        // If no, ONLY its own attributes compiled inside repeat context
         if (element._isKeyElement && vm.$el != element) {
             foreignKeyElement = true;
         }
 
-        // _compileSelfInParentVm присвоено элементам НЕ из v-repeat
+        // _compileSelfInParentVm for no repeated elements
         if (foreignKeyElement) {
             if (element._compileSelfInParentVm) {
                 compilers.compileTag(vm, element);
@@ -55,12 +53,12 @@ var compilers = {
 
         compilers.compileTag(vm, element);
 
-        // Текстовая нода
+        // Text node
         if (element.type === 'text') {
             element.text = common.execute(vm, element.text);
         }
 
-        // Дочерние элементы тега
+        // Node childs
         if (element.inner) {
             compilers.compileElements(vm, element.inner);
         }
@@ -108,7 +106,7 @@ var compilers = {
                 // Not done yet
             }
 
-            // Компилируем аттрибуты тега
+            // Compile node attributes
             for (var key in element.attribs) {
                 element.attribs[key] = common.execute(vm, element.attribs[key]);
             }
@@ -130,7 +128,7 @@ var compilers = {
                         });
 
                         if (name === 'style') {
-                            // Нужно учесть собственные стили элемента
+                            // Need to consider element's own styles
                             var originalStyle = element.attribs.style;
                             if (originalStyle) {
                                 originalStyle = cssParser.parse(originalStyle);
@@ -138,7 +136,7 @@ var compilers = {
                                 originalStyle = {};
                             }
 
-                            // Обрабатываем значение, если класс пришёл в формате массива
+                            // Drop value if class is Array
                             if (Array.isArray(value)) {
                                 value = common.extend.apply(common, value);
                             }
@@ -194,7 +192,6 @@ var compilers = {
 
             // setSelected (hack for v-for <select> options)
             if (element.dirs.setSelected) {
-                // Нужно как-то по-другому это делать
                 if (
                     element.dirs.setSelected.value.map[element.attribs.value] ||
                     (element.attribs.value === element.dirs.setSelected.value.original)
@@ -229,7 +226,7 @@ var compilers = {
                 classList = [];
             }
 
-            // Когда классы прописаны в самой директиве
+            // When directive value contains classes
             if (Array.isArray(element.dirs.class.value)) {
                 for (var i = 0; i < element.dirs.class.value.length; i++) {
                     vClassItem = element.dirs.class.value[i];
@@ -239,7 +236,7 @@ var compilers = {
                     }
                 }
 
-            // Когда переданы объектом
+            // When directive value is Object
             } else {
                 vClassItem = common.execute(vm, {value: element.dirs.class.value.get});
 
@@ -261,8 +258,8 @@ var compilers = {
         }
 
         if (element.dirs.style && element.dirs.show) {
-            // Правильность применения стилей от данных директив
-            // должна зависеть от порядка их объявления в теге
+            // The correct application of styles from these directives
+            // will depend on the order they are declared in the tag
             if (element.dirs.style.order < element.dirs.show.order) {
                 common.extend(
                     styles,
@@ -306,8 +303,7 @@ var compilers = {
 
         attrValue = common.execute(vm, element.attribs.value);
 
-        // Если у тега был задан value, то он пересиливает значение из v-model
-        // поэтому прерываем выполнение кода выставляющего value через v-model
+        // If tag has "value" property then it should override v-model value
         if (attrValue && element.attribs.type == 'text') {
             return;
         }
@@ -354,15 +350,15 @@ var compilers = {
                     isClean: false
                 });
 
-                // Запоминаем первый статичный элемент, есть он есть
+                // Store first static element if exists
                 if (element.inner[0] && element.inner[0].name === 'option') {
                     selectStaticOption = element.inner[0];
                 }
 
-                // Перетираем любое внутренее содержимое тега <select>
+                // Clear <select> tag content
                 element.inner = [];
 
-                // Вставляем первый статичный элемент обратно
+                // Insert first static element
                 if (selectStaticOption) {
                     element.inner.push(selectStaticOption);
                 }
@@ -384,8 +380,8 @@ var compilers = {
                 }
             }
 
-            // Значения select multiple приходят в виде массива
-            // Создаём карту значений, чтобы не бегать по массиву 100500 раз
+            // If select value is Array
+            // Making value map avoiding multiple array busting
             if (element.attribs.multiple !== undefined) {
                 if (vModelValue) {
                     for (var j = 0, n = vModelValue.length; j < n; j++) {
@@ -393,7 +389,7 @@ var compilers = {
                     }
                 }
 
-            // Селект с единственным выбранным значение (не multiple)
+            // Single choice <select>
             } else {
                 selectValueMap[vModelValue] = true;
             }
@@ -425,8 +421,7 @@ var compilers = {
             if (selectValueMap[common.getValue(vm, item.attribs.value)]) {
                 item.attribs.selected = 'selected';
             } else {
-                // На всякий случай, чтобы удалить нежелательные selected,
-                // которые могли быть в разметке
+                // Delete unnecessary "selected" attributes
                 delete item.attribs.selected;
             }
         }

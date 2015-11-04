@@ -23,8 +23,7 @@ beforeAll(function (done) {
 });
 
 describe('filters', function () {
-    // Для реализации этого есть костылик тут:
-    // src/parsers/directive.js:57
+    // To implement this look: src/parsers/directive.js:57
     it('should be able to use web symbols as arguments', function () {
         expect($('ndash').text()).toEqual('1–2–3');
     });

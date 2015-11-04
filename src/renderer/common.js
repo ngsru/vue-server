@@ -192,7 +192,7 @@ var common = {
     },
 
     setElement: function (element) {
-        // Перенастраиваем цикл из-за изменений в порядке элементов
+        // Recofigure loop due to elements order changes
         if (element) {
             element.dirs = element.dirs || {};
             return element;
@@ -227,8 +227,7 @@ var common = {
 
         var instancePropsMap = common.getObjectPropNames(component);
 
-        // Теперь нужно пробежаться по всем свойствам объекта-класса и пробросить все
-        // свойства, являющиеся функциями в methods
+        // Walk through object-class properties and setting all functions to methods
         for (var i = instancePropsMap.length - 1; i >= 0; i--) {
             (function () {
                 var name = instancePropsMap[i],
@@ -283,10 +282,7 @@ var common = {
         return template;
     },
 
-    // Хитрожопый способ получить имена ВСЕХ свойств класса.
-    // Прикол в том, что разные компиляторы es6 в es5 по разному обращаются с этими свойствами
-    // Кто-то кладёт их напрямую в объект с enumerable: false, кто-то же просто использует
-    // прототипирование, в результате чего свойства класса попадают в __proto__
+    // Get ALL class properties
     getObjectPropNames: function (object, isModern) {
         if (isModern) {
             return this.getObjectPropNamesModern(object);
