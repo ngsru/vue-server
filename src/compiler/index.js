@@ -162,7 +162,7 @@ var Compile = function (template) {
         preIsActive = false,
 
         // v-pre directive dom tree depth count
-        // Need to know when to remove preIsActive flag
+        // Necessary to detect the moment to turn preIsActive flag
         preIsActiveDepth = 0;
 
     var repeatItems = [];
@@ -330,7 +330,7 @@ var Compile = function (template) {
                     }
 
                     if (name === 'v-else') {
-                        // Searching for nearest tag, checking it for v-if
+                        // Searching for closest tag, checking it for v-if
                         (function () {
                             for (var i = current.inner.length - 1; i >= 0; i--) {
                                 if (current.inner[i].type === 'tag') {
@@ -437,7 +437,7 @@ var Compile = function (template) {
                                 value: null
                             };
 
-                            // When classes is inside directive
+                            // When classes is inside a directive
                             if (vClassDir[0].arg) {
                                 element.dirs.class.value = vClassDir;
 
@@ -457,7 +457,7 @@ var Compile = function (template) {
                                 order: attribsCounter
                             };
 
-                            // When classes is inside directive
+                            // When classes is inside a directive
                             if (vStyleDir[0].arg) {
                                 element.dirs.style.value = vStyleDir;
 
@@ -505,7 +505,7 @@ var Compile = function (template) {
                         };
                     }
 
-                    // Directive options that need to be excluded
+                    // Directive options to be excluded
                     if (directiveOptions[name]) {
                         directiveOptions[name].forEach(function (item) {
                             attribsForExclude[item] = true;
@@ -536,7 +536,7 @@ var Compile = function (template) {
                     });
                 }
 
-                // Removing empty object dirs from tag
+                // Removing empty object "dirs" from tag
                 if (!_.size(element.dirs)) {
                     delete element.dirs;
                 }
@@ -568,7 +568,7 @@ var Compile = function (template) {
             // If element is inside v-pre directive
             if (preIsActive) {
                 // At each closing tag, we climb up the tree
-                // Once preIsActiveDepth becomes 0 it will mean that we have reached an initial element
+                // We have reached an initial element if prIsActiveDepth becomes 0
                 preIsActiveDepth--;
 
                 if (noCloseTags[name]) {

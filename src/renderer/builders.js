@@ -9,7 +9,7 @@ var builders = {
         }
 
         // Case when VM rebuilding starts
-        // This option is passed through the command to stop the build irrelevant VMs
+        // This option is passed through to stop building detached VMs
         if (vm.$el.__buildingInterrupted) {
             return;
         }
@@ -261,7 +261,7 @@ var builders = {
                 if (element.dirs.repeat.value.arg) {
                     repeatDataItem[element.dirs.repeat.value.arg] = item;
 
-                // Without namespace
+                // Without a namespace
                 } else {
                     // Data is object
                     if (typeof item === 'object' && !Array.isArray(item)) {
@@ -277,7 +277,7 @@ var builders = {
                     repeatDataItem.$key = repeatData[i].$key;
                 }
 
-                // Custom defenition of parameter name with index
+                // Explict key/index prop name definition
                 // Eg. v-for="(index, value) in array"
                 if (element.dirs.repeat.value.index) {
                     repeatDataItem[element.dirs.repeat.value.index] = i;
@@ -289,7 +289,7 @@ var builders = {
                 repeatElement = cloneElement();
                 repeatElement.dirs.repeat.isCompiled = true;
 
-                // repeatElement - replication of element which creates compiler
+                // repeatElement - element replication created by compiler
                 // If component is custom tag then it has not "v-component" directive
                 // so setting it manually
                 repeatElement.dirs.component = element.dirs.component;
@@ -316,7 +316,7 @@ var builders = {
         return false;
     },
 
-    // Drop element with "v-component" directive
+    // Building element with "v-component" directive
     buildComponent: function (vm, element, options) {
         var componentName = common.getValue(vm, element.dirs.component.value);
         var component = builders.getAsset(vm, 'components')[componentName];
@@ -356,7 +356,7 @@ var builders = {
                 builders.buildComponentContent(vm, element, options, component, componentName);
             }
 
-        // If component not exists
+        // If component does not exists
         } else {
             element.inner = [];
             builders.logComponentResolveError(vm, element, componentName);
@@ -522,7 +522,7 @@ var builders = {
                     repeatDataItem.$key = repeatData[i].$key;
                 }
 
-                // Custom defenition of parameter name with index
+                // Explict key/index prop name definition
                 // Eg. v-for="(index, value) in array"
                 if (element.dirs.for.value.index) {
                     repeatDataItem[element.dirs.for.value.index] = i;
@@ -534,7 +534,7 @@ var builders = {
                 repeatElement = cloneElement();
                 repeatElement.dirs.for.isCompiled = true;
 
-                // repeatElement - replication of element which creates compiler
+                // repeatElement - element replication created by compiler
                 // If component is custom tag then it has not "v-component" directive
                 // so setting it manually
                 repeatElement.dirs.component = element.dirs.component;
