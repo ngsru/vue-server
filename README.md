@@ -74,7 +74,6 @@ Note: readyBe is a bit experimental and its behaviour may be not correct.
 * vm.$delete
 * vm.$eval
 * vm.$interpolate
-* vm.$log
 * vm.$appendTo
 * vm.$before
 * vm.$after

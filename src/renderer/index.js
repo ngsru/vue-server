@@ -33,6 +33,7 @@ var VueRender = function (logger) {
 
         renders.$logger = that.logger;
 
+
         vm = scope.initViewModel({
             parent: null,
             filters: {},
@@ -151,6 +152,13 @@ VueRender.prototype._initLogger = function (config, logger) {
     return {
         _config: config,
         _logger: logger,
+        log: function () {
+            if (!this._config.silent) {
+                this._logger.debug.apply(this._logger, arguments);
+            }
+
+            return this;
+        },
         debug: function () {
             if (!this._config.silent && this._config.debug) {
                 this._logger.debug.apply(this._logger, arguments);

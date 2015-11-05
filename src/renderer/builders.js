@@ -1,11 +1,5 @@
 var _ = require('underscore');
 var common = require('./common.js');
-var getElementId = function () {
-    var result = '';
-    var time = process.hrtime();
-    result += String(time[0]).slice(5) + time[1];
-    return result;
-};
 
 var builders = {
     build: function (vm, callback) {

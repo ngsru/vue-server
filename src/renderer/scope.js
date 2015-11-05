@@ -34,6 +34,9 @@ var scope = {
         // "Инициализируем" контекст
         var vm = common.extend(rawVm, data);
         vm.__states = {};
+        vm.__states.parent = contexts.parent;
+        vm.__states.children = [];
+        vm.__states.childrenReadyCount = 0;
 
         if (contexts.isRepeat) {
             vm.__states.isRepeat = true;
@@ -71,9 +74,6 @@ var scope = {
         vm._eventCancelled = false;
 
         vm.$children = [];
-        vm.__states.parent = contexts.parent;
-        vm.__states.children = [];
-        vm.__states.childrenReadyCount = 0;
         vm._isCompiled = false;
         vm._isReady = false;
         vm.isServer = true;
@@ -95,6 +95,7 @@ var scope = {
                     type: 'document',
                     inner: tpl || []
                 };
+                vm.__states.TIMER = 0;
             }
 
             // Прокидываем методы компонента в VM
@@ -284,6 +285,10 @@ var scope = {
             process.nextTick(function () {
                 cb.call(self);
             });
+        };
+
+        vm.$log = function(name) {
+            this.$logger.log(this[name]);
         };
     },
 
@@ -483,11 +488,15 @@ var scope = {
                 if (typeof item === 'function') {
                     try {
                         vm[name] = item.call(vm);
-                    } catch (e) {}
+                    } catch (e) {
+                        vm.$logger.debug('Computed property "' + name + '" compilation error', common.onLogMessage(vm), '\n', e);
+                    }
                 } else {
                     try {
                         vm[name] = item.get.call(vm);
-                    } catch (e) {}
+                    } catch (e) {
+                        vm.$logger.debug('Computed property "' + name + '" compilation error', common.onLogMessage(vm), '\n', e);
+                    }
                 }
             }
         }
@@ -642,6 +651,9 @@ var scope = {
         }
 
         vm.__states = {};
+        vm.__states.parent = contexts.parent;
+        vm.__states.children = [];
+        vm.__states.childrenReadyCount = 0;
         vm.__states.notPublic = true;
 
         if (this.config.strict) {
@@ -664,9 +676,6 @@ var scope = {
         vm._eventsCount = {};
         vm._eventCancelled = false;
 
-        vm.__states.parent = contexts.parent;
-        vm.__states.children = [];
-        vm.__states.childrenReadyCount = 0;
         vm._isCompiled = false;
         vm._isReady = false;
         vm.isServer = true;
