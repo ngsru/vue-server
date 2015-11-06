@@ -117,6 +117,13 @@ var scope = {
             common.extend(vm, contexts.repeatData);
         }
 
+        // Events option binded event handlers
+        if (vm.$options.events) {
+            for (var name in vm.$options.events) {
+                vm.$on(name, utils.bind(vm.$options.events[name], vm));
+            }
+        }
+
         // Server Created mixins
         if (vm.$options.mixins) {
             for (var i = 0; i < vm.$options.mixins.length; i++) {

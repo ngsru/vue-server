@@ -1,9 +1,10 @@
 var wrapComponent = require('./wrapComponent.js');
 var $;
 var contentComponent = {
-    template: '<div id="complex"><comp></comp>{{param}}</div>',
+    template: '<div id="complex"><comp></comp>{{param}}</div><div id="via-option">{{prop}}</div>',
     data: function () {
         return {
+            prop: 'default',
             items: [
                 {name: 111, visible: false},
                 {name: 222, visible: true}
@@ -11,7 +12,14 @@ var contentComponent = {
         };
     },
 
+    events: {
+        test: function() {
+            this.prop = 'changed';
+        }
+    },
+
     createdBe: function () {
+        this.$emit('test');
         this.$on('child', function () {
             this.param = 554545;
         });
@@ -50,5 +58,9 @@ beforeAll(function (done) {
 describe('events', function () {
     it('should work', function () {
         expect($('#complex').html()).toEqual('<i>11111111<i>22222222_21313</i></i>554545');
+    });
+
+    it('should work via component option', function () {
+        expect($('#via-option').html()).toEqual('changed');
     });
 });
