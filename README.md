@@ -1,9 +1,12 @@
 VueServer.js
 ========
 
-Vue.js server side version
+Vue.js server-side version
+
 
 Disclaimer
+---
+
 This is not an offical Vue.js version and it has no stright relation to it and its author.
 
 The module is developed for specific needs of its authors and has some restrictions compared to Vue.js.
@@ -44,7 +47,7 @@ Restrictions
 
 VueServer.js is designed for static html rendering. It has no real reactivity.
 
-Also, the module is not running original Vue.js on server. It has its own realisation.
+Also, the module is not running original Vue.js on server. It’s own implementation.
 
 Which means VueServer.js is just trying to perfectly reproduce same result as Vue.js does.
 
@@ -55,6 +58,7 @@ Because of the reasons listed above some of Vue.js functionality is not availabl
 VueServer.js does not share hooks with Vue.js. It has its own ones, partially equal to Vue.js
 
 Note: readyBe is a bit experimental and its behaviour may be not correct.
+
 | VueServer.js  | Vue.js        |
 | :------------ |:------------- |
 | createdBe     | created       |

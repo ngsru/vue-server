@@ -14,8 +14,9 @@
     "log4js": "^0.6.21",
     "underscore": "^1.7.0"
   },
-  "publishConfig": {
-    "registry": "http://sinopia.app.s/"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ngsru/vue-server.git"
   },
   "license": "ISC",
   "devDependencies": {
