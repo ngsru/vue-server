@@ -14,7 +14,6 @@ The module is developed for specific needs of its authors and has some restricti
 Getting started
 ---
 
-
 ```
 var vueServer = require('vue-server');
 var Vue = new vueServer.renderer();
@@ -34,7 +33,7 @@ vm.$on('vueServer.htmlReady', function(html) {
 });
 ```
 
-Compability table
+Compatibility table
 ---
 
 | VueServer.js  | Vue.js        |
@@ -45,61 +44,60 @@ Compability table
 Restrictions
 ---
 
-VueServer.js is designed for static html rendering. It has no real reactivity.
+**VueServer.js** is designed for static HTML rendering. It has no real reactivity.
 
-Also, the module is not running original Vue.js on server. It’s own implementation.
+Also, the module is not running original Vue.js on server. It has its own implementation.
 
-Which means VueServer.js is just trying to perfectly reproduce same result as Vue.js does.
+It means **VueServer.js** is just trying to perfectly reproduce the same result as Vue.js does.
 
 Because of the reasons listed above some of Vue.js functionality is not available.
 
 
 #### Hooks difference
-VueServer.js does not share hooks with Vue.js. It has its own ones, partially equal to Vue.js
+**VueServer.js** does not share hooks with Vue.js. It has its own ones, partially equal to Vue.js'
 
-Note: readyBe is a bit experimental and its behaviour may be not correct.
+**Note:** `readyBe` is a bit experimental and its behaviour may be not correct.
 
 | VueServer.js  | Vue.js        |
 | :------------ |:------------- |
-| createdBe     | created       |
-| --            | beforeCompile |
-| compiledBe    | compiled      |
-| activateBe    | activate      |
-| readyBe       | ready         |
-| --            | attached      |
-| --            | detached      |
-| --            | beforeDestroy |
-| --            | destroyed     |
+| `createdBe`     | `created`       |
+| --            | `beforeCompile` |
+| `compiledBe`    | `compiled`      |
+| `activateBe`    | `activate`      |
+| `readyBe`       | `ready`         |
+| --            | `attached`      |
+| --            | `detached`      |
+| --            | `beforeDestroy` |
+| --            | `destroyed`     |
 
 
 
-#### Methods are not supported:
-* vm.$watch
-* vm.$delete
-* vm.$eval
-* vm.$interpolate
-* vm.$appendTo
-* vm.$before
-* vm.$after
-* vm.$remove
-* vm.$mount
-* vm.$destroy
-* vm.$addChild
+#### List of unsupported methods:
+* `vm.$watch`
+* `vm.$delete`
+* `vm.$eval`
+* `vm.$interpolate`
+* `vm.$appendTo`
+* `vm.$before`
+* `vm.$after`
+* `vm.$remove`
+* `vm.$mount`
+* `vm.$destroy`
+* `vm.$addChild`
 
 
-#### Directives are not supported:
-* v-on
-* v-el
+#### List of unsupported directives:
+* `v-on`
+* `v-el`
 
-Because of using extra light DOM version it is not possible to use custom directives too.
+Because of using an extra light DOM version it's not possible to use custom directives too.
 
+## What is supported, then?
+Well, *actually*, everything else is (maybe I forgot something).
 
-## What is supported
-Well, actually, everything else is (maybe I forgot something).
+It means you can use `v-if`, `filters`, `partials`, `async components`, `wait-for` (or activate hook), `events` etc.
 
-It means you can use v-if, filters, partials, async components, wait-for (or activate hook), events and etc.
-
-Overall, it is possible to use complex component building system you love so much using Vue.js
+Overall, it is possible to use the beloved **complex component building system** like in orignal Vue.js
 
 
 Templates precompilation
@@ -114,10 +112,10 @@ var VueCompile = new vueServer.compiler();
 var serverTemplate = VueCompile('<div>Hello world!</div>');
 ```
 
-We've got a gulp plugin for that purpose. Soon it will be published too.
+We've got a **gulp.js** plugin for that purpose. Soon it will be published too.
 
 
-Config
+Configuration
 ---
 
 ```
