@@ -55,6 +55,7 @@ Because of the reasons listed above some of Vue.js functionality is not availabl
 VueServer.js does not share hooks with Vue.js. It has its own ones, partially equal to Vue.js
 
 Note: readyBe is a bit experimental and its behaviour may be not correct.
+
 | VueServer.js  | Vue.js        |
 | :------------ |:------------- |
 | createdBe     | created       |
