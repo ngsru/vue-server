@@ -113,22 +113,8 @@ var contentComponent = {
             }
         },
 
-        // compon1: {
-        //     template: '' +
-        //         '<section class="compon1">' +
-        //             '<div class="comp-repeat-value">{{value}}</div>' +
-        //             '<div class="comp-own-value">{{compon1Val}}</div>' +
-        //             '<div class="comp-parent-value">{{vRepeat.parentValue}}</div>' +
-        //             '<div class="comp-with-value">{{withedValue}}</div>' +
-        //         '</section>',
-        //     data: function() {
-        //         return {
-        //             compon1Val: 'Component\'s 1 own value'
-        //         }
-        //     }
-        // },
-
         syntetic: {
+            replace: false,
             'template': [
                 '<button v-repeat="buttons" v-on="click: setRoom(this)" v-class="active: setRoomActive(this)">',
                     '<span>{{label}}</span>',
@@ -344,6 +330,13 @@ describe('v-for', function () {
     it('should work with v-if and component', function () {
         expect($('#v-if-component').html()).toEqual('<i>0|1</i><i>2|3</i>');
     });
+
+
+    it('should work with plain number iterating', function () {
+        expect($('#plain-number').html()).toEqual('<i>0</i><i>1</i><i>2</i>');
+    });
+
+    
 });
 
 // v-repeat - begin
@@ -366,11 +359,9 @@ describe('v-for', function () {
         expect($('#v-repeat .array-filter-by').find('li').eq(1).find('.age').text()).toEqual('32');
     });
 
-    // !!!!!!!!!!!!!!!!
-    // it("should be able to use multiple filters", function() {
-    //     expect( $('#v-repeat .array-filter-by-multiple').find('li').length ).toEqual(1);
-    //     expect( $('#v-repeat .array-filter-by-multiple').find('li').eq(0).find('.age').text() ).toEqual('25');
-    // });
+    it("should be able to use multiple filters", function() {
+        expect( $('#v-repeat .array-filter-by-multiple').find('li').eq(0).find('.age').text() ).toEqual('25');
+    });
 
     it('should be able to render objects', function () {
         expect($('#v-repeat .object').find('li').length).toEqual(3);
@@ -392,13 +383,13 @@ describe('v-for', function () {
         expect($items.eq(2).text()).toEqual('i\'m parent\'s value');
     });
 
-    // it("should be able to use separated datas (parent & repeat-item) in methods", function() {
-    //     expect( $('#v-repeat .syntetic .active').length ).toEqual( 2 );
-    // });
+    it("should be able to use separated datas (parent & repeat-item) in methods", function() {
+        expect( $('#v-repeat .syntetic .active').length ).toEqual( 2 );
+    });
 
-    // it("should be able to use component's filters inside component's v-repeat", function() {
-    //     expect( $('#v-repeat .syntetic .in-repeat-nested-filter').eq(1).text() ).toEqual( 'ok!?!?!?!' );
-    // });
+    it("should be able to use component's filters inside component's v-repeat", function() {
+        expect( $('#v-repeat .syntetic .in-repeat-nested-filter').eq(1).text() ).toEqual( 'ok!?!?!?!' );
+    });
 
     it('should be able to use component\'s filters inside v-repeat', function () {
         expect($('#v-repeat .filter-repeated.evil-filter').eq(1).text()).toEqual('evil boy boy evil');
@@ -412,16 +403,6 @@ describe('v-for', function () {
         it('should not leave default content inside', function () {
             expect($('#v-repeat .repeat-component').find('.should-not-be-there').length).toEqual(0);
         });
-
-        // it("should display data from repeating items", function() {
-        //     var $items = $('#v-repeat .repeat-component').find('li .comp-repeat-value');
-        //     expect( $items.eq(2).text() ).toEqual( 'simple array value 3' );
-        // });
-
-        // it("should display component's data values", function() {
-        //     var $items = $('#v-repeat .repeat-component').find('li .comp-own-value');
-        //     expect( $items.eq(2).text() ).toEqual( 'Component\'s 1 own value' );
-        // });
 
         it('should display parent component\'s data values', function () {
             var $items = $('#v-repeat .repeat-component').find('li .comp-parent-value');

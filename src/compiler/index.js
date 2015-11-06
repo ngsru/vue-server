@@ -145,6 +145,7 @@ var elRE = /^v-el:/;
 var onRE = /^@/;
 var argRE = /:(.*)$/;
 var vForValRE = /\((.+)\)/;
+var isNumber = /^-?\d+/;
 
 // Converting raw HTML into special array-objects tree
 var Compile = function (template) {
@@ -321,6 +322,14 @@ var Compile = function (template) {
 
                                 if (rawValue.filters) {
                                     element.dirs.for.value.filters = rawValue.filters;
+                                }
+
+                                if (isNumber.test(expression)) {
+                                    element.dirs.for.value.static = [];
+
+                                    for (var i = 0; i < expression; i++) {
+                                        element.dirs.for.value.static.push(i);
+                                    }
                                 }
 
                                 repeatItems.push(element);

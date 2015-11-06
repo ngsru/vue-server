@@ -474,8 +474,13 @@ var builders = {
     // NEW
     // Building v-for items
     buildForElements: function (vm, elements, element) {
-        var repeatData = builders.getRepeatData(vm, element.dirs.for.value);
-        // var repeatDataIsArray = Array.isArray(repeatData);
+        var repeatData;
+
+        if (element.dirs.for.value.static) {
+            repeatData = element.dirs.for.value.static;
+        } else {
+            repeatData = builders.getRepeatData(vm, element.dirs.for.value);
+        }
 
         // If repeat data is exists
         if (repeatData && repeatData.length) {

@@ -42,6 +42,10 @@
         </span>
     </div>
 
+    <div id="plain-number">
+        <i v-for="n in 3">{{n}}</i>
+    </div>
+
 
 
     <!-- v-repeat -->
@@ -102,8 +106,10 @@
 
         <div class="compound-nesting" is="compound"></div>
 
+        <div id="wtfd">
+            <syntetic class="syntetic"></syntetic>
+        </div>
 
-        <syntetic class="syntetic"></syntetic>
 
         <div class="filter-repeated" v-for="item in vRepeat.simpleArray" is="filterRepeated"></div>
     </section>
