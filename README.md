@@ -1,3 +1,16 @@
+<p align="center">
+    <img width="100" src="http://devlprs.net/vue-server.png">
+</p>
+
+<p align="center">
+    <a href="https://www.bithound.io/github/ngsru/vue-server">
+        <img src="https://www.bithound.io/github/ngsru/vue-server/badges/score.svg" alt="bitHound Score">
+    </a>
+    <a href="https://gitter.im/ngsru/vue-server">
+       <img src="https://badges.gitter.im/Join%20Chat.svg">
+    </a>
+</p>
+
 VueServer.js
 ========
 
@@ -7,7 +20,7 @@ Vue.js server-side version
 Disclaimer
 ---
 
-This is not an offical Vue.js version and it has no stright relation to it and its author.
+This is not an offical Vue.js version and it has no straight relation to it and its author.
 
 The module is developed for specific needs of its authors and has some restrictions compared to Vue.js.
 
