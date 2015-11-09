@@ -27,7 +27,7 @@ The module is developed for specific needs of its authors and has some restricti
 Getting started
 ---
 
-```
+```js
 var vueServer = require('vue-server');
 var Vue = new vueServer.renderer();
 
@@ -118,7 +118,7 @@ Templates precompilation
 
 It is recommended to precompile templates for faster rendering
 
-```
+```js
 var vueServer = require('vue-server');
 var VueCompile = new vueServer.compiler();
 
@@ -131,7 +131,7 @@ We've got a **gulp.js** plugin for that purpose. Soon it will be published too.
 Configuration
 ---
 
-```
+```js
 var vueServer = require('vue-server');
 var Vue = new vueServer.renderer();
 
