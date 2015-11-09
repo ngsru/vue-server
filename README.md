@@ -3,11 +3,19 @@
 </p>
 
 <p align="center">
+    <a href="https://travis-ci.org/ngsru/vue-server">
+        <img src="https://travis-ci.org/ngsru/vue-server.svg?branch=master">
+    </a>
     <a href="https://www.bithound.io/github/ngsru/vue-server">
         <img src="https://www.bithound.io/github/ngsru/vue-server/badges/score.svg" alt="bitHound Score">
     </a>
+    <br>
     <a href="https://gitter.im/ngsru/vue-server">
        <img src="https://badges.gitter.im/Join%20Chat.svg">
+    </a>
+    <br>
+    <a href="https://nodei.co/npm/vue-server/">
+      <img src="https://nodei.co/npm/vue-server.png">
     </a>
 </p>
 
