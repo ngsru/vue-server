@@ -135,8 +135,7 @@ var makeTxtNode = function (current, value) {
 var getElementId = function () {
     var result = '';
     var time = process.hrtime();
-    result += String(time[0]).slice(5) + time[1];
-    return result;
+    return String(time[0]) + time[1];
 };
 
 var bindRE = /^:|^v-bind:/;
