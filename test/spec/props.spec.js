@@ -18,6 +18,7 @@ var contentComponent = {
             '<default-function></default-function>',
             '<validator value="{{transmit}}"></validator>',
             '<validator-default value="{{transmit}}"></validator-default>',
+            '<default-false></<default-false>',
         '</div>'
     ].join(''),
 
@@ -94,7 +95,16 @@ var contentComponent = {
                 }
             },
             template: '<div>{{value}}</div>'
-        }
+        },
+
+        'default-false': {
+            props: {
+                value: {
+                    default: false
+                }
+            },
+            template: '<div>{{typeof value}}</div>'
+        },
     }
 };
 
@@ -145,4 +155,9 @@ describe('props should be able', function () {
     it('to use validator option with default correctly', function () {
         expect($('validator > div').text()).toEqual('');
     });
+
+    it('to set default Boolean(false) as it is', function () {
+        expect($('default-false > div').text()).toEqual('boolean');
+    });
+
 });

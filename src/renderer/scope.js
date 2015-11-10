@@ -586,12 +586,10 @@ var scope = {
         if (descriptor) {
             if (!rawValue) {
                 // Default value
-                if (descriptor.default) {
-                    if (typeof descriptor.default === 'function') {
-                        value = descriptor.default();
-                    } else {
-                        value = descriptor.default;
-                    }
+                if (typeof descriptor.default === 'function') {
+                    value = descriptor.default();
+                } else {
+                    value = descriptor.default;
                 }
 
                 // Required field
