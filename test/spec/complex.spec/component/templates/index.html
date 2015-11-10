@@ -202,6 +202,16 @@
         <div class="syntetic" v-component="syntetic"></div>
 
         <div class="filter-repeated" v-repeat="vRepeat.simpleArray" v-component="filterRepeated"></div>
+
+
+        <div class="with-v-if" v-repeat="vRepeat.simpleArray" v-if="itdoesnotexist"></div>
+
+        <div class="with-v-if-comoonent" v-repeat="vRepeat.simpleArray" v-component="filterRepeated" v-if="itdoesnotexist"></div>
+
+        <div class="with-v-show" v-repeat="item: vRepeat.simpleArray" v-show="vRepeat.parentValue && item.value"></div>
+
+        <div class="with-v-show-component" v-repeat="item: vRepeat.simpleArray" v-component="filterRepeated" v-show="vRepeat.parentValue"></div>
+
     </section>
 
 

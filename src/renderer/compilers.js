@@ -445,7 +445,11 @@ var compilers = {
     // v-show
     compileDirectiveShow: function (vm, element, originalStyle) {
         var elStyles = {};
-        var isToShow = common.getValue(vm, element.dirs.show.value.get);
+        var vmToUse = vm;
+        if (element.dirs.repeat && element.dirs.component) {
+            vmToUse = vm.$parent;
+        }
+        var isToShow = common.getValue(vmToUse, element.dirs.show.value.get);
         if (isToShow && originalStyle && originalStyle.display === 'none') {
             elStyles.display = '';
         }

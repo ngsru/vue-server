@@ -501,6 +501,32 @@ describe('v-repeat', function () {
         });
     });
 
+
+    it('should ignore v-if', function () {
+        expect($('#v-repeat .with-v-if').length).toEqual(3);
+    });
+
+    it('should ignore v-if with v-component', function () {
+        expect($('#v-repeat .with-v-if-comoonent').length).toEqual(3);
+    });
+
+
+    it('should use items\'s scope for v-show', function () {
+        var report = [];
+        $('#v-repeat .with-v-show').each(function() {
+            report.push($(this).attr('style'));
+        });
+        expect(report.join('')).toEqual('');
+    });
+
+    it('with v-component should use parent\'s scope for v-show', function () {
+        var report = [];
+        $('#v-repeat .with-v-show-component').each(function() {
+            report.push($(this).attr('style'));
+        });
+        expect(report.join('')).toEqual('');
+    });
+
 });
 
 // v-model - begin
