@@ -600,13 +600,20 @@ var scope = {
             } else {
                 // Data types
                 if (descriptor.type) {
-                    if (!value || value.constructor != descriptor.type) {
-                        var type;
-                        if (value === null || value === undefined) {
-                            type = value;
-                        } else {
-                            type = value.constructor.name;
-                        }
+                    var hasTypeError = false;
+                    var type;
+
+                    if (value === null || value === undefined) {
+                        hasTypeError = true;
+                        type = value;
+                    }
+
+                    if (value.constructor != descriptor.type) {
+                        hasTypeError = true;
+                        type = value.constructor.name;
+                    }
+
+                    if (hasTypeError) {
                         vm.$logger.warn(
                             'Invalid prop: type check failed for "' + propName + '". Expected ' +
                                 descriptor.type.name + ', got ' + type,

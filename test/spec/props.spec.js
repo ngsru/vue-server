@@ -4,7 +4,8 @@ var $;
 var contentComponent = {
     data: function () {
         return {
-            transmit: 'value present'
+            transmit: 'value present',
+            bool: false
         };
     },
     template: [
@@ -13,6 +14,7 @@ var contentComponent = {
             '<as-object id="plain" value="{{transmit}}"></as-object>',
             '<as-object id="v-bind" v-bind:value="transmit"></as-object>',
             '<type value="{{transmit}}"></type>',
+            '<type-boolean value="{{bool}}"></type-boolean>',
             '<type-default value="{{transmit}}"></type-default>',
             '<default-straight></default-straight>',
             '<default-function></default-function>',
@@ -43,7 +45,14 @@ var contentComponent = {
             },
             template: '<div>{{value}}</div>'
         },
-
+        'type-boolean': {
+            props: {
+                value: {
+                    type: Boolean
+                }
+            },
+            template: '<div>{{value === false}}</div>'
+        },
         'type-default': {
             props: {
                 value: {
@@ -130,6 +139,10 @@ describe('props should be able', function () {
 
     it('to use type option', function () {
         expect($('type > div').text()).toEqual('');
+    });
+
+    it('to use type Boolean option correctly', function () {
+        expect($('type-boolean > div').text()).toEqual('true');
     });
 
     it('to use type option with default option correctly', function () {
