@@ -199,7 +199,7 @@ var builders = {
     },
 
     getRepeatData: function (vm, dir) {
-        var value = vm.$get(dir.expression);
+        var value = common.getValue(vm, dir.get);
         var array;
 
         if (!value) {
