@@ -1,6 +1,8 @@
 var common = require('./common');
 
 var renders = {
+    _attribsCache: {},
+
     render: function (vm) {
         return renders.renderTemplate(vm.$el.inner);
     },
@@ -41,20 +43,29 @@ var renders = {
 
     renderTag: function (element) {
         var tag = '<' + element.name;
+        var attribs = '';
 
         // Walk through tag attributes, collectig Vue directives
-        for (var key in element.attribs) {
-            if (
-                element.attribs[key] === undefined ||
-                element.attribs[key] === false ||
-                element.attribs[key] === null
-            ) {
-                continue;
+        if (!this._attribsCache[element.id]) {
+            for (var key in element.attribs) {
+                if (
+                    element.attribs[key] === undefined ||
+                    element.attribs[key] === false ||
+                    element.attribs[key] === null
+                ) {
+                    continue;
+                }
+                attribs += ' ' + key + '="' + element.attribs[key] + '"';
             }
-            tag += ' ' + key + '="' + element.attribs[key] + '"';
+
+            if (element.isAttribsStatic) {
+                this._attribsCache[element.id] = attribs;
+            }
+        } else {
+            attribs = this._attribsCache[element.id];
         }
 
-        tag += '>';
+        tag += attribs + '>';
 
         if (element.inner) {
             tag += renders.renderTemplate(element.inner);

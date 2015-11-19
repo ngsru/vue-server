@@ -69,6 +69,11 @@ var compilers = {
         }
 
         if (element.type === 'tag') {
+            if (element.isAttribsStatic && element.name !== 'option') {
+                element.compiled = true;
+                return;
+            }
+
             // v-model
             if (element.dirs.model) {
                 compilers.compileDirectiveModel(vm, element);

@@ -10,6 +10,10 @@ var tagsNotComponents = {
 };
 
 var builders = {
+    // _buildingMap: {},
+    
+    // _currentBuildingMap: null,
+
     build: function (vm, callback) {
         if (!vm.$el) {
             vm.__states.$logger.error('No $el in ViewModel', common.onLogMessage(vm));
@@ -23,6 +27,16 @@ var builders = {
         }
 
         vm.$el._isReadyToBuild = true;
+
+
+        // if (vm.$el.id) {
+        //     this._buildingMap[vm.$el.id] = {
+        //         elements: {}
+        //     };
+        //     this._currentBuildingMap = this._buildingMap[vm.$el.id];
+        // } else {
+        //     this._currentBuildingMap = null;
+        // }
 
         builders.buildElements(vm, vm.$el.inner);
 
