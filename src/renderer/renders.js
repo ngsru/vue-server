@@ -42,11 +42,12 @@ var renders = {
     },
 
     renderTag: function (element) {
-        var tag = '<' + element.name;
-        var attribs = '';
+        var tag;
 
         // Walk through tag attributes, collectig Vue directives
         if (!this._attribsCache[element.id]) {
+            tag = '<' + element.name;
+
             for (var key in element.attribs) {
                 if (
                     element.attribs[key] === undefined ||
@@ -55,17 +56,18 @@ var renders = {
                 ) {
                     continue;
                 }
-                attribs += ' ' + key + '="' + element.attribs[key] + '"';
+                tag += ' ' + key + '="' + element.attribs[key] + '"';
             }
+
+            tag += '>';
 
             if (element.isAttribsStatic) {
-                this._attribsCache[element.id] = attribs;
+                this._attribsCache[element.id] = tag;
             }
         } else {
-            attribs = this._attribsCache[element.id];
+            tag = this._attribsCache[element.id];
         }
 
-        tag += attribs + '>';
 
         if (element.inner) {
             tag += renders.renderTemplate(element.inner);
