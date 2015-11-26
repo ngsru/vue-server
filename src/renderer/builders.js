@@ -363,6 +363,7 @@ var builders = {
 
         element.attribs.is = undefined;
         element.attribs['wait-for'] = undefined;
+        element.isStaticTree = undefined;
 
         // If component exists
         if (component) {

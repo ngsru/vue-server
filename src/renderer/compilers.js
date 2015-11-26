@@ -50,6 +50,10 @@ var compilers = {
             return;
         }
 
+        if (element.isStaticTree) {
+            return;
+        }
+
         compilers.compileTag(vm, element);
 
         // Text node

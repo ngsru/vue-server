@@ -130,12 +130,16 @@ var getMetaValue = function (value) {
 };
 
 var makeTxtNode = function (current, value) {
+    var result; 
     if (value) {
+        result = getMetaValue(value);
         current.inner.push({
             'type': 'text',
-            'text': getMetaValue(value)
+            'text': result
         });
     }
+
+    return result;
 };
 
 var getElementId = function () {
@@ -564,8 +568,16 @@ var Compile = function (template) {
                     });
                 }
 
-                if (_.isEmpty(element.dirs) && isAttribsStatic) {
+                if (
+                    _.isEmpty(element.dirs) &&
+                    isAttribsStatic &&
+                    element.name !== 'partial' &&
+                    element.name !== 'slot'
+                ) {
                     element.isAttribsStatic = true;
+                    element.isStaticTree = true;
+                } else {
+                    element.isStaticTree = undefined;
                 }
 
                 current.inner.push(element);
@@ -577,14 +589,16 @@ var Compile = function (template) {
         },
 
         ontext: function (text) {
-            var caret;
-
             // If element is inside v-pre directive
             if (preIsActive) {
                 current.text += text;
 
             } else {
-                makeTxtNode(current, text.substring(caret, text.length));
+                var result = makeTxtNode(current, text);
+
+                if (typeof result === 'object') {
+                    current.isStaticTree = undefined;                    
+                }
             }
 
         },
@@ -605,6 +619,11 @@ var Compile = function (template) {
 
             if (!preIsActive || !preIsActiveDepth) {
                 preIsActive = false;
+
+
+                if (!current.isStaticTree) {
+                    current.parent.isStaticTree = undefined;
+                }
 
                 now = current;
                 current = current.parent;
