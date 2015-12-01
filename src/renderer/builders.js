@@ -366,7 +366,7 @@ var builders = {
 
     buildComponentContent: function (vm, element, options, component, componentName) {
         if (!component.__composed) {
-            component.__composed = common.composeComponent(component);
+            component.__composed = common.composeComponent(component, vm.$root.__states.mixin);
         }
 
         options.component = {

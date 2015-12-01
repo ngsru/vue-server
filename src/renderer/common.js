@@ -219,7 +219,7 @@ var common = {
         });
     },
 
-    composeComponent: function (component) {
+    composeComponent: function (component, globalMixin) {
         var options = {};
         var rawVm = {};
 
@@ -243,6 +243,12 @@ var common = {
                     }
                 }
             })();
+        }
+
+        // Global mixin via Vue.mixin = ...
+        if (globalMixin) {
+            options.mixins = options.mixins || [];
+            options.mixins = globalMixin.concat(options.mixins);
         }
 
         options.template = common.prepareTemplate(options.template, 'Component\'s template');

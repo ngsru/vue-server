@@ -96,7 +96,7 @@ var scope = {
                     type: 'document',
                     inner: tpl || []
                 };
-                vm.__states.TIMER = 0;
+                vm.__states.mixin = this.mixin;
             }
 
             // Setting component method to VM
