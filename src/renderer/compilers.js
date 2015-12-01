@@ -148,13 +148,9 @@ var compilers = {
                         if (name === 'class') {
                             (function () {
                                 var classList = [];
-                                var vClassItem;
 
                                 if (element.attribs.class) {
                                     classList = element.attribs.class.split(' ');
-                                    classList = classList.filter(function (item) {
-                                        return item;
-                                    });
                                 }
 
                                 if (Array.isArray(value)) {
@@ -215,13 +211,9 @@ var compilers = {
         // v-class
         if (element.dirs.class) {
             var classList;
-            var vClassItem;
 
             if (element.attribs.class) {
                 classList = element.attribs.class.split(' ');
-                classList = classList.filter(function (item) {
-                    return item;
-                });
             } else {
                 classList = [];
             }
@@ -284,7 +276,7 @@ var compilers = {
             styles = compilers.compileDirectiveShow(vm, element, originalStyle);
         }
 
-        if (_.size(styles)) {
+        if (common.size(styles)) {
             if (originalStyle) {
                 element.attribs.style = cssParser.stringify(common.extend(originalStyle, styles));
             } else {
@@ -334,7 +326,7 @@ var compilers = {
                 if (attrValue == vModelValue) {
                     element.attribs.checked = 'checked';
                 } else {
-                    delete element.attribs.checked;
+                    element.attribs.checked = undefined;
                 }
             }
         }
@@ -421,8 +413,7 @@ var compilers = {
             if (selectValueMap[common.getValue(vm, item.attribs.value)]) {
                 item.attribs.selected = 'selected';
             } else {
-                // Delete unnecessary "selected" attributes
-                delete item.attribs.selected;
+                item.attribs.selected = undefined;
             }
         }
     },

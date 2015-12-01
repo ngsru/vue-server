@@ -360,6 +360,10 @@ var common = {
                 return '-' + a.toLowerCase();
             }
         });
+    },
+
+    size: function(value) {
+        return Object.keys(value).length;
     }
 };
 

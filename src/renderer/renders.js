@@ -1,4 +1,4 @@
-var _ = require('underscore');
+var common = require('./common');
 
 var renders = {
     render: function (vm) {
@@ -14,7 +14,7 @@ var renders = {
 
             if (element.type === 'tag') {
                 if (
-                    (element.name === 'template' && _.size(element.dirs)) ||
+                    (element.name === 'template' && common.size(element.dirs)) ||
                     element.name === 'partial' ||
                     element.name === 'slot'
                 ) {

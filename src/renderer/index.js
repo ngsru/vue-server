@@ -1,4 +1,3 @@
-var _ = require('underscore');
 var log4js = require('log4js');
 
 var filtersGlobal = require('./../filters');

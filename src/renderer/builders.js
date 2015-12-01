@@ -1,4 +1,3 @@
-var _ = require('underscore');
 var common = require('./common.js');
 
 var tagsNotComponents = {
