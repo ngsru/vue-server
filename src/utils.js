@@ -1,5 +1,3 @@
-var colors = require('colors');
-
 var toString     = ({}).toString,
     def          = Object.defineProperty,
     OBJECT       = 'object',

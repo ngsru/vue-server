@@ -23,6 +23,14 @@ var VueRender = function (logger) {
             return this;
         }
 
+        // Precompiling global partials
+        for (var name in this._partials) {
+            this._partials[name] = common.prepareTemplate(
+                this._partials[name],
+                'Partial "' + name + '"'
+            );
+        }
+
         common.$logger = that.logger;
         scope.$logger = that.logger;
         scope.config = this.config;
@@ -78,7 +86,7 @@ var VueRender = function (logger) {
 
 
 
-    VueRoot.prototype.component = function (id, component) {
+    VueRoot.component = function (id, component) {
         if (!component) {
             this.logger.debug('global component\'s content is empty: "' + id + '"');
             return this;
@@ -89,7 +97,7 @@ var VueRender = function (logger) {
         return this;
     };
 
-    VueRoot.prototype.filter = function (id, filter) {
+    VueRoot.filter = function (id, filter) {
         if (!filter) {
             this.logger.debug('global filter\'s content is empty: "' + id + '"');
             return this;
@@ -100,7 +108,7 @@ var VueRender = function (logger) {
         return this;
     };
 
-    VueRoot.prototype.partial = function (id, partial) {
+    VueRoot.partial = function (id, partial) {
         if (!partial) {
             this.logger.debug('global partial\'s content is empty: "' + id + '"');
             return this;
@@ -111,6 +119,14 @@ var VueRender = function (logger) {
         return this;
     };
 
+    Object.defineProperty(VueRoot, 'mixin', {
+        get: function () {
+            return this.prototype.mixin;
+        },
+        set: function (val) {
+            this.prototype.mixin = val;
+        }
+    });
 
     // Check for VM ready
     VueRoot.prototype._checkVmsReady = function (vm) {
@@ -170,15 +186,6 @@ var VueRender = function (logger) {
             }
         };
     };
-
-    Object.defineProperty(VueRoot, 'mixin', {
-        get: function () {
-            return this.prototype.mixin;
-        },
-        set: function (val) {
-            this.prototype.mixin = val;
-        }
-    });
 
     VueRoot.prototype._logger = logger;
 

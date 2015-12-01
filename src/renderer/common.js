@@ -254,16 +254,12 @@ var common = {
         options.template = common.prepareTemplate(options.template, 'Component\'s template');
 
         if (options.partials) {
-
             for (var name in options.partials) {
-                (function () {
-                    options.partials[name] = common.prepareTemplate(
-                        options.partials[name],
-                        'Partial "' + name + '"'
-                    );
-                })();
+                options.partials[name] = common.prepareTemplate(
+                    options.partials[name],
+                    'Partial "' + name + '"'
+                );
             }
-
         }
 
         return {options: options, rawVm: rawVm};
