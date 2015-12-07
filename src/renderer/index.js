@@ -8,6 +8,15 @@ var scope = require('./scope.js');
 var compilers = require('./compilers.js');
 var renders = require('./renders.js');
 
+var systemOptions = {
+    filters: true,
+    partials: true,
+    components: true,
+    mixin: true,
+    config: true,
+    _logger: true
+};
+
 var VueRender = function (logger) {
     logger = logger || log4js.getLogger('[VueServer]');
 
@@ -16,7 +25,69 @@ var VueRender = function (logger) {
         var vm;
         var compileInProgress = false;
 
+        // Check for VM ready
+        this._checkVmsReady = function (vm) {
+            if (!vm._isReady) {
+                return false;
+            }
+
+            if (vm.__states.children) {
+                for (var item in vm.__states.children) {
+                    if (!this._checkVmsReady(vm.__states.children[item])) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        };
+
+        this._initLogger = function (config, logger) {
+            return {
+                _config: config,
+                _logger: logger,
+                log: function () {
+                    if (!this._config.silent) {
+                        this._logger.debug.apply(this._logger, arguments);
+                    }
+
+                    return this;
+                },
+                debug: function () {
+                    if (!this._config.silent && this._config.debug) {
+                        this._logger.debug.apply(this._logger, arguments);
+                    }
+
+                    return this;
+                },
+                info: function () {
+                    if (!this._config.silent && this._config.debug) {
+                        this._logger.info.apply(this._logger, arguments);
+                    }
+
+                    return this;
+                },
+                warn: function () {
+                    if (!this._config.silent) {
+                        this._logger.warn.apply(this._logger, arguments);
+                    }
+
+                    return this;
+                },
+                error: function () {
+                    if (!this._config.silent) {
+                        this._logger.error.apply(this._logger, arguments);
+                    }
+
+                    return this;
+                }
+            };
+        };
+
         this.logger = this._initLogger(this.config, this._logger);
+        common.$logger = this.logger;
+        scope.$logger = this.logger;
+        renders.$logger = this.logger;
 
         if (!instance) {
             that.logger.error('Can\'t initialize render: no root instance transmitted');
@@ -24,24 +95,35 @@ var VueRender = function (logger) {
         }
 
         // Precompiling global partials
-        for (var name in this._partials) {
-            this._partials[name] = common.prepareTemplate(
-                this._partials[name],
+        for (var name in this.partials) {
+            this.partials[name] = common.prepareTemplate(
+                this.partials[name],
                 'Partial "' + name + '"'
             );
         }
 
-        common.$logger = that.logger;
-        scope.$logger = that.logger;
+        // -------------------------
+        // Global prototype
+        var globalPrototype = {};
+        var proto = Object.getPrototypeOf(this);
+
+        for (var name in proto) {
+            if (systemOptions[name]) {
+                continue;
+            } else {
+                globalPrototype[name] = proto[name];
+            }
+        }
+
+        scope.globalPrototype = globalPrototype;
+        // -------------------------
+
         scope.config = this.config;
 
-        scope.filters = this._filters;
-        scope.partials = this._partials;
-        scope.components = this._components;
+        scope.filters = this.filters;
+        scope.partials = this.partials;
+        scope.components = this.components;
         scope.mixin = this.mixin || null;
-
-        renders.$logger = that.logger;
-
 
         vm = scope.initViewModel({
             parent: null,
@@ -83,16 +165,13 @@ var VueRender = function (logger) {
         return vm;
     };
 
-
-
-
     VueRoot.component = function (id, component) {
         if (!component) {
             this.logger.debug('global component\'s content is empty: "' + id + '"');
             return this;
         }
 
-        this.prototype._components[id] = component;
+        this.prototype.components[id] = component;
 
         return this;
     };
@@ -103,7 +182,7 @@ var VueRender = function (logger) {
             return this;
         }
 
-        this.prototype._filters[id] = filter;
+        this.prototype.filters[id] = filter;
 
         return this;
     };
@@ -114,7 +193,7 @@ var VueRender = function (logger) {
             return this;
         }
 
-        this.prototype._partials[id] = partial;
+        this.prototype.partials[id] = partial;
 
         return this;
     };
@@ -128,70 +207,11 @@ var VueRender = function (logger) {
         }
     });
 
-    // Check for VM ready
-    VueRoot.prototype._checkVmsReady = function (vm) {
-        if (!vm._isReady) {
-            return false;
-        }
-
-        if (vm.__states.children) {
-            for (var item in vm.__states.children) {
-                if (!this._checkVmsReady(vm.__states.children[item])) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    };
-
-    VueRoot.prototype._initLogger = function (config, logger) {
-        return {
-            _config: config,
-            _logger: logger,
-            log: function () {
-                if (!this._config.silent) {
-                    this._logger.debug.apply(this._logger, arguments);
-                }
-
-                return this;
-            },
-            debug: function () {
-                if (!this._config.silent && this._config.debug) {
-                    this._logger.debug.apply(this._logger, arguments);
-                }
-
-                return this;
-            },
-            info: function () {
-                if (!this._config.silent && this._config.debug) {
-                    this._logger.info.apply(this._logger, arguments);
-                }
-
-                return this;
-            },
-            warn: function () {
-                if (!this._config.silent) {
-                    this._logger.warn.apply(this._logger, arguments);
-                }
-
-                return this;
-            },
-            error: function () {
-                if (!this._config.silent) {
-                    this._logger.error.apply(this._logger, arguments);
-                }
-
-                return this;
-            }
-        };
-    };
-
     VueRoot.prototype._logger = logger;
 
-    VueRoot.prototype._components = {};
-    VueRoot.prototype._filters = filtersGlobal;
-    VueRoot.prototype._partials = {};
+    VueRoot.prototype.components = {};
+    VueRoot.prototype.filters = filtersGlobal;
+    VueRoot.prototype.partials = {};
 
     VueRoot.prototype.config = {
         debug: false,

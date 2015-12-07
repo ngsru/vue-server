@@ -32,7 +32,7 @@ var scope = {
         }
 
         // Init context
-        var vm = common.extend(rawVm, data);
+        var vm = common.extend(rawVm, data, this.globalPrototype);
         vm.__states = {};
         vm.__states.parent = contexts.parent;
         vm.__states.children = [];
