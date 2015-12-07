@@ -8,6 +8,8 @@ var excludeInstanceOptions = {
     'computed': true,
     'props': true,
     'el': true,
+    'elementDirective': true,
+    'parent': true,
     'template': true,
     'replace': true,
     'created': true,
@@ -342,8 +344,22 @@ var common = {
         });
     },
 
+    dashToUpperCamelCase: function (value) {
+        return this.dashToCamelCase(
+            value.replace(/^./, function (a) {
+                return a.toUpperCase();
+            })
+        );
+    },
+
     camelToDashCase: function (value) {
-        return value.replace(/[A-Z]/g, function (a) { return '-' + a.toLowerCase(); });
+        return value.replace(/[A-Z]/g, function (a, b) {
+            if (b === 0) {
+                return a.toLowerCase();
+            } else {
+                return '-' + a.toLowerCase();
+            }
+        });
     }
 };
 

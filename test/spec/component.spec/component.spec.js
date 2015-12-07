@@ -23,7 +23,9 @@ var contentComponent = {
         compName: {
             template: '<i>rakushka</i>'
         },
-
+        MyComponent: {
+            template: '<i>rakushka2</i>'
+        },
         compNameRep: {
             data: function () {
                 return {
@@ -77,6 +79,10 @@ describe('component', function () {
 
     it('should mount via custom tag in dashed-case', function () {
         expect($('#dash').html()).toEqual('<i>rakushka</i>');
+    });
+
+    it('should mount via custom tag in dashed-case even if first charaсter is upper-case', function () {
+        expect($('#dash-first-upper').html()).toEqual('<i>rakushka2</i>');
     });
 
     it('should mount via custom tag in dashed-case with v-repeat', function () {

@@ -68,6 +68,7 @@ var builders = {
                 (function () {
                     var name;
                     var cameledName;
+                    var upperCameledName;
                     var $components = builders.getAsset(vm, 'components');
                     if ($components[element.name]) {
                         name = element.name;
@@ -75,6 +76,11 @@ var builders = {
                         cameledName = common.dashToCamelCase(element.name);
                         if ($components[cameledName]) {
                             name = cameledName;
+                        } else {
+                            upperCameledName = common.dashToUpperCamelCase(element.name);
+                            if ($components[upperCameledName]) {
+                                name = upperCameledName;
+                            }
                         }
                     }
 
