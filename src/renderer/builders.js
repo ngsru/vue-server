@@ -1,6 +1,13 @@
 var _ = require('underscore');
 var common = require('./common.js');
 
+var tagsNotComponents = {
+    select: true,
+    input: true,
+    article: true,
+    main: true
+};
+
 var builders = {
     build: function (vm, callback) {
         if (!vm.$el) {
@@ -85,6 +92,14 @@ var builders = {
                     }
 
                     if (name) {
+
+                        if (tagsNotComponents[element.name]) {
+                            vm.$logger.debug(
+                                'Native tag "' + element.name + '" matched component name "' + name + '"', common.onLogMessage(vm)
+                            );
+                            return;
+                        }
+
                         element.dirs.component = {
                             value: name,
                             options: {}
