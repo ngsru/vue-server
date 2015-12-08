@@ -4,7 +4,9 @@ var tagsNotComponents = {
     select: true,
     input: true,
     article: true,
-    main: true
+    main: true,
+    form: true,
+    label: true
 };
 
 var builders = {
@@ -359,7 +361,7 @@ var builders = {
             }, options);
 
             options.childIndex = vm.__states.children.length;
-            vm.__states.children.push({});
+            vm.__states.children.push(null);
 
             // Async component
             if (typeof component === 'function') {

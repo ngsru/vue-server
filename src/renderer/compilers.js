@@ -1,6 +1,5 @@
 var cssParser = require('../css');
 var common = require('./common.js');
-var _ = require('underscore');
 
 var compilers = {
     compile: function (vm) {
@@ -163,7 +162,7 @@ var compilers = {
                                     }
                                 }
 
-                                element.attribs.class = _.uniq(classList).join(' ');
+                                element.attribs.class = common.arrayUnique(classList).join(' ');
                             })();
 
                             return;
@@ -239,7 +238,7 @@ var compilers = {
                 }
             }
 
-            element.attribs.class = _.uniq(classList).join(' ');
+            element.attribs.class = common.arrayUnique(classList).join(' ');
         }
 
         // v-style && v-show

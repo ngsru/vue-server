@@ -362,8 +362,22 @@ var common = {
         });
     },
 
-    size: function(value) {
+    size: function (value) {
         return Object.keys(value).length;
+    },
+
+    arrayUnique: function (array) {
+        var seen = [];
+        var result = [];
+
+        for (var i = 0; i < array.length; i++) {
+            if (seen.indexOf(array[i]) === -1) {
+                seen.push(array[i])
+                result.push(array[i]);
+            }
+        }
+
+        return result;
     }
 };
 
