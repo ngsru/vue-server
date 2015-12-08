@@ -61,6 +61,13 @@ var parseDirective = function (value) {
     return result;
 };
 
+var dashToCamelCase = function (value) {
+    return value.replace(/-(\w)/g, function (a, b) {
+        return b.toUpperCase();
+    });
+}
+
+
 var getMetaValue = function (value) {
     var result = [];
     var tokens = parsers.text.parse(value);
@@ -73,7 +80,6 @@ var getMetaValue = function (value) {
             }
 
             if (token.tag) {
-
                 var parsedToken = parsers.directive.parse(token.value)[0];
                 var exp = parsers.expression.parse(parsedToken.expression);
 
@@ -141,8 +147,9 @@ var getElementId = function () {
 var bindRE = /^:|^v-bind:/;
 var refRE = /^v-ref:/;
 var elRE = /^v-el:/;
-var onRE = /^@/;
+var onRE = /^@|^v-on:/;
 var argRE = /:(.*)$/;
+var onArgRE = /[:|@](.*)$/;
 var vForValRE = /\((.+)\)/;
 var isNumber = /^-?\d+/;
 
@@ -260,6 +267,24 @@ var Compile = function (template) {
                         })();
                     }
 
+                    // v-on:name
+                    if (name.match(onRE)) {
+                        (function () {
+                            var event = name.match(onArgRE);
+                            var parsedDir = parseDirective(attribs[name]);
+                            var handler = parsedDir[0].get;
+                            if (event) {
+                                element.dirs.on = {
+                                    value: {
+                                        event: event[1],
+                                        handler: handler,
+                                        hasArgs: /\((.*)\)/.test(value)
+                                    }
+                                };
+                            }
+                        })();
+                    }
+
                     // v-ref:name
                     if (name.match(refRE)) {
                         (function () {
@@ -267,7 +292,7 @@ var Compile = function (template) {
 
                             if (ref) {
                                 element.dirs.ref = {
-                                    value: ref,
+                                    value: dashToCamelCase(ref),
                                     options: {
                                         target: '$refs'
                                     }
@@ -283,7 +308,7 @@ var Compile = function (template) {
 
                             if (el) {
                                 element.dirs.el = {
-                                    value: el,
+                                    value: dashToCamelCase(el),
                                     options: {
                                         target: '$els'
                                     }

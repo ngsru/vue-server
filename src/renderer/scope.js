@@ -102,7 +102,7 @@ var scope = {
             // Setting component method to VM
             common.extend(vm, vm.$options.methods);
 
-            scope.setSystemEventListeners(vm);
+            scope.setEventListeners(vm);
         }
 
         scope.markKeyElement(vm);
@@ -322,7 +322,7 @@ var scope = {
 
         scope.buildComputedProps(vm);
         scope.markKeyElement(vm);
-        scope.setSystemEventListeners(vm);
+        scope.setEventListeners(vm);
         process.nextTick(function () {
             builders.build(vm, function () {
                 vm._isReady = true;
@@ -363,7 +363,7 @@ var scope = {
         }
     },
 
-    setSystemEventListeners: function (vm) {
+    setEventListeners: function (vm) {
         vm.$on('vueServer:action.rebuildComputed', function () {
             scope.buildComputedProps(vm);
         });
@@ -388,6 +388,23 @@ var scope = {
                 vm.$emit('hook:readyBe');
             }
         });
+
+        // Cross-VM events defined inside templates
+        if (vm.$el.dirs && vm.$el.dirs.on) {
+            if (vm.$el.dirs.on.value.hasArgs) {
+                vm.$on(
+                    vm.$el.dirs.on.value.event,
+                    function () {
+                        vm.$el.dirs.on.value.handler.call(vm.$parent, vm.$parent)
+                    }
+                );
+            } else {
+                vm.$on(
+                    vm.$el.dirs.on.value.event,
+                    common.getValue(vm.$parent, vm.$el.dirs.on.value.handler).bind(vm.$parent)
+                );
+            }
+        }
     },
 
     buildWithedData: function (vm, contexts) {
