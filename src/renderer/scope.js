@@ -56,7 +56,7 @@ var scope = {
             options.components = common.extend({}, this.components, contexts.components, options.components);
         }
 
-        vm.$logger = this.$logger;
+        vm.__states.$logger = this.$logger;
 
         vm.$ = {};
         vm.$$ = {};
@@ -90,7 +90,7 @@ var scope = {
             // Creating special container for root component
             } else {
                 if (!tpl) {
-                    vm.$logger.error('There is no $root template. Can\'t start rendering');
+                    vm.__states.$logger.error('There is no $root template. Can\'t start rendering');
                 }
                 vm.$el = {
                     type: 'document',
@@ -489,7 +489,7 @@ var scope = {
             if (dataType === 'function') {
                 result = data.call(vm) || {};
             } else {
-                vm.$logger.warn('The "data" option type is not valid', common.onLogMessage(vm));
+                vm.__states.$logger.warn('The "data" option type is not valid', common.onLogMessage(vm));
             }
         }
         return result;
@@ -514,13 +514,13 @@ var scope = {
                     try {
                         vm[name] = item.call(vm);
                     } catch (e) {
-                        vm.$logger.debug('Computed property "' + name + '" compilation error', common.onLogMessage(vm), '\n', e);
+                        vm.__states.$logger.debug('Computed property "' + name + '" compilation error', common.onLogMessage(vm), '\n', e);
                     }
                 } else {
                     try {
                         vm[name] = item.get.call(vm);
                     } catch (e) {
-                        vm.$logger.debug('Computed property "' + name + '" compilation error', common.onLogMessage(vm), '\n', e);
+                        vm.__states.$logger.debug('Computed property "' + name + '" compilation error', common.onLogMessage(vm), '\n', e);
                     }
                 }
             }
@@ -611,7 +611,7 @@ var scope = {
 
                 // Required field
                 if (descriptor.required) {
-                    vm.$logger.warn('Property"' + propName + '" is required');
+                    vm.__states.$logger.warn('Property"' + propName + '" is required');
                     return;
                 }
             } else {
@@ -631,7 +631,7 @@ var scope = {
                     }
 
                     if (hasTypeError) {
-                        vm.$logger.warn(
+                        vm.__states.$logger.warn(
                             'Invalid prop: type check failed for "' + propName + '". Expected ' +
                                 descriptor.type.name + ', got ' + type,
                             common.onLogMessage(vm)
@@ -642,7 +642,7 @@ var scope = {
 
                 // Data validation
                 if (rawValue && descriptor.validator && !descriptor.validator(value)) {
-                    vm.$logger.warn('Invalid prop: custom validator check failed for "' + propName +
+                    vm.__states.$logger.warn('Invalid prop: custom validator check failed for "' + propName +
                         '"', common.onLogMessage(vm));
                     return;
                 }
@@ -692,7 +692,7 @@ var scope = {
             options.filters = common.extend({}, this.filters, contexts.filters, options.filters);
         }
 
-        vm.$logger = this.$logger;
+        vm.__states.$logger = this.$logger;
 
         vm.$refs = {};
         vm.$els = {};

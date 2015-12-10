@@ -12,7 +12,7 @@ var tagsNotComponents = {
 var builders = {
     build: function (vm, callback) {
         if (!vm.$el) {
-            vm.$logger.error('No $el in ViewModel', common.onLogMessage(vm));
+            vm.__states.$logger.error('No $el in ViewModel', common.onLogMessage(vm));
             return;
         }
 
@@ -29,7 +29,7 @@ var builders = {
         if (vm.__states.children.length) {
             vm.$on('_vueServer.childVmReady', function () {
                 if (!vm.__states.children) {
-                    vm.$logger.error('Something went wrong while building children VMs. Please report the error.');
+                    vm.__states.$logger.error('Something went wrong while building children VMs. Please report the error.');
                     return;
                 }
                 vm.__states.childrenReadyCount++;
@@ -95,7 +95,7 @@ var builders = {
                     if (name) {
 
                         if (tagsNotComponents[element.name]) {
-                            vm.$logger.debug(
+                            vm.__states.$logger.debug(
                                 'Native tag "' + element.name + '" matched component name "' + name + '"', common.onLogMessage(vm)
                             );
                             return;
@@ -212,9 +212,9 @@ var builders = {
         } else {
             logMsg = 'There is no partial "' + partialName + '"';
             if (meta.partialName) {
-                vm.$logger.warn(logMsg, common.onLogMessage(vm));
+                vm.__states.$logger.warn(logMsg, common.onLogMessage(vm));
             } else {
-                vm.$logger.debug(logMsg, common.onLogMessage(vm));
+                vm.__states.$logger.debug(logMsg, common.onLogMessage(vm));
             }
             meta.onDoesNotExist();
         }
@@ -244,7 +244,7 @@ var builders = {
         try {
             value = common.applyFilters(vm, dir.filters, value);
         } catch (e) {
-            vm.$logger.warn(e, common.onLogMessage(vm));
+            vm.__states.$logger.warn(e, common.onLogMessage(vm));
         }
 
         return value;
@@ -429,9 +429,9 @@ var builders = {
         }
 
         if (componentName) {
-            vm.$logger.warn(logMessage, common.onLogMessage(vm));
+            vm.__states.$logger.warn(logMessage, common.onLogMessage(vm));
         } else {
-            vm.$logger.debug(logMessage, common.onLogMessage(vm));
+            vm.__states.$logger.debug(logMessage, common.onLogMessage(vm));
         }
     },
 
@@ -456,7 +456,7 @@ var builders = {
                     if (!slots.unnamed) {
                         slots.unnamed = tplInner[i];
                     } else {
-                        vm.$logger.warn('Duplicate unnamed <slot>', common.onLogMessage(vm));
+                        vm.__states.$logger.warn('Duplicate unnamed <slot>', common.onLogMessage(vm));
                     }
                 }
             }

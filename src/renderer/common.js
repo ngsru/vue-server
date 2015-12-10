@@ -45,10 +45,10 @@ var common = {
             try {
                 result = value.call(vm, vm);
             } catch (e) {
-                vm.$logger.warn('Error executing expression [begin]', common.onLogMessage(vm));
-                vm.$logger.warn(e.toString());
-                vm.$logger.warn(value.toString());
-                vm.$logger.warn('Error executing expression [end]');
+                vm.__states.$logger.warn('Error executing expression [begin]', common.onLogMessage(vm));
+                vm.__states.$logger.warn(e.toString());
+                vm.__states.$logger.warn(value.toString());
+                vm.__states.$logger.warn('Error executing expression [end]');
             }
         } else {
             result = value;
@@ -80,7 +80,7 @@ var common = {
         try {
             value = this.applyFilters(vm, config.filters, value);
         } catch (e) {
-            vm.$logger.warn('Error executing filter:', e.toString(), common.onLogMessage(vm));
+            vm.__states.$logger.warn('Error executing filter:', e.toString(), common.onLogMessage(vm));
         }
 
         if (options) {
@@ -144,7 +144,7 @@ var common = {
         };
 
         if (!filter) {
-            vm.$logger.warn('Unknown filter "' + meta.name + '"', common.onLogMessage(vm));
+            vm.__states.$logger.warn('Unknown filter "' + meta.name + '"', common.onLogMessage(vm));
             filter = replacement;
         }
 
@@ -204,8 +204,8 @@ var common = {
     },
 
     onLogMessage: function (vm) {
-        if (vm.$logger._config.onLogMessage) {
-            return vm.$logger._config.onLogMessage(vm);
+        if (vm.__states.$logger._config.onLogMessage) {
+            return vm.__states.$logger._config.onLogMessage(vm);
         }
 
         return '';
