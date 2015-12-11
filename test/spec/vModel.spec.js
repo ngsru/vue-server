@@ -42,7 +42,10 @@ var contentComponent = {
         '<div id="checkbox-multiple-filter">',
             '<input type="checkbox" value="Jack" v-model="checkboxMultiple | replacer2" />',
             '<input type="checkbox" value="Daniels" v-model="checkboxMultiple | replacer2" />',
-        '</div>'
+        '</div>',
+        '<div id="radio-dyn-value">',
+            '<input type="radio" v-model="radioModel" :value="radioValue" />',
+        '</div>',
     ].join(''),
     data: function () {
         return {
@@ -58,7 +61,10 @@ var contentComponent = {
             valueMultiple2: ['mazda', 333],
 
             checkbox: true,
-            checkboxMultiple: ['Daniels']
+            checkboxMultiple: ['Daniels'],
+
+            radioModel: 'test',
+            radioValue: 'test'
         };
     },
 
@@ -142,6 +148,13 @@ describe('v-model', function () {
                 isSelected.push(Boolean($(this).attr('checked')));
             });
             expect(isSelected.join(',')).toEqual('true,false');
+        });
+    });
+
+    describe('on <input type="radio" />', function () {
+        it('should set "checked" if value matches its name (dynamic)', function () {
+            expect($('#radio-dyn-value input').attr('checked')).toEqual('checked');
+            expect($('#radio-dyn-value input').attr('value')).toEqual('test');
         });
     });
 });

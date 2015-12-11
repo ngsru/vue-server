@@ -117,7 +117,7 @@ var builders = {
                     )
                 ) {
                     element.dirs.component = {
-                        value: common.getAttribute(vm, element, 'is'),
+                        value: common.getAttribute(vm, element, 'is', true),
                         options: {}
                     };
                 }
@@ -160,7 +160,7 @@ var builders = {
                 if (element.name === 'partial') {
                     builders.getPartial({
                         'vm': vm,
-                        'partialName': common.getAttribute(vm, element, 'name'),
+                        'partialName': common.getAttribute(vm, element, 'name', true),
                         'onDoesExist': function (partial) {
                             element.inner = partial();
                         },

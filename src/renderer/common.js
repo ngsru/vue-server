@@ -98,7 +98,7 @@ var common = {
         return value;
     },
 
-    getAttribute: function (vm, element, name) {
+    getAttribute: function (vm, element, name, setCompiled) {
         var value;
         if (element.dirs.bind && element.dirs.bind[name]) {
             value = common.execute(
@@ -112,7 +112,9 @@ var common = {
                     isClean: false
                 }
             );
-            element.dirs.bind[name].isCompiled = true;
+            if (setCompiled) {
+                element.dirs.bind[name].isCompiled = true;
+            }
         } else {
             value = common.execute(
                 vm,

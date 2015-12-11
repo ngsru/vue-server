@@ -288,14 +288,14 @@ var compilers = {
     compileDirectiveModel: function (vm, element) {
         var selectOptions;
         var vModelValue;
-        var attrValue;
         var selectValueMap;
         var selectStaticOption;
 
-        attrValue = common.execute(vm, element.attribs.value);
+        var attrValue = common.getAttribute(vm, element, 'value');
+        var attrType = common.getAttribute(vm, element, 'type');
 
         // If tag has "value" property then it should override v-model value
-        if (attrValue && element.attribs.type == 'text') {
+        if (attrValue && attrType == 'text') {
             return;
         }
 
@@ -307,13 +307,13 @@ var compilers = {
         });
 
         if (element.name === 'input') {
-            if (element.attribs.type === 'text' || !element.attribs.type) {
+            if (!attrType || attrType === 'text') {
                 element.attribs.value = common.cleanValue(vModelValue);
             }
 
-            if (element.attribs.type === 'checkbox' && vModelValue) {
+            if (attrType === 'checkbox' && vModelValue) {
                 if (Array.isArray(vModelValue)) {
-                    if (vModelValue.indexOf(element.attribs.value) !== -1) {
+                    if (vModelValue.indexOf(attrValue) !== -1) {
                         element.attribs.checked = 'checked';
                     }
                 } else {
@@ -321,8 +321,8 @@ var compilers = {
                 }
             }
 
-            if (element.attribs.type === 'radio') {
-                if (attrValue == vModelValue) {
+            if (attrType === 'radio') {
+                if (attrValue && attrValue == vModelValue) {
                     element.attribs.checked = 'checked';
                 } else {
                     element.attribs.checked = undefined;
@@ -387,7 +387,7 @@ var compilers = {
 
             for (var k = 0, o = element.inner.length; k < o; k++) {
                 var item = element.inner[k];
-                compilers.prepareSelecOption(vm, item, vModelValue, selectValueMap);
+                compilers.prepareSelectOption(vm, item, vModelValue, selectValueMap);
             }
         }
 
@@ -396,9 +396,9 @@ var compilers = {
         }
     },
 
-    prepareSelecOption: function (vm, item, vModelValue, selectValueMap) {
+    prepareSelectOption: function (vm, item, vModelValue, selectValueMap) {
         if (item.name === '$merge') {
-            compilers.prepareSelecOption(vm, item.inner[0], vModelValue, selectValueMap);
+            compilers.prepareSelectOption(vm, item.inner[0], vModelValue, selectValueMap);
             return;
         }
 
