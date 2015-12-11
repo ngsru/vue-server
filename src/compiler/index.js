@@ -292,10 +292,7 @@ var Compile = function (template) {
 
                             if (ref) {
                                 element.dirs.ref = {
-                                    value: dashToCamelCase(ref),
-                                    options: {
-                                        target: '$refs'
-                                    }
+                                    value: dashToCamelCase(ref)
                                 };
                             }
                         })();
@@ -308,10 +305,7 @@ var Compile = function (template) {
 
                             if (el) {
                                 element.dirs.el = {
-                                    value: dashToCamelCase(el),
-                                    options: {
-                                        target: '$els'
-                                    }
+                                    value: dashToCamelCase(el)
                                 };
                             }
                         })();
@@ -522,19 +516,13 @@ var Compile = function (template) {
 
                     if (name === 'v-ref') {
                         element.dirs.ref = {
-                            value: attribs['v-ref'],
-                            options: {
-                                target: '$'
-                            }
+                            value: attribs['v-ref']
                         };
                     }
 
                     if (name === 'v-el') {
                         element.dirs.el = {
-                            value: attribs['v-el'],
-                            options: {
-                                target: '$$'
-                            }
+                            value: attribs['v-el']
                         };
                     }
 

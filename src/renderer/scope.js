@@ -58,10 +58,7 @@ var scope = {
 
         vm.__states.$logger = this.$logger;
 
-        vm.$ = {};
-        vm.$$ = {};
-        vm.$refs = {};
-        vm.$els = {};
+        this.setRefsAndEls(vm);
         vm.$el = contexts.element;
         vm.$options = options;
         vm.$data = data;
@@ -252,14 +249,13 @@ var scope = {
 
             if (options.ref) {
                 (function () {
-                    var prop = options.ref.options.target;
                     var name = common.dashToCamelCase(options.ref.value);
 
                     if (newVm.__states.isRepeat || newVm.__states.parent.__states.notPublic) {
-                        $target[prop][name] = $target[prop][name] || [];
-                        $target[prop][name].push(newVm);
+                        $target.$refs[name] = $target.$refs[name] || [];
+                        $target.$refs[name].push(newVm);
                     } else {
-                        $target[prop][name] = newVm;
+                        $target.$refs[name] = newVm;
                     }
 
                 })();
@@ -303,10 +299,7 @@ var scope = {
     resetVmInstance: function (vm) {
         // Command to stop building not relevant children VMs
         vm.$broadcast('_vueServer.stopBuilding');
-        vm.$ = {};
-        vm.$$ = {};
-        vm.$refs = {};
-        vm.$els = {};
+        this.setRefsAndEls(vm, true);
         vm._events = {};
         vm._eventsCount = {};
         vm._eventCancelled = false;
@@ -694,8 +687,7 @@ var scope = {
 
         vm.__states.$logger = this.$logger;
 
-        vm.$refs = {};
-        vm.$els = {};
+        this.setRefsAndEls(vm);
         vm.$el = contexts.element;
         vm.$options = options;
         vm.$parent = contexts.parentLink ? contexts.parentLink : contexts.parent;
@@ -733,6 +725,24 @@ var scope = {
         }
 
         return vm;
+    },
+
+    setRefsAndEls: function (vm, isReset) {
+        vm.$refs = {};
+        vm.$els = {};
+        if (isReset) {
+            return;
+        }
+        Object.defineProperty(vm, '$', {
+            get: function () {
+                return this.$refs;
+            }
+        });
+        Object.defineProperty(vm, '$$', {
+            get: function () {
+                return this.$els;
+            }
+        });
     }
 };
 

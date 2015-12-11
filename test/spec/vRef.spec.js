@@ -8,6 +8,12 @@ var contentComponent = {
             '<div id="array">',
                 '<comp-name v-for="item in array" v-ref:array :inh="parentVal"></comp-name>',
             '</div>',
+            '<div id="old-in-new">',
+                '<comp-name v-ref="oldInNew"></comp-name>',
+            '</div>',
+            '<div id="new-in-old">',
+                '<comp-name v-ref:new-in-old></comp-name>',
+            '</div>',
         '</div>'
     ].join(''),
     data: function () {
@@ -39,15 +45,27 @@ var contentComponent = {
 
     },
 
-    activateBe: function (insert) {
+    activateBe: function (done) {
         this.parentVal = 'second-';
-        this.$refs.refName.prop = 'modified';
+        try {
+            this.$refs.refName.prop = 'modified';
+        } catch (e) {}
 
-        this.$refs.array.forEach(function(vm) {
-            // Not working in wait-for/activate component right now. We lose the changes on rebuilding
-            vm.prop = 'modified';
-        });
-        insert();
+        try {
+            this.$refs.array.forEach(function(vm) {
+                // Not working in wait-for/activate component right now. We lose the changes on rebuilding
+                vm.prop = 'modified';
+            });
+        } catch (e) {}
+
+        try {
+            this.$refs.oldInNew.prop = 'modified';
+        } catch (e) {}
+
+        try {
+            this.$.newInOld.prop = 'modified';
+        } catch (e) {}
+        done();
     }
 };
 
@@ -63,9 +81,15 @@ describe('v-ref', function () {
         expect($('#dash-to-camel').html()).toEqual('<i>modified</i>');
     });
 
-
     it('should work with v-for as array', function () {
-        // expect($('#array').html()).toEqual('<i>second-modified</i><i>second-modified</i>');
         expect($('#array').html()).toEqual('<i>second-123</i><i>second-123</i>');
+    });
+
+    it('in old format should add refs into $refs', function () {
+        expect($('#old-in-new').html()).toEqual('<i>modified</i>');
+    });
+
+    it('in new format should add refs into $', function () {
+        expect($('#new-in-old').html()).toEqual('<i>modified</i>');
     });
 });
