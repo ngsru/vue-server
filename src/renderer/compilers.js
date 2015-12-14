@@ -126,7 +126,9 @@ var compilers = {
                             filters: element.dirs.bind[name].value.filters,
                         });
 
-                        if (name === 'style') {
+                        var valueIsString = typeof value === 'string';
+
+                        if (name === 'style' && !valueIsString) {
                             // Need to consider element's own styles
                             var originalStyle = element.attribs.style;
                             if (originalStyle) {
@@ -144,7 +146,7 @@ var compilers = {
                             return;
                         }
 
-                        if (name === 'class') {
+                        if (name === 'class' && !valueIsString) {
                             (function () {
                                 var classList = [];
 
@@ -162,7 +164,7 @@ var compilers = {
                                     }
                                 }
 
-                                element.attribs.class = common.arrayUnique(classList).join(' ');
+                                element.attribs.class = common.filterClassNames(classList).join(' ');
                             })();
 
                             return;
@@ -238,7 +240,7 @@ var compilers = {
                 }
             }
 
-            element.attribs.class = common.arrayUnique(classList).join(' ');
+            element.attribs.class = common.filterClassNames(classList).join(' ');
         }
 
         // v-style && v-show

@@ -368,11 +368,14 @@ var common = {
         return Object.keys(value).length;
     },
 
-    arrayUnique: function (array) {
+    filterClassNames: function (array) {
         var seen = [];
         var result = [];
 
         for (var i = 0; i < array.length; i++) {
+            if (!array[i]) {
+                continue;
+            }
             if (seen.indexOf(array[i]) === -1) {
                 seen.push(array[i])
                 result.push(array[i]);
