@@ -77,7 +77,7 @@ var renders = {
         }
 
         // If there are many nested $merge
-        if (elementChild.name === '$merge') {
+        if (elementChild.name === '$merge' || elementChild.name === 'template') {
             return renders.renderTemplate(element.inner);
         }
 
@@ -99,8 +99,8 @@ var renders = {
             }
 
             element.attribs[key] = elementChild.attribs[key];
-
         }
+
 
         return renders.renderTag(element);
     },
