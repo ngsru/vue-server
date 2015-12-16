@@ -126,9 +126,7 @@ var compilers = {
                             filters: element.dirs.bind[name].value.filters,
                         });
 
-                        var valueIsString = typeof value === 'string';
-
-                        if (name === 'style' && !valueIsString) {
+                        if (name === 'style') {
                             // Need to consider element's own styles
                             var originalStyle = element.attribs.style;
                             if (originalStyle) {
@@ -138,7 +136,9 @@ var compilers = {
                             }
 
                             // Drop value if class is Array
-                            if (Array.isArray(value)) {
+                            if (typeof value === 'string') {
+                                value = cssParser.parse(value);
+                            } else if (Array.isArray(value)) {
                                 value = common.extend.apply(common, value);
                             }
                             element.attribs[name] = cssParser.stringify(common.extend(originalStyle, value));
@@ -146,7 +146,7 @@ var compilers = {
                             return;
                         }
 
-                        if (name === 'class' && !valueIsString) {
+                        if (name === 'class') {
                             (function () {
                                 var classList = [];
 
@@ -154,8 +154,10 @@ var compilers = {
                                     classList = element.attribs.class.split(' ');
                                 }
 
-                                if (Array.isArray(value)) {
-                                    classList = value;
+                                if (typeof value === 'string') {
+                                    classList = classList.concat(value.split(' '));
+                                } else if (Array.isArray(value)) {
+                                    classList = classList.concat(value);
                                 } else {
                                     for (var name in value) {
                                         if (value[name]) {
