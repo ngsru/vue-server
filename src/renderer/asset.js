@@ -108,9 +108,11 @@ exports.compileTemplate = function ($logger, template, logName) {
 }
 
 exports.composeComponent = function ($logger, component, globalMixin) {
-    var options = {};
+    var Component = function () {};
+    var options = Component.prototype;
     var toData = {};
     var instancePropsMap = objectUtils.getNames(component);
+    Component.__isCtor = true;
 
     options.methods = component.methods || {};
 
@@ -166,5 +168,5 @@ exports.composeComponent = function ($logger, component, globalMixin) {
         }
     }
 
-    return options;
+    return Component;
 }

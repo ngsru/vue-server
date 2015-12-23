@@ -12,7 +12,7 @@ var scope = {
         var data = {};
 
         if (contexts.isComponent) {
-            common.extend(options, contexts.component);
+            common.extend(options, new contexts.component());
 
         // Inherit data to v-repeat items contexts
         } else if (contexts.isRepeat) {
@@ -211,8 +211,8 @@ var scope = {
             var $target = scope.getRealParent(vm);
 
             if (this.__states.VMsDetached && options.component && !options.repeatData) {
-                presentVm = this.__states.VMsDetached[options.element.id + options.component.name];
-                this.__states.VMsDetached[options.element.id + options.component.name] = undefined;
+                presentVm = this.__states.VMsDetached[options.element.id + options.componentName];
+                this.__states.VMsDetached[options.element.id + options.componentName] = undefined;
             }
 
             if (!presentVm) {
@@ -261,7 +261,7 @@ var scope = {
 
             if (!this.__states.notPublic && options.component && !options.repeatData) {
                 this.__states.VMs = this.__states.VMs || {};
-                this.__states.VMs[options.element.id + options.component.name] = newVm;
+                this.__states.VMs[options.element.id + options.componentName] = newVm;
             }
         };
 

@@ -16,6 +16,48 @@ var systemOptions = {
     _logger: true
 };
 
+var initLogger = function (config, logger) {
+    return {
+        _config: config,
+        _logger: logger,
+        log: function () {
+            if (!this._config.silent) {
+                this._logger.debug.apply(this._logger, arguments);
+            }
+
+            return this;
+        },
+        debug: function () {
+            if (!this._config.silent && this._config.debug) {
+                this._logger.debug.apply(this._logger, arguments);
+            }
+
+            return this;
+        },
+        info: function () {
+            if (!this._config.silent && this._config.debug) {
+                this._logger.info.apply(this._logger, arguments);
+            }
+
+            return this;
+        },
+        warn: function () {
+            if (!this._config.silent) {
+                this._logger.warn.apply(this._logger, arguments);
+            }
+
+            return this;
+        },
+        error: function () {
+            if (!this._config.silent) {
+                this._logger.error.apply(this._logger, arguments);
+            }
+
+            return this;
+        }
+    };
+};
+
 var VueRender = function (logger) {
     logger = logger || log4js.getLogger('[VueServer]');
 
@@ -41,49 +83,6 @@ var VueRender = function (logger) {
             return true;
         };
 
-        this._initLogger = function (config, logger) {
-            return {
-                _config: config,
-                _logger: logger,
-                log: function () {
-                    if (!this._config.silent) {
-                        this._logger.debug.apply(this._logger, arguments);
-                    }
-
-                    return this;
-                },
-                debug: function () {
-                    if (!this._config.silent && this._config.debug) {
-                        this._logger.debug.apply(this._logger, arguments);
-                    }
-
-                    return this;
-                },
-                info: function () {
-                    if (!this._config.silent && this._config.debug) {
-                        this._logger.info.apply(this._logger, arguments);
-                    }
-
-                    return this;
-                },
-                warn: function () {
-                    if (!this._config.silent) {
-                        this._logger.warn.apply(this._logger, arguments);
-                    }
-
-                    return this;
-                },
-                error: function () {
-                    if (!this._config.silent) {
-                        this._logger.error.apply(this._logger, arguments);
-                    }
-
-                    return this;
-                }
-            };
-        };
-
-        this.logger = this._initLogger(this.config, this._logger);
         scope.$logger = this.logger;
         renders.$logger = this.logger;
 
@@ -166,9 +165,15 @@ var VueRender = function (logger) {
         return vm;
     };
 
+    VueRoot.extend = function (instance) {
+        if (instance) {
+            return asset.composeComponent(this.prototype.logger, instance, this.mixin);
+        }
+    };
+
     VueRoot.component = function (id, component) {
         if (!component) {
-            this.logger.debug('global component\'s content is empty: "' + id + '"');
+            this.prototype.logger.debug('global component\'s content is empty: "' + id + '"');
             return this;
         }
 
@@ -179,7 +184,7 @@ var VueRender = function (logger) {
 
     VueRoot.filter = function (id, filter) {
         if (!filter) {
-            this.logger.debug('global filter\'s content is empty: "' + id + '"');
+            this.prototype.logger.debug('global filter\'s content is empty: "' + id + '"');
             return this;
         }
 
@@ -190,7 +195,7 @@ var VueRender = function (logger) {
 
     VueRoot.partial = function (id, partial) {
         if (!partial) {
-            this.logger.debug('global partial\'s content is empty: "' + id + '"');
+            this.prototype.logger.debug('global partial\'s content is empty: "' + id + '"');
             return this;
         }
 
@@ -222,6 +227,8 @@ var VueRender = function (logger) {
         onLogMessage: null
     };
     VueRoot.config = VueRoot.prototype.config;
+
+    VueRoot.prototype.logger = initLogger(VueRoot.config, logger);
 
     return VueRoot;
 };

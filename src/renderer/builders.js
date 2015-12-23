@@ -336,13 +336,6 @@ var builders = {
         var componentName = common.getValue(vm, element.dirs.component.value);
         var component = builders.getAsset(vm, 'components')[componentName];
 
-        if (element.attribs['wait-for']) {
-            element.dirs.component.options.waitFor = element.attribs['wait-for'];
-        }
-
-        element.attribs.is = undefined;
-        element.attribs['wait-for'] = undefined;
-
         // If component exists
         if (component) {
             options = common.extend({
@@ -350,25 +343,29 @@ var builders = {
                 repeatData: null,
                 withData: null,
                 withReplaceData: null,
-                isComponent: true
+                isComponent: true,
+                componentName: componentName
             }, options);
 
             options.childIndex = vm.__states.children.length;
             vm.__states.children.push(null);
 
+            var componentComposed = builders.getComponent(vm, component, componentName);
+
             // Async component
-            if (typeof component === 'function') {
+            if (!componentComposed) {
                 component(
                     function (data) {
-                        builders.getAsset(vm, 'components')[componentName] = data;
-                        builders.buildComponentContent(vm, element, options, data, componentName);
+                        options.component = builders.getComponent(vm, data, componentName);
+                        builders.buildComponentContent(vm, element, options);
                     },
                     function (error) {
                         builders.logComponentResolveError(vm, element, componentName, error);
                     }
                 );
             } else {
-                builders.buildComponentContent(vm, element, options, component, componentName);
+                options.component = componentComposed;
+                builders.buildComponentContent(vm, element, options);
             }
 
         // If component does not exists
@@ -379,19 +376,33 @@ var builders = {
 
     },
 
-    buildComponentContent: function (vm, element, options, component, componentName) {
-        if (!component.__composed) {
-            component.__composed = asset.composeComponent(vm.__states.$logger, component, vm.$root.__states.mixin);
+    getComponent: function (vm, component, componentName) {
+        var composed;
+        if (typeof component === 'function') {
+            if (component.__isCtor) {
+                return component;
+            } else {
+                return false;
+            }
+        } else {
+            composed = asset.composeComponent(
+                vm.__states.$logger, component, vm.$root.__states.mixin
+            );
+            builders.getAsset(vm, 'components')[componentName] = composed;
+            return composed;
         }
+    },
 
-        options.component = component.__composed;
-
+    buildComponentContent: function (vm, element, options, componentName) {
         // "wait-for" directive option (component waits for event before it shows)
-        if (element.dirs.component.options.waitFor) {
-            options.waitFor = element.dirs.component.options.waitFor;
+        if (element.attribs['wait-for']) {
+            options.waitFor = element.attribs['wait-for'];
+            element.attribs['wait-for'] = undefined;
         }
 
-        options.component.name = componentName;
+        if (element.attribs.is) {
+            element.attribs.is = undefined;
+        }
 
         if (element.dirs.with) {
             // If "v-with" directive value is single argument (Eg. v-with="cat") then data context
