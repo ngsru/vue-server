@@ -166,5 +166,5 @@ exports.composeComponent = function ($logger, component, globalMixin) {
         }
     }
 
-    return {options: options};
+    return options;
 }

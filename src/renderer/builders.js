@@ -391,10 +391,6 @@ var builders = {
             options.waitFor = element.dirs.component.options.waitFor;
         }
 
-        if (element.dirs.ref) {
-            options.ref = element.dirs.ref;
-        }
-
         options.component.name = componentName;
 
         if (element.dirs.with) {

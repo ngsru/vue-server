@@ -12,7 +12,7 @@ var scope = {
         var data = {};
 
         if (contexts.isComponent) {
-            options = contexts.component.options;
+            common.extend(options, contexts.component);
 
         // Inherit data to v-repeat items contexts
         } else if (contexts.isRepeat) {
@@ -245,9 +245,9 @@ var scope = {
             // VMs from v-for no need to add in $children
             $target.$children.push(newVm);
 
-            if (options.ref) {
+            if (options.element.dirs.ref) {
                 (function () {
-                    var name = common.dashToCamelCase(options.ref.value);
+                    var name = common.dashToCamelCase(options.element.dirs.ref.value);
 
                     if (newVm.__states.isRepeat || newVm.__states.parent.__states.notPublic) {
                         $target.$refs[name] = $target.$refs[name] || [];
