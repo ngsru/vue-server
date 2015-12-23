@@ -1,13 +1,5 @@
 var common = require('./common.js');
-
-var tagsNotComponents = {
-    select: true,
-    input: true,
-    article: true,
-    main: true,
-    form: true,
-    label: true
-};
+var commonTagRE = /^(div|p|span|img|a|b|i|br|ul|ol|li|h1|h2|h3|h4|h5|h6|code|pre|table|th|td|tr|form|label|input|select|option|nav|article|section|header|footer)$/;
 
 var builders = {
     build: function (vm, callback) {
@@ -93,8 +85,8 @@ var builders = {
                     }
 
                     if (name) {
-
-                        if (tagsNotComponents[element.name]) {
+                        var tag = element.name.toLowerCase();
+                        if (commonTagRE.test(tag) && tag !== 'component') {
                             vm.__states.$logger.debug(
                                 'Native tag "' + element.name + '" matched component name "' + name + '"', common.onLogMessage(vm)
                             );

@@ -648,7 +648,7 @@ var Compile = function (template) {
         // xmlMode: true
         lowerCaseTags: false
     });
-    parser.write(template);
+    parser.write(template.trim());
     parser.end();
 
     for (var i = repeatItems.length - 1; i >= 0; i--) {
