@@ -2,7 +2,7 @@ var log4js = require('log4js');
 
 var filtersGlobal = require('./../filters');
 
-var common = require('./common.js');
+var asset = require('./asset.js');
 var scope = require('./scope.js');
 var compilers = require('./compilers.js');
 var renders = require('./renders.js');
@@ -84,18 +84,20 @@ var VueRender = function (logger) {
         };
 
         this.logger = this._initLogger(this.config, this._logger);
-        common.$logger = this.logger;
         scope.$logger = this.logger;
         renders.$logger = this.logger;
 
         if (!instance) {
-            that.logger.error('Can\'t initialize render: no root instance transmitted');
+            this.logger.error('Can\'t initialize render: no root instance transmitted');
             return this;
         }
 
+
+
         // Precompiling global partials
         for (var name in this.partials) {
-            this.partials[name] = common.prepareTemplate(
+            this.partials[name] = asset.compileTemplate(
+                this.logger,
                 this.partials[name],
                 'Partial "' + name + '"'
             );
@@ -129,7 +131,7 @@ var VueRender = function (logger) {
             filters: {},
             partials: {},
             components: {},
-            component: common.composeComponent(instance, this.mixin),
+            component: asset.composeComponent(this.logger, instance, this.mixin),
             isComponent: true
         });
 

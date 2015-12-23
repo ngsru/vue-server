@@ -1,3 +1,4 @@
+var asset = require('./asset.js');
 var common = require('./common.js');
 var commonTagRE = /^(div|p|span|img|a|b|i|br|ul|ol|li|h1|h2|h3|h4|h5|h6|code|pre|table|th|td|tr|form|label|input|select|option|nav|article|section|header|footer)$/;
 
@@ -380,13 +381,10 @@ var builders = {
 
     buildComponentContent: function (vm, element, options, component, componentName) {
         if (!component.__composed) {
-            component.__composed = common.composeComponent(component, vm.$root.__states.mixin);
+            component.__composed = asset.composeComponent(vm.__states.$logger, component, vm.$root.__states.mixin);
         }
 
-        options.component = {
-            rawVm: common.extend({}, component.__composed.rawVm),
-            options: component.__composed.options
-        };
+        options.component = component.__composed;
 
         // "wait-for" directive option (component waits for event before it shows)
         if (element.dirs.component.options.waitFor) {

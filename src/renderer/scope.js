@@ -10,11 +10,9 @@ var scope = {
     initViewModel: function (contexts) {
         var options = {};
         var data = {};
-        var rawVm = {};
 
         if (contexts.isComponent) {
             options = contexts.component.options;
-            rawVm = contexts.component.rawVm;
 
         // Inherit data to v-repeat items contexts
         } else if (contexts.isRepeat) {
@@ -32,7 +30,7 @@ var scope = {
         }
 
         // Init context
-        var vm = common.extend(rawVm, data, this.globalPrototype);
+        var vm = common.extend(data, this.globalPrototype);
         vm.__states = {};
         vm.__states.parent = contexts.parent;
         vm.__states.children = [];
