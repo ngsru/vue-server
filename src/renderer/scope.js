@@ -81,6 +81,7 @@ var scope = {
 
             if (vm.__states.parent) {
                 scope.setKeyElementInner(vm, tpl);
+
             // If threre are no parent, then we have root component
             // Creating special container for root component
             } else {
@@ -342,8 +343,6 @@ var scope = {
                 // If there are many top level elements
                 } else {
                     vm.$el.name = 'partial';
-                    vm.$el.attribs = {};
-                    vm.$el.dirs = {};
                     vm.$el.inner = tpl;
                 }
 

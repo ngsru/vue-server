@@ -38,9 +38,17 @@ beforeAll(function (done) {
             '<div id="partial"><partial name="part"></partial></div>',
             '<div id="mixin">{{globalMixinValue}}</div>',
             '<div id="prototype">{{globalPrototypeValue}}</div>',
+            '<div id="extended-component"><extended></extended></div>',
         ].join(''),
         data: {
             value: 'value'
+        },
+
+        components: {
+            extended: Vue.extend({
+                replace: true,
+                template: '<i>Yes it is</i>'
+            })
         },
 
         compiledBe: function() {
@@ -73,5 +81,9 @@ describe('global', function () {
 
     it('prototype extends instances', function () {
         expect($('#prototype').html()).toEqual('$myMethod returns value');
+    });
+
+    it('component mounting through Vue.extend works', function () {
+        expect($('#extended-component').html()).toEqual('<i>Yes it is</i>');
     });
 });

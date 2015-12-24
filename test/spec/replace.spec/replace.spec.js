@@ -21,6 +21,16 @@ var contentComponent = {
         compParted: {
             props: ['value'],
             template: '<i>{{value}}</i><b>{{value}}</b>'
+        },
+
+        item: {
+            props: {
+                kk: null
+            },
+            data: function() {
+                return {val: 123}
+            },
+            template: '<div>{{val}}:{{kk}}</div><i>{{val}}:{{kk}}</i>'
         }
     },
 
@@ -69,5 +79,9 @@ describe('while using replace: true', function () {
 
     it('a component should properly mount via <component> with dynamic "is"', function () {
         expect($('#eight').html()).toEqual('<i>content</i>');
+    });
+
+    it('a component should properly mount via width multiple top level elements inside its template', function () {
+        expect($('#key-els-multiple').html()).toEqual('<div>123:out</div><i>123:out</i>');
     });
 });
