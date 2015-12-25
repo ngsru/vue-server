@@ -8,10 +8,10 @@ var common = {
             try {
                 result = value.call(vm, vm);
             } catch (e) {
-                vm.__states.$logger.warn('Error executing expression [begin]', common.onLogMessage(vm));
-                vm.__states.$logger.warn(e.toString());
-                vm.__states.$logger.warn(value.toString());
-                vm.__states.$logger.warn('Error executing expression [end]');
+                vm.__states.$logger.warn(
+                    'Error executing expression: ' + value.toString() + ' [' + e.toString() + ']',
+                    common.onLogMessage(vm)
+                );
             }
         } else {
             result = value;
