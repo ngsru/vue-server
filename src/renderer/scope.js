@@ -138,55 +138,56 @@ var scope = {
         scope.buildWithedData(vm, contexts);
         scope.buildComputedProps(vm);
 
-        process.nextTick(function () {
+        builders.build(vm, function () {
             var isCompiledBePresent = false;
+            vm._isCompiled = true;
 
-            builders.build(vm, function () {
-                vm._isCompiled = true;
+            if (!vm.$options.activateBe && contexts.waitFor) {
+                vm.$on(contexts.waitFor, function () {
+                    scope.buildWithedData(vm, contexts);
+                    scope.pullPropsData(vm);
+                    scope.resetVmInstance(vm);
+                });
+            }
 
-                if (!vm.$options.activateBe && contexts.waitFor) {
-                    vm.$on(contexts.waitFor, function () {
-                        scope.buildWithedData(vm, contexts);
-                        scope.pullPropsData(vm);
-                        scope.resetVmInstance(vm);
-                    });
-                }
-
-                // Server Compiled mixins
-                if (vm.$options.mixins) {
-                    for (var i = 0; i < vm.$options.mixins.length; i++) {
-                        if (vm.$options.mixins[i].compiledBe) {
-                            isCompiledBePresent = true;
-                            vm.$options.mixins[i].compiledBe.call(vm);
-                        }
+            // Server Compiled mixins
+            if (vm.$options.mixins) {
+                for (var i = 0; i < vm.$options.mixins.length; i++) {
+                    if (vm.$options.mixins[i].compiledBe) {
+                        isCompiledBePresent = true;
+                        vm.$options.mixins[i].compiledBe.call(vm);
                     }
                 }
+            }
 
-                // Server Compiled hook
-                if (vm.$options.compiledBe) {
-                    isCompiledBePresent = true;
+            // Server Compiled hook
+            if (vm.$options.compiledBe) {
+                isCompiledBePresent = true;
+                process.nextTick(function () {
                     vm.$options.compiledBe.call(vm);
                     vm.$emit('hook:compiledBe');
-                }
+                });
+            }
 
-                if (vm.$options.activateBe) {
+            if (vm.$options.activateBe) {
+                process.nextTick(function () {
                     vm.$options.activateBe.call(vm, function () {
                         scope.buildWithedData(vm, contexts);
                         scope.pullPropsData(vm);
                         scope.resetVmInstance(vm);
                     });
                     vm.$emit('hook:activateBe');
-                }
+                });
+            }
 
-                if (!contexts.waitFor && !vm.$options.activateBe) {
-                    // Experimental option
-                    if (isCompiledBePresent && vm !== vm.$root) {
-                        scope.resetVmInstance(vm);
-                    } else {
-                        vm._isReady = true;
-                    }
+            if (!contexts.waitFor && !vm.$options.activateBe) {
+                // Experimental option
+                if (isCompiledBePresent && vm !== vm.$root) {
+                    scope.resetVmInstance(vm);
+                } else {
+                    vm._isReady = true;
                 }
-            });
+            }
         });
 
         return vm;
@@ -315,11 +316,9 @@ var scope = {
         scope.buildComputedProps(vm);
         scope.markKeyElement(vm);
         scope.setEventListeners(vm);
-        process.nextTick(function () {
-            builders.build(vm, function () {
-                vm._isReady = true;
-                vm.$root.$emit('_vueServer.tryBeginCompile');
-            });
+        builders.build(vm, function () {
+            vm._isReady = true;
+            vm.$root.$emit('_vueServer.tryBeginCompile');
         });
     },
 
@@ -707,10 +706,8 @@ var scope = {
             common.extend(vm, contexts.repeatData);
         }
 
-        process.nextTick(function () {
-            builders.build(vm, function () {
-                vm._isReady = true;
-            });
+        builders.build(vm, function () {
+            vm._isReady = true;
         });
 
         return vm;

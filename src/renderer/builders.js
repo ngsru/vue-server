@@ -9,50 +9,51 @@ var builders = {
             return;
         }
 
-        // Case when VM rebuilding starts
-        // This option is passed through to stop building detached VMs
-        if (vm.$el.__buildingInterrupted) {
-            return;
-        }
-
-        vm.$el._isReadyToBuild = true;
-
-        builders.buildElements(vm, vm.$el.inner);
-
-        if (vm.__states.children.length) {
-            vm.$on('_vueServer.childVmReady', function () {
-                if (!vm.__states.children) {
-                    vm.__states.$logger.error('Something went wrong while building children VMs. Please report the error.');
-                    return;
-                }
-                vm.__states.childrenReadyCount++;
-
-                if (vm.__states.childrenReadyCount === vm.__states.children.length) {
-                    if (callback) {
-                        callback();
-                    }
-
-                    vm.$emit('_vueServer.vmReady');
-
-                    if (vm.__states.parent) {
-                        vm.__states.parent.$emit('_vueServer.childVmReady');
-                    }
-
-                    vm.$off('_vueServer.childVmReady');
-                }
-            });
-        } else {
-            if (callback) {
-                callback();
+        process.nextTick(function () {
+            // Case when VM rebuilding starts
+            // This option is passed through to stop building detached VMs
+            if (vm.$el.__buildingInterrupted) {
+                return;
             }
 
-            vm.$emit('_vueServer.vmReady');
+            vm.$el._isReadyToBuild = true;
 
-            if (vm.__states.parent) {
-                vm.__states.parent.$emit('_vueServer.childVmReady');
+            builders.buildElements(vm, vm.$el.inner);
+
+            if (vm.__states.children.length) {
+                vm.$on('_vueServer.childVmReady', function () {
+                    if (!vm.__states.children) {
+                        vm.__states.$logger.error('Something went wrong while building children VMs. Please report the error.');
+                        return;
+                    }
+                    vm.__states.childrenReadyCount++;
+
+                    if (vm.__states.childrenReadyCount === vm.__states.children.length) {
+                        if (callback) {
+                            callback();
+                        }
+
+                        vm.$emit('_vueServer.vmReady');
+
+                        if (vm.__states.parent) {
+                            vm.__states.parent.$emit('_vueServer.childVmReady');
+                        }
+
+                        vm.$off('_vueServer.childVmReady');
+                    }
+                });
+            } else {
+                if (callback) {
+                    callback();
+                }
+
+                vm.$emit('_vueServer.vmReady');
+
+                if (vm.__states.parent) {
+                    vm.__states.parent.$emit('_vueServer.childVmReady');
+                }
             }
-        }
-
+        });
     },
 
     buildElements: function (vm, elements, customIndex) {
