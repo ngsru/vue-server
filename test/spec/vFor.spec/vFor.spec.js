@@ -6,6 +6,7 @@ var contentComponent = {
     template: tools.getTpl(__dirname + '/vFor.spec.html', true),
     data: function () {
         return {
+            number: 3,
             vRepeat: {
                 parentValue: '',
                 simpleArray: [],
@@ -269,8 +270,12 @@ beforeAll(function (done) {
 });
 
 describe('v-for', function () {
-    it('on simple array to work fine', function () {
-        expect($('#simple').html()).toEqual('<i>1</i><i>3</i><i>5</i>');
+    it('on number to work fine', function () {
+        expect($('#number').html()).toEqual('<i>0</i><i>1</i>');
+    });
+
+    it('on number from variable to work fine', function () {
+        expect($('#number-from-var').html()).toEqual('<i>0</i><i>1</i><i>2</i>');
     });
 
     it('on simple array with explict index param definition to work fine', function () {
@@ -336,7 +341,7 @@ describe('v-for', function () {
         expect($('#plain-number').html()).toEqual('<i>0</i><i>1</i><i>2</i>');
     });
 
-    
+
 });
 
 // v-repeat - begin

@@ -1,6 +1,7 @@
 var asset = require('./asset.js');
 var common = require('./common.js');
 var commonTagRE = /^(div|p|span|img|a|b|i|br|ul|ol|li|h1|h2|h3|h4|h5|h6|code|pre|table|th|td|tr|form|label|input|select|option|nav|article|section|header|footer)$/;
+var isNumber = /^-?\d+/;
 
 var builders = {
     build: function (vm, callback) {
@@ -217,12 +218,15 @@ var builders = {
     getRepeatData: function (vm, dir) {
         var value = common.getValue(vm, dir.get);
         var array;
+        var type = typeof value;
 
         if (!value) {
             return value;
-        } else {
-            if (!Array.isArray(value)) {
-                array = [];
+        } else if (!Array.isArray(value)) {
+            array = [];
+
+            // If its an Object for iteration
+            if (type === 'object') {
 
                 for (var prop in value) {
                     array.push({
@@ -230,9 +234,19 @@ var builders = {
                         $value: value[prop]
                     });
                 }
-
-                value = array;
             }
+
+            // If its a Number
+            if (
+                (type === 'string' || type === 'number') &&
+                isNumber.test(value)
+            ) {
+                for (var i = 0; i < value; i++) {
+                    array.push(i);
+                }
+            }
+
+            value = array;
         }
 
         try {
@@ -494,13 +508,7 @@ var builders = {
     // NEW
     // Building v-for items
     buildForElements: function (vm, elements, element) {
-        var repeatData;
-
-        if (element.dirs.for.value.static) {
-            repeatData = element.dirs.for.value.static;
-        } else {
-            repeatData = builders.getRepeatData(vm, element.dirs.for.value);
-        }
+        var repeatData = builders.getRepeatData(vm, element.dirs.for.value);
 
         // If repeat data is exists
         if (repeatData && repeatData.length) {

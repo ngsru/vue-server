@@ -1,4 +1,6 @@
 <div>
+    <div id="number"><i v-for="n in 2">{{n}}</i></div>
+    <div id="number-from-var"><i v-for="n in number">{{n}}</i></div>
     <div id="simple"><i v-for="a in arr">{{a + $index}}</i></div>
     <div id="simple-explict"><i v-for="(ind, a) in arr">{{a + ind}}</i></div>
     <div id="simple-filter"><i v-for="a in arr | reduce">{{a + $index}}</i></div>
@@ -8,7 +10,7 @@
     <div id="component-filter"><comp-name v-for="a in arr | reduce" :item="a" :index="$index"></comp-name></div>
     <div id="component-filter-explict"><comp-name v-for="(ind, a) in arr | reduce" :item="a" :index="ind"></comp-name></div>
     <div id="component-compound">
-        <div 
+        <div
             v-for="a in arr"
             is="compNameCompound"
             :item="a"
@@ -21,7 +23,7 @@
     </div>
     <div id="component-object"><comp-name v-for="a in arr2" :item="a" :index="$index"></comp-name></div>
     <div id="component-object-filter"><comp-name v-for="a in arr2 | reduce" :item="a" :index="$index"></comp-name></div>
-    
+
     <div id="v-if">
         <i v-for="a in arr" v-if="a != 2">{{a}}</i>
     </div>
@@ -32,7 +34,7 @@
         </span>
     </div>
     <div id="v-if-component">
-        <span 
+        <span
             is="compName"
             v-for="a in arr"
             v-if="a != 2"
