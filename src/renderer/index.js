@@ -91,17 +91,6 @@ var VueRender = function (logger) {
             return this;
         }
 
-
-
-        // Precompiling global partials
-        for (var name in this.partials) {
-            this.partials[name] = asset.compileTemplate(
-                this.logger,
-                this.partials[name],
-                'Partial "' + name + '"'
-            );
-        }
-
         // -------------------------
         // Global prototype
         var globalPrototype = {};
@@ -166,42 +155,35 @@ var VueRender = function (logger) {
     };
 
     VueRoot.extend = function (instance) {
-        if (instance) {
-            return asset.composeComponent(this.prototype.logger, instance, this.mixin);
+        if (!instance) {
+            instance = {};
         }
+        return asset.composeComponent(this.prototype.logger, instance, this.mixin);
     };
 
-    VueRoot.component = function (id, component) {
-        if (!component) {
-            this.prototype.logger.debug('global component\'s content is empty: "' + id + '"');
-            return this;
-        }
+    VueRoot.component = function (id, instance) {
+        var result = this.extend(instance);
+        this.prototype.components[id] = result;
 
-        this.prototype.components[id] = component;
-
-        return this;
+        return result;
     };
 
     VueRoot.filter = function (id, filter) {
-        if (!filter) {
-            this.prototype.logger.debug('global filter\'s content is empty: "' + id + '"');
-            return this;
-        }
-
         this.prototype.filters[id] = filter;
 
-        return this;
+        return filter;
     };
 
     VueRoot.partial = function (id, partial) {
-        if (!partial) {
-            this.prototype.logger.debug('global partial\'s content is empty: "' + id + '"');
-            return this;
-        }
+        var result = asset.compileTemplate(
+            this.prototype.logger,
+            partial,
+            'Partial "' + id + '"'
+        );
 
-        this.prototype.partials[id] = partial;
+        this.prototype.partials[id] = result;
 
-        return this;
+        return result;
     };
 
     Object.defineProperty(VueRoot, 'mixin', {

@@ -57,9 +57,9 @@ vm.$on('vueServer.htmlReady', function(html) {
 Compatibility table
 ---
 
-| VueServer.js  | Vue.js        |
-| :------------ |:------------- |
-| ^0.4.0        | 1.0.0-alpha.8 |
+| VueServer.js  | Vue.js          |
+| :------------ |:--------------- |
+| ^0.4.0        | 1.0.0-migration |
 
 
 Restrictions
