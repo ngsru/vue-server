@@ -1,4 +1,5 @@
 var common = require('./common');
+var cssParser = require('../css');
 
 var renders = {
     render: function (vm) {
@@ -42,17 +43,21 @@ var renders = {
     renderTag: function (element) {
         var tag = '<' + element.name;
 
-        // Walk through tag attributes, collectig Vue directives
-        for (var key in element.attribs) {
-            if (
-                element.attribs[key] === undefined ||
-                element.attribs[key] === false ||
-                element.attribs[key] === null
-            ) {
-                continue;
+        renders.iterateAttribs(element, function (attrName, attrVal) {
+            var attrValType = typeof attrVal;
+
+            if (attrValType === 'object') {
+                if (attrName === 'class') {
+                    attrVal = common.filterClassNames(attrVal.own.concat(attrVal.dir)).join(' ');
+                }
+
+                if (attrName === 'style') {
+                    attrVal = cssParser.stringify(common.extend(attrVal.own, attrVal.dir));
+                }
             }
-            tag += ' ' + key + '="' + element.attribs[key] + '"';
-        }
+
+            tag += ' ' + attrName + '="' + attrVal + '"';
+        });
 
         tag += '>';
 
@@ -84,37 +89,140 @@ var renders = {
         element.inner = elementChild.inner;
         element.name = elementChild.name;
 
-        for (var key in elementChild.attribs) {
-            if (
-                elementChild.attribs[key] === undefined ||
-                elementChild.attribs[key] === false ||
-                elementChild.attribs[key] === null
-            ) {
-                continue;
+        renders.iterateAttribs(elementChild, function (attrName) {
+            if (attrName === 'class') {
+                renders.mergeClassAttribute(element, elementChild, attrName);
+            } else if (attrName === 'style') {
+                renders.mergeStyleAttribute(element, elementChild, attrName);
+            } else {
+                element.attribs[attrName] = elementChild.attribs[attrName];
             }
-
-            if (key === 'class' || key === 'style') {
-                renders.mergeAttribute(element, elementChild, key);
-                continue;
-            }
-
-            element.attribs[key] = elementChild.attribs[key];
-        }
-
+        });
 
         return renders.renderTag(element);
     },
 
-    mergeAttribute: function (element, elementChild, name) {
-        if (element.attribs[name] && elementChild.attribs[name]) {
-            element.attribs[name] = element.attribs[name] + ' ' + elementChild.attribs[name];
+    mergeClassAttribute: function (element, elementChild, name) {
+        var parent = element.attribs[name];
+        var child = elementChild.attribs[name];
+        if (parent && child) {
+            (function () {
+                var classList = [];
+                var parentType = typeof element.attribs[name];
+                var childType = typeof elementChild.attribs[name];
+
+                if (childType === 'object') {
+                    classList = classList.concat(child.own);
+                } else {
+                    classList = classList.concat(child.split(' '));
+                }
+
+                if (parentType === 'object') {
+                    classList = classList.concat(parent.own);
+                } else {
+                    classList = classList.concat(parent.split(' '));
+                }
+
+                if (childType === 'object') {
+                    classList = classList.concat(child.dir);
+                } else {
+                    classList = classList.concat(child.split(' '));
+                }
+
+                if (parentType === 'object') {
+                    classList = classList.concat(parent.dir);
+                } else {
+                    classList = classList.concat(parent.split(' '));
+                }
+
+                element.attribs[name] = common.filterClassNames(classList).join(' ');
+            })();
         }
 
-        if (!element.attribs[name] && elementChild.attribs[name]) {
-            element.attribs[name] = elementChild.attribs[name];
+        if (!parent && child) {
+            element.attribs[name] = child;
+        }
+    },
+
+    mergeStyleAttribute: function (element, elementChild, name) {
+        var parent = element.attribs[name];
+        var child = elementChild.attribs[name];
+        if (parent && child) {
+            (function () {
+                var list = [];
+                var parentOwn;
+                var parentDyn;
+                var childOwn;
+                var childDyn;
+                var parentType = typeof element.attribs[name];
+                var childType = typeof elementChild.attribs[name];
+
+                if (parentType === 'object') {
+                    parentOwn = parent.own;
+                } else {
+                    parentOwn = cssParser.parse(parent);
+                }
+
+                if (childType === 'object') {
+                    childOwn = child.own;
+                } else {
+                    childOwn = cssParser.parse(child);
+                }
+
+                if (parentType === 'object') {
+                    parentDyn = parent.dir;
+                }
+
+                if (childType === 'object') {
+                    childDyn = child.dir;
+                }
+
+                if (childOwn) {
+                    list.push(childOwn);
+                } else if (parentOwn) {
+                    list.push(parentOwn);
+                }
+
+                if (parentDyn) {
+                    list.push(parentDyn);
+                }
+                if (childDyn) {
+                    list.push(childDyn);
+                }
+
+                element.attribs[name] = cssParser.stringify(common.extend.apply(common, list));
+            })();
+        }
+
+        if (!parent && child) {
+            element.attribs[name] = child;
+        }
+    },
+
+    iterateAttribs: function (element, callback) {
+        var attrName;
+        var attrVal;
+
+        // Walk through tag attributes, collectig Vue directives
+        var attribNames = Object.keys(element.attribs);
+        for (var i = 0; i < attribNames.length; i++) {
+            attrName = attribNames[i];
+            attrVal = element.attribs[attrName];
+            if (
+                attrVal === undefined ||
+                attrVal === false ||
+                attrVal === null
+            ) {
+                continue;
+            }
+
+            callback(attrName, attrVal);
         }
     }
 
+    // renderClassAttribue: function (value) {
+    //     return common.filterClassNames(value.own.concat(value.dir)).join(' ');
+    // }
 };
 
 module.exports = renders;

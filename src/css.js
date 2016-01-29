@@ -1,19 +1,22 @@
 var CSSParser = {
     parse: function (string) {
-        var temp = string.split(';'),
-            obj = {};
+        var temp = string.split(';');
+        var obj = {};
 
-        temp.forEach(function (item, i) {
-            if (item) {
-                var prop = item.split(':');
+        for (var i = 0; i < temp.length; i++) {
+            (function () {
+                var item = temp[i];
+                if (item) {
+                    var prop = item.split(':');
 
-                if (!prop[1]) {
-                    throw 'CSS format is invalid: "' + item + '"';
+                    if (!prop[1]) {
+                        throw 'CSS format is invalid: "' + item + '"';
+                    }
+
+                    obj[prop[0].trim()] = prop[1].trim();
                 }
-
-                obj[prop[0].trim()] = prop[1].trim();
-            }
-        });
+            })();
+        }
 
         return obj;
     },

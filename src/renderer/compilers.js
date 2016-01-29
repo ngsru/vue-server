@@ -127,46 +127,56 @@ var compilers = {
                         });
 
                         if (name === 'style') {
-                            // Need to consider element's own styles
-                            var originalStyle = element.attribs.style;
-                            if (originalStyle) {
-                                originalStyle = cssParser.parse(originalStyle);
-                            } else {
-                                originalStyle = {};
-                            }
+                            (function () {
+                                // Need to consider element's own styles
+                                var originalStyle = element.attribs.style;
+                                if (originalStyle) {
+                                    originalStyle = cssParser.parse(originalStyle);
+                                } else {
+                                    originalStyle = {};
+                                }
 
-                            // Drop value if class is Array
-                            if (typeof value === 'string') {
-                                value = cssParser.parse(value);
-                            } else if (Array.isArray(value)) {
-                                value = common.extend.apply(common, value);
-                            }
-                            element.attribs[name] = cssParser.stringify(common.extend(originalStyle, value));
+                                // Drop value if class is Array
+                                if (typeof value === 'string') {
+                                    value = cssParser.parse(value);
+                                } else if (Array.isArray(value)) {
+                                    value = common.extend.apply(common, value);
+                                }
+
+                                element.attribs.style = {
+                                    own: originalStyle,
+                                    dir: value
+                                };
+                            })();
 
                             return;
                         }
 
                         if (name === 'class') {
                             (function () {
-                                var classList = [];
+                                var classListOwn = [];
+                                var classListDir = [];
 
                                 if (element.attribs.class) {
-                                    classList = element.attribs.class.split(' ');
+                                    classListOwn = element.attribs.class.split(' ');
                                 }
 
                                 if (typeof value === 'string') {
-                                    classList = classList.concat(value.split(' '));
+                                    classListDir = value.split(' ');
                                 } else if (Array.isArray(value)) {
-                                    classList = classList.concat(value);
+                                    classListDir = value;
                                 } else {
                                     for (var name in value) {
                                         if (value[name]) {
-                                            classList.push(name);
+                                            classListDir.push(name);
                                         }
                                     }
                                 }
 
-                                element.attribs.class = common.filterClassNames(classList).join(' ');
+                                element.attribs.class = {
+                                    own: classListOwn,
+                                    dir: classListDir
+                                };
                             })();
 
                             return;
