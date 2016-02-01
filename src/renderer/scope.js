@@ -349,6 +349,9 @@ var scope = {
                 builders.mergeSlotItems(vm, tpl);
                 vm.$el.inner = tpl;
             }
+        } else {
+            vm.$el.name = 'partial';
+            // vm.$el.inner = [];
         }
     },
 

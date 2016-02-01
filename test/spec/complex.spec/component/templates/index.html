@@ -48,7 +48,7 @@
         <div class="text" v-text="vText.value">Default text</div>
         <div class="function" v-text="forVText()">Default text</div>
 
-        
+
         <div class="text-filter" v-text="vText.value | uppercase"></div>
         <div class="text-filter-multiple" v-text="vText.value | uppercase | lowercase"></div>
         <div class="text-filter-arguments" v-text="vText.value | argumentsTesting 'and' 4"></div>
@@ -72,16 +72,10 @@
     <section id="v-component">
         <div class="simple" v-component="compon2">Empty holder</div>
         <div class="dynamic" v-component="{{vComponent.componentName}}">Empty holder</div>
-        
+
         <div class="undefined" v-component="itsNotDefined">Empty holder</div>
         <div class="dynamic-undefined" v-component="{{itsNotDefined}}">Empty holder</div>
         <div class="dynamic-empty" v-component="{{vComponent.emptyName}}">Empty holder</div>
-
-        <div class="no-template" v-component="noTemplate">
-            <div class="value">{{value}}</div>
-        </div>
-
-        
 
         <div class="inherit" v-component="inheritor"></div>
 
@@ -93,7 +87,7 @@
         <div class="no-inherit-good-with" v-component="compon2" v-with="withed: vComponent.toBeWithed"></div>
 
         <div class="no-inherit-bad-with" v-component="compon2" v-with="vComponent.forPlainWith"></div>
-        
+
         <div class="inherit-good-with" v-component="compon3" v-with="withed: vComponent.toBeWithed"></div>
 
         <div class="inherit-bad-with" v-component="compon3" v-with="vComponent.forPlainWith"></div>
@@ -182,7 +176,7 @@
                 <span class="should-not-be-there"></span>
             </li>
         </ul>
-        
+
 
         <div class="name-seting" v-repeat="item:vRepeat.nameNesting">
             <span class="item-value">{{item.value}}</span>
@@ -223,7 +217,7 @@
 
         <textarea class="textarea" v-model="vModel.textarea1"></textarea>
         <!-- <textarea class="textarea" v-model="vModel.textarea2">Textarea Default text</textarea> -->
-       
+
         <input class="checkbox" type="checkbox" v-model="vModel.checkbox">
 
         <form class="radio-form">
@@ -254,7 +248,7 @@
 
         <select class="select-dyn-empty-v-model" options="vModel.selectOptions" v-model="gg">
         </select>
-        
+
         <div class="radio-in-repeat-dyn" v-repeat="item: vModel.props.list">
             <input type="radio" value="{{item.value}}" v-model="vModel.props.value">
         </div>
@@ -271,14 +265,14 @@
             <input class="void-input" type="text" v-model="vModel.vFilter.void | void">
             <div class="void-value">{{vModel.vFilter.void}}</div>
 
-                
+
             <input class="multiple" type="text" v-model="vModel.vFilter.text | uppercase | lowercase">
             <input class="arguments" type="text" v-model="vModel.vFilter.number | argumentsTesting 'and' 4">
         </section>
 
     </section>
 
-    
+
     <!-- v-attr -->
     <section id="v-attr">
         <img class="simple" src="" v-attr="width: vAttr.boxWidth, height: vAttr.boxHeight">
@@ -286,7 +280,7 @@
         <input class="with-v-model" type="text" v-attr="value: vAttr.attrWithModel" v-model="vAttr.modelWithAttr">
     </section>
 
-    
+
     <!-- v-show -->
     <section id="v-show">
         <div class="hide" v-show="vShow.hide"></div>
@@ -298,7 +292,7 @@
         <div class="replace-v-attr" v-attr="style: 'display: none'" v-show="vShow.show"></div>
     </section>
 
-    
+
     <!-- v-style -->
     <section id="v-style">
         <div class="simple" v-style="display: vStyle.display, position: vStyle.position">Tadadam</div>

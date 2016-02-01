@@ -210,12 +210,6 @@ describe('v-component', function () {
         expect($('#v-component .syntetic .nested-filter').text()).toEqual('ok!?!?!?!');
     });
 
-    describe('with no template', function () {
-        it('should use default html and display values', function () {
-            expect($('#v-component .no-template .value').text()).toEqual('This is no-template value');
-        });
-    });
-
     describe('inside another v-component', function () {
         it('should inherit components', function () {
             expect($('#v-component .inherit .compon1').length).toEqual(1);
@@ -771,4 +765,3 @@ describe('v-if', function () {
         expect($('#v-if .hide-method').length).toEqual(0);
     });
 });
-

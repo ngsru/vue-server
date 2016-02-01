@@ -453,7 +453,7 @@ var builders = {
             named: null
         };
 
-        if (!tpl[0].inner) {
+        if (!tpl[0] || !tpl[0].inner) {
             return;
         }
         var elInner = vm.$el.inner;
