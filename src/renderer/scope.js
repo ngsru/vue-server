@@ -615,9 +615,7 @@ var scope = {
                     if (value === null || value === undefined) {
                         hasTypeError = true;
                         type = value;
-                    }
-
-                    if (value.constructor != descriptor.type) {
+                    } else if (value.constructor != descriptor.type) {
                         hasTypeError = true;
                         type = value.constructor.name;
                     }

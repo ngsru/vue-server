@@ -15,7 +15,9 @@ var contentComponent = {
             '<as-object id="v-bind" v-bind:value="transmit"></as-object>',
             '<type value="{{transmit}}"></type>',
             '<type-boolean value="{{bool}}"></type-boolean>',
+            '<type-boolean-undefined value="{{nothing}}"></type-boolean-undefined>',
             '<type-default value="{{transmit}}"></type-default>',
+            '<type-default-undefined value="{{nothing}}"></type-default-undefined>',
             '<default-straight></default-straight>',
             '<default-function></default-function>',
             '<validator value="{{transmit}}"></validator>',
@@ -62,7 +64,15 @@ var contentComponent = {
             },
             template: '<div>{{value}}</div>'
         },
-
+        'type-default-undefined': {
+            props: {
+                value: {
+                    type: Number,
+                    default: 100
+                }
+            },
+            template: '<div>{{value}}</div>'
+        },
         'default-straight': {
             props: {
                 value: {
@@ -143,6 +153,11 @@ describe('props should be able', function () {
 
     it('to use type Boolean option correctly', function () {
         expect($('type-boolean > div').text()).toEqual('true');
+    });
+
+    it('to handle undefined value in typed props', function () {
+        expect($('type-boolean-undefined > div').text()).toEqual('');
+        expect($('type-default-undefined > div').text()).toEqual('');
     });
 
     it('to use type option with default option correctly', function () {
