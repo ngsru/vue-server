@@ -155,9 +155,17 @@ var scope = {
                 for (var i = 0; i < vm.$options.mixins.length; i++) {
                     if (vm.$options.mixins[i].compiledBe) {
                         isCompiledBePresent = true;
-                        vm.$options.mixins[i].compiledBe.call(vm);
+                        break;
                     }
                 }
+
+                process.nextTick(function () {
+                    for (var i = 0; i < vm.$options.mixins.length; i++) {
+                        if (vm.$options.mixins[i].compiledBe) {
+                            vm.$options.mixins[i].compiledBe.call(vm);
+                        }
+                    }
+                });
             }
 
             // Server Compiled hook
@@ -183,7 +191,9 @@ var scope = {
             if (!contexts.waitFor && !vm.$options.activateBe) {
                 // Experimental option
                 if (isCompiledBePresent && vm !== vm.$root) {
-                    scope.resetVmInstance(vm);
+                    process.nextTick(function () {
+                        scope.resetVmInstance(vm);
+                    });
                 } else {
                     vm._isReady = true;
                 }
@@ -291,7 +301,7 @@ var scope = {
             });
         };
 
-        vm.$log = function(name) {
+        vm.$log = function (name) {
             this.$logger.log(this[name]);
         };
     },
@@ -387,7 +397,7 @@ var scope = {
                 vm.$on(
                     vm.$el.dirs.on.value.event,
                     function () {
-                        vm.$el.dirs.on.value.handler.call(vm.$parent, vm.$parent)
+                        vm.$el.dirs.on.value.handler.call(vm.$parent, vm.$parent);
                     }
                 );
             } else {
@@ -505,14 +515,22 @@ var scope = {
                 if (typeof item === 'function') {
                     try {
                         vm[name] = item.call(vm);
-                    } catch (e) {
-                        vm.__states.$logger.debug('Computed property "' + name + '" compilation error', common.onLogMessage(vm), '\n', e);
+                    } catch (error) {
+                        vm.__states.$logger.debug(
+                            'Computed property "' + name + '" compilation error',
+                            common.onLogMessage(vm), '\n',
+                            error
+                        );
                     }
                 } else {
                     try {
                         vm[name] = item.get.call(vm);
-                    } catch (e) {
-                        vm.__states.$logger.debug('Computed property "' + name + '" compilation error', common.onLogMessage(vm), '\n', e);
+                    } catch (error) {
+                        vm.__states.$logger.debug(
+                            'Computed property "' + name + '" compilation error',
+                            common.onLogMessage(vm), '\n',
+                            error
+                        );
                     }
                 }
             }

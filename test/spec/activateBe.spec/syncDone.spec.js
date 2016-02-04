@@ -1,4 +1,4 @@
-var wrapComponent2 = require('./wrapComponent2.js');
+var wrapComponent2 = require('./../wrapComponent2.js');
 var $;
 var contentComponent = {
     template: '<div id="doc"><item></item><head></head></div>',
@@ -13,8 +13,8 @@ var contentComponent = {
         },
         item: {
             template: '<div>item</div>',
-            activateBe: function(done) {
-                done()
+            activateBe: function (done) {
+                done();
             }
         }
     }

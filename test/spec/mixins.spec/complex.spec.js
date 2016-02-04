@@ -1,4 +1,4 @@
-var wrapComponent = require('./wrapComponent.js');
+var wrapComponent = require('./../wrapComponent.js');
 var $;
 var contentComponent = {
 
