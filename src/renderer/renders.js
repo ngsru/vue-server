@@ -81,6 +81,11 @@ var renders = {
             return '';
         }
 
+        // Component's outside inner contents
+        if (elementChild.type === '$content') {
+            elementChild = element.inner[1];
+        }
+
         // If there are many nested $merge
         if (elementChild.name === '$merge' || elementChild.name === 'template') {
             return renders.renderTemplate(element.inner);

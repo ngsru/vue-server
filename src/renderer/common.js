@@ -162,6 +162,7 @@ var common = {
         // Recofigure loop due to elements order changes
         if (element) {
             element.dirs = element.dirs || {};
+            element.attribs = element.attribs || {};
             return element;
         } else {
             return false;
@@ -223,7 +224,7 @@ var common = {
                 continue;
             }
             if (seen.indexOf(array[i]) === -1) {
-                seen.push(array[i])
+                seen.push(array[i]);
                 result.push(array[i]);
             }
         }

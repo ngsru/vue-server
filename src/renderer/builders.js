@@ -24,7 +24,9 @@ var builders = {
             if (vm.__states.children.length) {
                 vm.$on('_vueServer.childVmReady', function () {
                     if (!vm.__states.children) {
-                        vm.__states.$logger.error('Something went wrong while building children VMs. Please report the error.');
+                        vm.__states.$logger.error(
+                            'Something went wrong while building children VMs. Please report the error.'
+                        );
                         return;
                     }
                     vm.__states.childrenReadyCount++;
@@ -91,14 +93,15 @@ var builders = {
                         var tag = element.name.toLowerCase();
                         if (commonTagRE.test(tag) && tag !== 'component') {
                             vm.__states.$logger.debug(
-                                'Native tag "' + element.name + '" matched component name "' + name + '"', common.onLogMessage(vm)
+                                'Native tag "' + element.name + '" matched component name "' + name + '"',
+                                common.onLogMessage(vm)
                             );
                             return;
                         }
 
                         element.dirs.component = {
                             value: name,
-                            options: {}
+                            options: {spareInnerContent: true}
                         };
                     }
                 })();
@@ -184,7 +187,22 @@ var builders = {
 
                 // v-component
                 } else if (element.dirs.component) {
-                    builders.buildComponent(vm, element);
+                    if (element.inner.length) {
+                        (function () {
+                            var content = {
+                                type: '$content',
+                                inner: element.inner,
+                                close: true
+                            };
+
+                            element.inner = [];
+                            elements.splice(i, 0, content);
+                        })();
+                        builders.buildElements(vm, elements, i);
+                        break;
+                    } else {
+                        builders.buildComponent(vm, element);
+                    }
                     // element.dirs.component = undefined;
                 }
 
@@ -386,6 +404,7 @@ var builders = {
         // If component does not exists
         } else {
             element.inner = [];
+            element.dirs.component.status = 'unresolved';
             builders.logComponentResolveError(vm, element, componentName);
         }
 
@@ -445,64 +464,6 @@ var builders = {
         } else {
             vm.__states.$logger.debug(logMessage, common.onLogMessage(vm));
         }
-    },
-
-    mergeSlotItems: function (vm, tpl) {
-        var slots = {
-            unnamed: null,
-            named: null
-        };
-
-        if (!tpl[0] || !tpl[0].inner) {
-            return;
-        }
-        var elInner = vm.$el.inner;
-        var tplInner = tpl[0].inner;
-
-        for (var i = tplInner.length - 1; i >= 0; i--) {
-            if (tplInner[i].name === 'slot') {
-                if (tplInner[i].attribs.name) {
-                    slots.named = slots.named || {};
-                    slots.named[tplInner[i].attribs.name] = tplInner[i];
-                } else {
-                    if (!slots.unnamed) {
-                        slots.unnamed = tplInner[i];
-                    } else {
-                        vm.__states.$logger.warn('Duplicate unnamed <slot>', common.onLogMessage(vm));
-                    }
-                }
-            }
-        }
-
-        if (slots.unnamed || slots.named) {
-            for (var j = elInner.length - 1; j >= 0; j--) {
-                if (
-                    elInner[j].attribs &&
-                    elInner[j].attribs.slot &&
-                    slots.named &&
-                    slots.named[elInner[j].attribs.slot]
-                ) {
-                    builders.fillSlot(
-                        slots.named[elInner[j].attribs.slot],
-                        elInner[j]
-                    );
-                } else if (slots.unnamed) {
-                    builders.fillSlot(
-                        slots.unnamed,
-                        elInner[j]
-                    );
-                }
-            }
-        }
-    },
-
-    fillSlot: function (element, item) {
-        if (!element.filled) {
-            element.inner = [];
-            element.filled = true;
-        }
-
-        element.inner.push(item);
     },
 
     // NEW

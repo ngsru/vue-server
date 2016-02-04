@@ -1,5 +1,6 @@
 var cssParser = require('../css');
 var common = require('./common.js');
+var mergeContents = require('./merge-contents.js');
 
 var compilers = {
     compile: function (vm) {
@@ -27,11 +28,16 @@ var compilers = {
 
         for (var i = 0, l = elements.length; i < l; i++) {
             element = common.setElement(elements[i]);
-            compilers.compileElement(vm, element);
+            compilers.compileElement(vm, element, i);
+
+            // This is inners of a component, compiled inside parent's VM
+            if (element.type === '$content' && !element.compiled) {
+                mergeContents.merge(vm, elements[i + 1], element);
+            }
         }
     },
 
-    compileElement: function (vm, element) {
+    compileElement: function (vm, element, index) {
         var foreignKeyElement = false;
 
         // Depending on whether the element is a key to the v-repeat context or no, need to differently to compile it.

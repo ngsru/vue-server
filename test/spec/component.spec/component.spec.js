@@ -118,9 +118,9 @@ describe('component', function () {
         expect($('#comp-empty').html()).toEqual('');
     });
 
-    // it('should use extra provided elements if its template is empty', function () {
-    //     expect($('#comp-empty-inner').html()).toEqual('rakushka-content');
-    // });
+    it('should use extra provided elements if its template is empty', function () {
+        expect($('#comp-empty-inner').html()).toEqual('rakushka-content');
+    });
 
     it('should not use extra provided elements if its template is not empty', function () {
         expect($('#comp-not-empty-inner').html()).toEqual('<i>rakushka</i>');

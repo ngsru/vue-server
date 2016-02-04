@@ -345,7 +345,7 @@ var scope = {
 
                 // If there is only one top level element
                 if (!tpl[1]) {
-                    builders.mergeSlotItems(vm, tpl);
+                    // scope.saveInnerTemplate(vm, tpl);
                     vm.$el.name = '$merge';
                     vm.$el.inner = tpl;
 
@@ -356,12 +356,19 @@ var scope = {
                 }
 
             } else {
-                builders.mergeSlotItems(vm, tpl);
+                // scope.saveInnerTemplate(vm, tpl);
                 vm.$el.inner = tpl;
             }
         } else {
             vm.$el.name = 'partial';
+            // scope.saveInnerTemplate(vm);
             // vm.$el.inner = [];
+        }
+    },
+
+    saveInnerTemplate: function (vm, tpl) {
+        if (vm.$el.inner && vm.$el.inner.length) {
+            vm.$el.innerOutside = vm.$el.inner;
         }
     },
 
