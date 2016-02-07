@@ -7,7 +7,6 @@ module.exports = {
 
         elementContent.compiled = true;
 
-
         // Pasting content into a component with empty template
         if (
             element &&
@@ -49,22 +48,30 @@ module.exports = {
 
         if (slots.unnamed || slots.named) {
             for (var j = 0; j < content.length; j++) {
-                if (
-                    content[j].attribs &&
-                    content[j].attribs.slot &&
-                    slots.named &&
-                    slots.named[content[j].attribs.slot]
-                ) {
-                    this.fillSlot(
-                        slots.named[content[j].attribs.slot],
-                        content[j]
-                    );
-                } else if (slots.unnamed) {
-                    this.fillSlot(
-                        slots.unnamed,
-                        content[j]
-                    );
-                }
+                (function () {
+                    var element = content[j];
+                    if (
+                        element.attribs &&
+                        element.attribs.slot &&
+                        slots.named &&
+                        slots.named[element.attribs.slot]
+                    ) {
+                        this.fillSlot(
+                            slots.named[element.attribs.slot],
+                            element
+                        );
+                    } else if (slots.unnamed) {
+                        // Do not count spaces and line brakes as slot content
+                        if (
+                            !(element.type === 'text' && element.text.trim() === '')
+                        ) {
+                            this.fillSlot(
+                                slots.unnamed,
+                                element
+                            );
+                        }
+                    }
+                }).call(this);
             }
         }
     },

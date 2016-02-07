@@ -1,4 +1,8 @@
 <div>
+    <div id="default">
+        <item-one></item-one>
+    </div>
+    <partial name="noTrim"></partial>
     <div id="one">
         <item-one>
           <p>content1</p>
@@ -43,5 +47,12 @@
         <item-one>
           <item :value="value"></item>
         </item-one>
+    </div>
+
+    <div id="partial">
+        <item-two>
+            <partial name="part" slot="two"></partial>
+            <p slot="one">content</p>
+        </item-two>
     </div>
 </div>
