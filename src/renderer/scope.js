@@ -686,7 +686,7 @@ var scope = {
     // Init VMs for v-for
     initLightViewModel: function (contexts) {
         var options = {};
-        var vm = {};
+        var vm = common.extend({}, this.globalPrototype);
 
         for (var key in contexts.parent) {
             if (scope.isSystemProp(key) || vm[key]) {
