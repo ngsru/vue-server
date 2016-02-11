@@ -1,7 +1,11 @@
 var wrapComponent = require('./wrapComponent.js');
 var $;
 var contentComponent = {
-    template: '<div id="filter"><child></child></div>',
+    template: [
+        '<i id="filter"><child></child></i>',
+        '<i id="itself"><itself :include="true"></itself></i>',
+        '<i id="itself-v-for" v-for="n in 1"><itself :include="true"></itself></i>'
+    ].join(''),
 
     filters: {
         parentFilter: function (value) {
@@ -18,6 +22,14 @@ var contentComponent = {
             },
             template: '<i>{{prop | parentFilter}}</i>'
         },
+        itself: {
+            props: {
+                include: {
+                    default: false
+                }
+            },
+            template: '<i>content<itself v-if="include"></itself></i>'
+        }
     }
 };
 
@@ -31,5 +43,10 @@ beforeAll(function (done) {
 describe('while using strict: true', function () {
     it('child component should not inherit parent\'s filters', function () {
         expect($('#filter').html()).toEqual('<i>original</i>');
+    });
+
+    it('a component should be able to invoke itself', function () {
+        expect($('#itself').html()).toEqual('<i>content<i>content</i></i>');
+        expect($('#itself-v-for').html()).toEqual('<i>content<i>content</i></i>');
     });
 });

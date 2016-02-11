@@ -48,6 +48,10 @@ var scope = {
             options.filters = common.extend({}, this.filters, options.filters);
             options.partials = common.extend({}, this.partials, options.partials);
             options.components = common.extend({}, this.components, options.components);
+            // In strict mode components should be able to invoke itself
+            if (contexts.componentName) {
+                options.components[contexts.componentName] = contexts.components[contexts.componentName];
+            }
         } else {
             options.filters = common.extend({}, this.filters, contexts.filters, options.filters);
             options.partials = common.extend({}, this.partials, contexts.partials, options.partials);
