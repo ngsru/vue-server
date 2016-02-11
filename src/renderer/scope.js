@@ -17,7 +17,7 @@ var scope = {
         // Inherit data to v-repeat items contexts
         } else if (contexts.isRepeat) {
             for (var key in contexts.parent) {
-                if (scope.isSystemProp(key) || data[key]) {
+                if (scope.isSystemProp(key, contexts.parent) || data[key]) {
                     continue;
                 }
                 data[key] = contexts.parent[key];
@@ -441,7 +441,11 @@ var scope = {
         }
     },
 
-    isSystemProp: function (name) {
+    isSystemProp: function (name, $parent) {
+        if ($parent && $parent.$options.methods && $parent.$options.methods[name]) {
+            return false;
+        }
+
         var char = name.charAt(0);
         if (char === '$' || char === '_') {
             return true;
@@ -689,7 +693,7 @@ var scope = {
         var vm = common.extend({}, this.globalPrototype);
 
         for (var key in contexts.parent) {
-            if (scope.isSystemProp(key) || vm[key]) {
+            if (scope.isSystemProp(key, contexts.parent) || vm[key]) {
                 continue;
             }
             vm[key] = contexts.parent[key];

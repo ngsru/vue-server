@@ -42,6 +42,8 @@ beforeAll(function (done) {
             '<div id="mixin">{{globalMixinValue}}</div>',
             '<div id="prototype">{{globalPrototypeValue}}</div>',
             '<div id="extended-component"><extended></extended></div>',
+            '<div id="v-for-global-proto"><i v-for="n in 1">{{$myMethod()}}</i></div>',
+            '<div id="v-for-dollar-inherit"><i v-for="n in 1">{{$check()}}</i></div>'
         ].join(''),
         data: {
             value: 'value'
@@ -65,6 +67,12 @@ beforeAll(function (done) {
 
         compiledBe: function () {
             this.globalPrototypeValue = this.$myMethod();
+        },
+
+        methods: {
+            $check: function () {
+                return 'yep';
+            }
         }
     });
 
@@ -109,5 +117,13 @@ describe('global', function () {
 
     it('component mounting through Vue.extend works', function () {
         expect($('#extended-component').html()).toEqual('<i>Yes it is</i>');
+    });
+
+    it('v-for instances should inherit Vue.prototype defined properties', function () {
+        expect($('#v-for-global-proto').html()).toEqual('<i>$myMethod returns value</i>');
+    });
+
+    it('v-for instances should inherit non-system methods starting with $', function () {
+        expect($('#v-for-dollar-inherit').html()).toEqual('<i>yep</i>');
     });
 });
