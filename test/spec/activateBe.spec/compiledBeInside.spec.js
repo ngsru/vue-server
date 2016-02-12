@@ -7,7 +7,10 @@ var contentComponent = {
     },
     components: {
         item: {
-            template: '<div id="content"><inner v-if="view" :value="false"></inner></div>',
+            template: [
+                '<div id="inner-recompile"><inner v-if="view" :value="false"></inner></div>',
+                '<div id="prop-state-saving"><inner :value="false"></inner></div>'
+            ].join(''),
             activateBe: function (done) {
                 this.view = true;
                 done();
@@ -36,7 +39,10 @@ beforeAll(function (done) {
 
 describe('hook:activeBe', function () {
     it('should let compiledBe inside child component launch recompile', function () {
-        expect($('#content').html()).toEqual('<div><span>fine</span></div>');
+        expect($('#inner-recompile').html()).toEqual('<div><span>fine</span></div>');
     });
 
+    it('and a component inside should not override pulled prop if parent\'s value didn\'t change', function () {
+        expect($('#prop-state-saving').html()).toEqual('<div><span>fine</span></div>');
+    });
 });

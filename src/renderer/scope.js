@@ -107,8 +107,8 @@ var scope = {
 
         scope.markKeyElement(vm);
 
-        // Init component private data
-        common.extend(vm, scope.initData(vm));
+        // Init VM data from 'data' option
+        scope.initData(vm);
 
         // Pull props data
         scope.pullPropsData(vm);
@@ -488,7 +488,7 @@ var scope = {
             result = ownData;
         }
 
-        return result;
+        common.extend(vm, result);
     },
 
     initDataUnit: function (vm, data) {
@@ -556,6 +556,7 @@ var scope = {
 
     pullPropsData: function (vm) {
         var props = vm.$options.props;
+        vm.__states.initialDataMirror = vm.__states.initialDataMirror || {};
 
         if (typeof props === 'object') {
             // If props is Array
@@ -625,6 +626,13 @@ var scope = {
             });
         }
 
+        var mirroredValue = vm.__states.initialDataMirror[propName];
+        if (mirroredValue !== undefined && vm.__states.initialDataMirror[propName] === value) {
+            return;
+        } else {
+            vm.__states.initialDataMirror[propName] = value;
+        }
+
         if (descriptor) {
             if (!rawValue) {
                 // Default value
@@ -674,10 +682,10 @@ var scope = {
 
         // Callback inheritance from parent
         if (typeof value === 'function') {
-            vm[propName] = utils.bind(value, vm.__states.parent);
-        } else {
-            vm[propName] = value;
+            value = utils.bind(value, vm.__states.parent);
         }
+
+        vm[propName] = value;
     },
 
     inheritData: function (dataTo, dataFrom) {

@@ -187,6 +187,10 @@ var common = {
         });
     },
 
+    clone: function (object) {
+        return this.extend({}, object);
+    },
+
     dashToCamelCase: function (value) {
         return value.replace(/-(\w)/g, function (a, b) {
             return b.toUpperCase();
