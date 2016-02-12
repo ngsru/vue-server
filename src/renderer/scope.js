@@ -16,12 +16,11 @@ var scope = {
 
         // Inherit data to v-repeat items contexts
         } else if (contexts.isRepeat) {
-            for (var key in contexts.parent) {
-                if (scope.isSystemProp(key, contexts.parent) || data[key]) {
-                    continue;
+            common.each(contexts.parent, function (item, key) {
+                if (!scope.isSystemProp(key, contexts.parent) && !data[key]) {
+                    data[key] = item;
                 }
-                data[key] = contexts.parent[key];
-            }
+            });
         }
 
         // Inherit parent data
@@ -567,9 +566,9 @@ var scope = {
 
             // If props is Object
             } else {
-                for (var name in props) {
-                    this.pullPropsDataItem(vm, name, props[name]);
-                }
+                common.each(props, function (item, name) {
+                    scope.pullPropsDataItem(vm, name, item);
+                });
             }
         }
     },
@@ -704,12 +703,11 @@ var scope = {
         var options = {};
         var vm = common.extend({}, this.globalPrototype);
 
-        for (var key in contexts.parent) {
-            if (scope.isSystemProp(key, contexts.parent) || vm[key]) {
-                continue;
+        common.each(contexts.parent, function (item, key) {
+            if (!scope.isSystemProp(key, contexts.parent) && !vm[key]) {
+                vm[key] = item;
             }
-            vm[key] = contexts.parent[key];
-        }
+        });
 
         vm.__states = {};
         vm.__states.parent = contexts.parent;

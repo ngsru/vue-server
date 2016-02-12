@@ -112,85 +112,83 @@ var compilers = {
             }
 
             // Compile node attributes
-            for (var key in element.attribs) {
-                element.attribs[key] = common.execute(vm, element.attribs[key]);
-            }
+            common.each(element.attribs, function (item, key) {
+                element.attribs[key] = common.execute(vm, item);
+            });
 
             compilers.compileAttributeDirectives(vm, element);
 
             // NEW SYNTAX
             // v-bind:
             if (element.dirs.bind) {
-                for (var name in element.dirs.bind) {
-                    (function () {
-                        if (element.dirs.bind[name].isCompiled) {
-                            return;
-                        }
+                common.each(element.dirs.bind, function (item, name) {
+                    if (item.isCompiled) {
+                        return;
+                    }
 
-                        var value = common.execute(vm, {
-                            value: element.dirs.bind[name].value.get,
-                            filters: element.dirs.bind[name].value.filters,
-                        });
+                    var value = common.execute(vm, {
+                        value: item.value.get,
+                        filters: item.value.filters,
+                    });
 
-                        if (name === 'style') {
-                            (function () {
-                                // Need to consider element's own styles
-                                var originalStyle = element.attribs.style;
-                                if (originalStyle) {
-                                    originalStyle = cssParser.parse(originalStyle);
-                                } else {
-                                    originalStyle = {};
-                                }
+                    if (name === 'style') {
+                        (function () {
+                            // Need to consider element's own styles
+                            var originalStyle = element.attribs.style;
+                            if (originalStyle) {
+                                originalStyle = cssParser.parse(originalStyle);
+                            } else {
+                                originalStyle = {};
+                            }
 
-                                // Drop value if class is Array
-                                if (typeof value === 'string') {
-                                    value = cssParser.parse(value);
-                                } else if (Array.isArray(value)) {
-                                    value = common.extend.apply(common, value);
-                                }
+                            // Drop value if class is Array
+                            if (typeof value === 'string') {
+                                value = cssParser.parse(value);
+                            } else if (Array.isArray(value)) {
+                                value = common.extend.apply(common, value);
+                            }
 
-                                element.attribs.style = {
-                                    own: originalStyle,
-                                    dir: value
-                                };
-                            })();
+                            element.attribs.style = {
+                                own: originalStyle,
+                                dir: value
+                            };
+                        })();
 
-                            return;
-                        }
+                        return;
+                    }
 
-                        if (name === 'class') {
-                            (function () {
-                                var classListOwn = [];
-                                var classListDir = [];
+                    if (name === 'class') {
+                        (function () {
+                            var classListOwn = [];
+                            var classListDir = [];
 
-                                if (element.attribs.class) {
-                                    classListOwn = element.attribs.class.split(' ');
-                                }
+                            if (element.attribs.class) {
+                                classListOwn = element.attribs.class.split(' ');
+                            }
 
-                                if (typeof value === 'string') {
-                                    classListDir = value.split(' ');
-                                } else if (Array.isArray(value)) {
-                                    classListDir = value;
-                                } else {
-                                    for (var name in value) {
-                                        if (value[name]) {
-                                            classListDir.push(name);
-                                        }
+                            if (typeof value === 'string') {
+                                classListDir = value.split(' ');
+                            } else if (Array.isArray(value)) {
+                                classListDir = value;
+                            } else {
+                                for (var name in value) {
+                                    if (value[name]) {
+                                        classListDir.push(name);
                                     }
                                 }
+                            }
 
-                                element.attribs.class = {
-                                    own: classListOwn,
-                                    dir: classListDir
-                                };
-                            })();
+                            element.attribs.class = {
+                                own: classListOwn,
+                                dir: classListDir
+                            };
+                        })();
 
-                            return;
-                        }
+                        return;
+                    }
 
-                        element.attribs[name] = value;
-                    })();
-                }
+                    element.attribs[name] = value;
+                });
             }
 
             // v-bind="{...}"

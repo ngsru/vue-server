@@ -234,6 +234,15 @@ var common = {
         }
 
         return result;
+    },
+
+    each: function (object, callback) {
+        var keys = Object.keys(object);
+        var key;
+        for (var i = 0; i < keys.length; i++) {
+            key = keys[i];
+            callback(object[key], key);
+        }
     }
 };
 
