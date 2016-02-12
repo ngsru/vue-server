@@ -313,7 +313,7 @@ var scope = {
     resetVmInstance: function (vm) {
         // Command to stop building not relevant children VMs
         vm.$broadcast('_vueServer.stopBuilding');
-        this.setRefsAndEls(vm, true);
+        this.setRefsAndEls(vm);
         vm._events = {};
         vm._eventsCount = {};
         vm._eventCancelled = false;
@@ -763,22 +763,11 @@ var scope = {
         return vm;
     },
 
-    setRefsAndEls: function (vm, isReset) {
+    setRefsAndEls: function (vm) {
         vm.$refs = {};
         vm.$els = {};
-        if (isReset) {
-            return;
-        }
-        Object.defineProperty(vm, '$', {
-            get: function () {
-                return this.$refs;
-            }
-        });
-        Object.defineProperty(vm, '$$', {
-            get: function () {
-                return this.$els;
-            }
-        });
+        vm.$ = vm.$refs;
+        vm.$$ = vm.$els;
     }
 };
 
