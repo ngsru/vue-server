@@ -66,23 +66,6 @@ var VueRender = function (logger) {
         var vm;
         var compileInProgress = false;
 
-        // Check for VM ready
-        this._checkVmsReady = function (vm) {
-            if (!vm._isReady) {
-                return false;
-            }
-
-            if (vm.__states.children) {
-                for (var item in vm.__states.children) {
-                    if (!this._checkVmsReady(vm.__states.children[item])) {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
-        };
-
         scope.$logger = this.logger;
         renders.$logger = this.logger;
 
@@ -125,30 +108,26 @@ var VueRender = function (logger) {
 
         vm
             .$on('_vueServer.tryBeginCompile', function () {
-                if (that._checkVmsReady(this)) {
-                    if (compileInProgress) {
-                        that.logger.error(
-                            'Building proccess gone wrong. Some VMs finished compilation after $root Ready'
-                        );
-                        return;
-                    }
+                if (compileInProgress) {
+                    that.logger.error(
+                        'Building proccess gone wrong. Some VMs finished compilation after $root Ready'
+                    );
+                    return;
+                }
 
-                    compileInProgress = true;
-                    this.$emit('_vueServer.readyToCompile');
-                    this.$broadcast('_vueServer.readyToCompile');
+                compileInProgress = true;
+                this.$emit('_vueServer.readyToCompile');
+                this.$broadcast('_vueServer.readyToCompile');
+
+                process.nextTick(function () {
+                    compilers.compile(this);
 
                     process.nextTick(function () {
-                        compilers.compile(this);
-
-                        process.nextTick(function () {
-                            var html = renders.render(this);
-                            this.$emit('vueServer.htmlReady', html);
-                        }.bind(this));
+                        var html = renders.render(this);
+                        this.$emit('vueServer.htmlReady', html);
                     }.bind(this));
-                }
-            })
-            .$on('_vueServer.vmReady', function () {
-                this.$emit('_vueServer.tryBeginCompile');
+                }.bind(this));
+                // }
             });
 
         return vm;

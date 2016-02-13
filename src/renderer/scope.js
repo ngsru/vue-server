@@ -82,21 +82,17 @@ var scope = {
         if (vm.__states.isComponent) {
             var tpl = scope.initTemplate(vm);
 
-            if (vm.__states.parent) {
-                scope.setKeyElementInner(vm, tpl);
-
-            // If threre are no parent, then we have root component
-            // Creating special container for root component
-            } else {
+            // That shoild be $root VM
+            if (!vm.__states.parent) {
                 if (!tpl) {
                     vm.__states.$logger.error('There is no $root template. Can\'t start rendering');
                 }
-                vm.$el = {
-                    type: 'document',
-                    inner: tpl || []
-                };
+                vm.__states.notReadyCount = 0;
+                vm.__states.toRebuild = false;
                 vm.__states.mixin = this.mixin;
             }
+
+            scope.setKeyElementInner(vm, tpl);
 
             // Setting component method to VM
             common.extend(vm, vm.$options.methods);
@@ -141,15 +137,15 @@ var scope = {
         scope.buildWithedData(vm, contexts);
         scope.buildComputedProps(vm);
 
+        scope.updateRootReadyCount(vm.$root);
         builders.build(vm, function () {
             var isCompiledBePresent = false;
             vm._isCompiled = true;
 
             if (!vm.$options.activateBe && contexts.waitFor) {
                 vm.$on(contexts.waitFor, function () {
-                    scope.buildWithedData(vm, contexts);
-                    scope.pullPropsData(vm);
-                    scope.resetVmInstance(vm);
+                    vm.$root.__states.toRebuild = true;
+                    scope.updateRootReadyCount(vm.$root, true);
                 });
             }
 
@@ -183,9 +179,8 @@ var scope = {
             if (vm.$options.activateBe) {
                 process.nextTick(function () {
                     vm.$options.activateBe.call(vm, function () {
-                        scope.buildWithedData(vm, contexts);
-                        scope.pullPropsData(vm);
-                        scope.resetVmInstance(vm);
+                        vm.$root.__states.toRebuild = true;
+                        scope.updateRootReadyCount(vm.$root, true);
                     });
                     vm.$emit('hook:activateBe');
                 });
@@ -196,9 +191,11 @@ var scope = {
                 if (isCompiledBePresent && vm !== vm.$root) {
                     process.nextTick(function () {
                         scope.resetVmInstance(vm);
+                        scope.updateRootReadyCount(vm.$root, true);
                     });
                 } else {
                     vm._isReady = true;
+                    scope.updateRootReadyCount(vm.$root, true);
                 }
             }
         });
@@ -310,32 +307,41 @@ var scope = {
     },
 
     resetVmInstance: function (vm) {
-        // Command to stop building not relevant children VMs
-        vm.$broadcast('_vueServer.stopBuilding');
         this.setRefsAndEls(vm);
-        vm._events = {};
-        vm._eventsCount = {};
-        vm._eventCancelled = false;
-
         vm.$children = [];
         vm.__states.children = [];
         vm.__states.childrenReadyCount = 0;
-        vm._isReady = false;
         vm.__states.VMsDetached = vm.__states.VMs;
         vm.__states.VMs = {};
+        vm._isReady = false;
         var tpl = scope.initTemplate(vm);
         scope.setKeyElementInner(vm, tpl);
-
+        if (vm.__states.parent) {
+            vm._events = {};
+            vm._eventsCount = {};
+            vm._eventCancelled = false;
+            scope.setEventListeners(vm);
+        }
         scope.buildComputedProps(vm);
         scope.markKeyElement(vm);
-        scope.setEventListeners(vm);
+        scope.updateRootReadyCount(vm.$root);
         builders.build(vm, function () {
             vm._isReady = true;
-            vm.$root.$emit('_vueServer.tryBeginCompile');
+            scope.updateRootReadyCount(vm.$root, true);
         });
     },
 
     setKeyElementInner: function (vm, tpl) {
+        // If there is no parent, then we have root component
+        // Creating special container for root component
+        if (!vm.__states.parent) {
+            vm.$el = {
+                type: 'document',
+                inner: tpl || []
+            };
+            return;
+        }
+
         var shouldReplace = this.config.replace;
 
         if (vm.$options.replace !== undefined) {
@@ -746,8 +752,10 @@ var scope = {
             common.extend(vm, contexts.repeatData);
         }
 
+        scope.updateRootReadyCount(vm.$root);
         builders.build(vm, function () {
             vm._isReady = true;
+            scope.updateRootReadyCount(vm.$root, true);
         });
 
         return vm;
@@ -766,6 +774,27 @@ var scope = {
         vm.$els = {};
         vm.$ = vm.$refs;
         vm.$$ = vm.$els;
+    },
+
+    updateRootReadyCount: function (vm, decrement) {
+        if (decrement) {
+            vm.__states.notReadyCount--;
+        } else {
+            vm.__states.notReadyCount++;
+        }
+
+        if (vm.__states.notReadyCount === 0) {
+            if (vm.__states.toRebuild) {
+                scope.resetVmInstance(vm);
+                vm.__states.toRebuild = false;
+            } else {
+                vm.$emit('_vueServer.tryBeginCompile');
+            }
+        }
+
+        if (vm.__states.notReadyCount < 0) {
+            vm.__states.$logger.warn('Deviance in VMs ready check detected', common.onLogMessage(vm));
+        }
     }
 };
 
