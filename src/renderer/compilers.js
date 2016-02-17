@@ -1,6 +1,6 @@
 var cssParser = require('../css');
 var common = require('./common.js');
-var mergeContents = require('./merge-contents.js');
+var slotContent = require('./slot-content.js');
 
 var compilers = {
     compile: function (vm) {
@@ -12,6 +12,14 @@ var compilers = {
         var childVm;
 
         compilers.compileElements(vm, [vm.$el]);
+
+        // If component's template is empty, but extra content was
+        // provided inside component's init tag, then we paste the content inside
+        // ref to test/spec/component.spec/component.spec.js #comp-empty-inner
+        if (!vm.$el.inner.length && vm.$el._content) {
+            vm.$el.inner = vm.$el._content.inner;
+            return;
+        }
 
         if (!vm.__states.children) {
             return;
@@ -29,11 +37,6 @@ var compilers = {
         for (var i = 0, l = elements.length; i < l; i++) {
             element = common.setElement(elements[i]);
             compilers.compileElement(vm, element, i);
-
-            // This is inners of a component, compiled inside parent's VM
-            if (element.type === '$content' && !element.compiled) {
-                mergeContents.merge(vm, elements[i + 1], element);
-            }
         }
     },
 
@@ -75,6 +78,10 @@ var compilers = {
         }
 
         if (element.type === 'tag') {
+            if (element.name === 'slot') {
+                slotContent.insert(vm, element);
+            }
+
             // v-model
             if (element.dirs.model) {
                 compilers.compileDirectiveModel(vm, element);

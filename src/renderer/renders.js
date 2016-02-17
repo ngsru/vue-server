@@ -86,8 +86,12 @@ var renders = {
             elementChild = element.inner[1];
         }
 
-        // If there are many nested $merge
-        if (elementChild.name === '$merge' || elementChild.name === 'template') {
+        // Pass through non-visible elements
+        if (
+            elementChild.name === '$merge' ||
+            elementChild.name === 'template' ||
+            elementChild.name === 'slot'
+        ) {
             return renders.renderTemplate(element.inner);
         }
 
@@ -224,10 +228,6 @@ var renders = {
             callback(attrName, attrVal);
         }
     }
-
-    // renderClassAttribue: function (value) {
-    //     return common.filterClassNames(value.own.concat(value.dir)).join(' ');
-    // }
 };
 
 module.exports = renders;

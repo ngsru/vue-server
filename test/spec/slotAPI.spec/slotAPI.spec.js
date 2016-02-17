@@ -19,7 +19,23 @@ var contentComponent = {
         itemTwo: {
             template: tools.getTpl(__dirname + '/item-two.html', true)
         },
-
+        itemMulti: {
+            template: tools.getTpl(__dirname + '/item-multi.html', true)
+        },
+        itemDeep: {
+            template: tools.getTpl(__dirname + '/item-deep.html', true)
+        },
+        itemVFor: {
+            template: tools.getTpl(__dirname + '/item-v-for.html', true)
+        },
+        itemComplex: {
+            template: '<i><item2 v-for="n in 1">333</item2></i>',
+            components: {
+                item2: {
+                    template: '<b>111<slot>222</slot></b>'
+                }
+            }
+        },
         item: {
             template: '<i>{{value}}|{{own}}</i>',
             props: ['value'],
@@ -57,7 +73,7 @@ describe('<slot> API', function () {
         );
     });
 
-    it('should show proper slot values if thespre are aces or line endings', function () {
+    it('should show proper slot values if there are spaces or line endings', function () {
         expect($('#default-hybrid-spaces').html()).toEqual(
             '<div><p slot="one">content</p>defaulttwo-default</div>'
         );
@@ -108,6 +124,36 @@ describe('<slot> API', function () {
     it('should be able to use partials as slot item', function () {
         expect($('#partial').html()).toEqual(
             '<div><p slot="one">content</p>default<i>partial</i></div>'
+        );
+    });
+
+    it('should be able insert content into several copies of slot', function () {
+        expect($('#multi').html()).toEqual(
+            '<div>content-<p slot="one">content</p>-content-<p slot="one">content</p></div>'
+        );
+    });
+
+    it('should be able insert content into deep down slots', function () {
+        expect($('#deep').html()).toEqual(
+            '<div><i>content</i> <i><p slot="one">content</p></i></div>'
+        );
+    });
+
+    it('should be able insert content into several copies of slot crated via v-for', function () {
+        expect($('#v-for').html()).toEqual(
+            '<div><p slot="one">content</p><i><p slot="two">content</p></i></div>'
+        );
+    });
+
+    it('should be able insert component inside itself', function () {
+        expect($('#item-inside-item').html()).toEqual(
+            '<div><h1>original</h1>222<div><h1>original</h1>OK</div></div>'
+        );
+    });
+
+    it('in complex example should work properly', function () {
+        expect($('#item-complex').html()).toEqual(
+            '<i><b>111333</b></i>'
         );
     });
 });

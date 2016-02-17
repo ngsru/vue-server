@@ -196,6 +196,7 @@ var builders = {
                             };
 
                             element.inner = [];
+                            element._content = content;
                             elements.splice(i, 0, content);
                         })();
                         builders.buildElements(vm, elements, i);

@@ -125,4 +125,9 @@ describe('component', function () {
     it('should not use extra provided elements if its template is not empty', function () {
         expect($('#comp-not-empty-inner').html()).toEqual('<i>rakushka</i>');
     });
+
+    // Will be the opposite in 1.0.16. In 1.0.0 still it.
+    it('should render provided extra content if "is" attribute is empty', function () {
+        expect($('#comp-name-empty').html()).toEqual('<component is="">rakushka</component>');
+    });
 });
