@@ -90,6 +90,7 @@ var renders = {
         if (
             elementChild.name === '$merge' ||
             elementChild.name === 'template' ||
+            elementChild.name === 'partial' ||
             elementChild.name === 'slot'
         ) {
             return renders.renderTemplate(element.inner);

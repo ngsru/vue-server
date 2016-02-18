@@ -168,6 +168,10 @@ var contentComponent = {
                     return result;
                 }
             }
+        },
+
+        item: {
+            template: '<i>111</i><i>222</i>'
         }
     },
 
@@ -336,11 +340,13 @@ describe('v-for', function () {
         expect($('#v-if-component').html()).toEqual('<i>0|1</i><i>2|3</i>');
     });
 
-
     it('should work with plain number iterating', function () {
         expect($('#plain-number').html()).toEqual('<i>0</i><i>1</i><i>2</i>');
     });
 
+    it('should work render components width two top-level elements', function () {
+        expect($('#replace-two-top').html()).toEqual('<i>111</i><i>222</i><i>111</i><i>222</i>');
+    });
 
 });
 
@@ -364,8 +370,8 @@ describe('v-for', function () {
         expect($('#v-repeat .array-filter-by').find('li').eq(1).find('.age').text()).toEqual('32');
     });
 
-    it("should be able to use multiple filters", function() {
-        expect( $('#v-repeat .array-filter-by-multiple').find('li').eq(0).find('.age').text() ).toEqual('25');
+    it('should be able to use multiple filters', function () {
+        expect($('#v-repeat .array-filter-by-multiple').find('li').eq(0).find('.age').text()).toEqual('25');
     });
 
     it('should be able to render objects', function () {
@@ -388,12 +394,12 @@ describe('v-for', function () {
         expect($items.eq(2).text()).toEqual('i\'m parent\'s value');
     });
 
-    it("should be able to use separated datas (parent & repeat-item) in methods", function() {
-        expect( $('#v-repeat .syntetic .active').length ).toEqual( 2 );
+    it('should be able to use separated datas (parent & repeat-item) in methods', function () {
+        expect($('#v-repeat .syntetic .active').length).toEqual(2);
     });
 
-    it("should be able to use component's filters inside component's v-repeat", function() {
-        expect( $('#v-repeat .syntetic .in-repeat-nested-filter').eq(1).text() ).toEqual( 'ok!?!?!?!' );
+    it('should be able to use component\'s filters inside component\'s v-repeat', function () {
+        expect($('#v-repeat .syntetic .in-repeat-nested-filter').eq(1).text()).toEqual('ok!?!?!?!');
     });
 
     it('should be able to use component\'s filters inside v-repeat', function () {
