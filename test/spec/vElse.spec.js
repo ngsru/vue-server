@@ -20,7 +20,12 @@ var contentComponent = {
         '</div>',
         '<div id="non-abutting-false">',
             '<i v-if="booleanFalse">if</i><i>f</i><else v-else>else</else>',
-        '</div>'
+        '</div>',
+        '<div id="complex1"> ',
+            '<i v-if="false">if-first</i> <template v-else>',
+                ' <i v-if="false">if-second</i> <i v-else>else-second</i> ',
+            '</template>',
+        ' </div>',
     ].join(''),
     data: function () {
         return {
@@ -63,5 +68,9 @@ describe('v-else', function () {
         it('should show tag if v-if is "false"', function () {
             expect($('#non-abutting-false else').length).toEqual(1);
         });
+    });
+
+    it('should render complex1', function () {
+        expect($('#complex1 i').text()).toEqual('else-second');
     });
 });
