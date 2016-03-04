@@ -141,28 +141,33 @@ var VueRender = function (logger) {
     };
 
     VueRoot.component = function (id, instance) {
-        var result = this.extend(instance);
-        this.prototype.components[id] = result;
+        if (instance) {
+            this.prototype.components[id] = this.extend(instance);
+        }
 
-        return result;
+        return this.prototype.components[id];
     };
 
     VueRoot.filter = function (id, filter) {
-        this.prototype.filters[id] = filter;
+        if (filter) {
+            this.prototype.filters[id] = filter;
+        }
 
-        return filter;
+        return this.prototype.filters[id];
     };
 
     VueRoot.partial = function (id, partial) {
-        var result = asset.compileTemplate(
-            this.prototype.logger,
-            partial,
-            'Partial "' + id + '"'
-        );
+        if (partial) {
+            var result = asset.compileTemplate(
+                this.prototype.logger,
+                partial,
+                'Partial "' + id + '"'
+            );
 
-        this.prototype.partials[id] = result;
+            this.prototype.partials[id] = result;
+        }
 
-        return result;
+        return this.prototype.partials[id];
     };
 
     Object.defineProperty(VueRoot, 'mixin', {
