@@ -312,7 +312,7 @@ var scope = {
         };
 
         vm.$log = function (name) {
-            this.$logger.log(this[name]);
+            this.$logger.log(this[name], common.onLogMessage(this));
         };
     },
 
@@ -347,6 +347,8 @@ var scope = {
         if (!vm.__states.parent) {
             vm.$el = {
                 type: 'document',
+                attribs: {},
+                dirs: {},
                 inner: tpl || []
             };
             return;
@@ -659,7 +661,9 @@ var scope = {
 
                 // Required field
                 if (descriptor.required) {
-                    vm.__states.$logger.warn('Property"' + propName + '" is required');
+                    vm.__states.$logger.warn(
+                        'Missing required prop: ' + propName, common.onLogMessage(vm)
+                    );
                     return;
                 }
             } else {
