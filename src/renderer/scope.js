@@ -119,11 +119,16 @@ var scope = {
             }
         }
 
+        var createdHookFired = false;
+        // Building computed properties for the first time
+        scope.buildComputedProps(vm);
+
         // Server Created mixins
         if (vm.$options.mixins) {
             for (var i = 0; i < vm.$options.mixins.length; i++) {
                 if (vm.$options.mixins[i].createdBe) {
                     vm.$options.mixins[i].createdBe.call(vm);
+                    createdHookFired = true;
                 }
             }
         }
@@ -132,10 +137,15 @@ var scope = {
         if (vm.$options.createdBe) {
             vm.$options.createdBe.call(vm);
             vm.$emit('hook:createdBe');
+            createdHookFired = true;
         }
 
         scope.buildWithedData(vm, contexts);
-        scope.buildComputedProps(vm);
+        if (createdHookFired) {
+            // Building computed properties for the second time
+            // If there was a possibility the data was modifed by hooks
+            scope.buildComputedProps(vm);
+        }
 
         scope.updateRootReadyCount(vm.$root);
         builders.build(vm, function () {
