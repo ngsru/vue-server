@@ -1,3 +1,4 @@
+var utils = require('./../utils.js');
 var asset = require('./asset.js');
 var common = require('./common.js');
 var commonTagRE = /^(div|p|span|img|a|b|i|br|ul|ol|li|h1|h2|h3|h4|h5|h6|code|pre|table|th|td|tr|form|label|input|select|option|nav|article|section|header|footer)$/;
@@ -372,7 +373,7 @@ var builders = {
 
         // If component exists
         if (component) {
-            options = common.extend({
+            options = utils.extend({
                 element: element,
                 repeatData: null,
                 withData: null,

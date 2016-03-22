@@ -1,6 +1,5 @@
 var htmlparser = require('htmlparser2');
 var _ = require('underscore');
-var utils = require('../utils');
 var strFnObj = require('../serializer');
 var log4js = require('log4js');
 var logger = log4js.getLogger('[VueServer Compile]');
@@ -21,10 +20,11 @@ var directiveOptions = {
 };
 
 var parsers = {
-    directive: require('./../parsers/directive'),
-    expression: require('./../parsers/expression'),
-    path: require('./../parsers/path'),
-    text: require('./../parsers/text')
+    directive: require('vue/src/parsers/directive'),
+    directiveNew: require('vue/src/parsers/directive-new'),
+    expression: require('vue/src/parsers/expression'),
+    path: require('vue/src/parsers/path'),
+    text: require('vue/src/parsers/text')
 };
 
 var tokensToFn = function (tokens) {
@@ -65,8 +65,7 @@ var dashToCamelCase = function (value) {
     return value.replace(/-(\w)/g, function (a, b) {
         return b.toUpperCase();
     });
-}
-
+};
 
 var getMetaValue = function (value) {
     var result = [];
@@ -326,13 +325,17 @@ var Compile = function (template) {
                                 arg = text[0];
                             }
 
-                            var rawValue = parseDirective(arg + ':' + expression);
+                            var rawValue = parseDirective(expression);
 
-                            if (rawValue) {
+                            if (arg && expression && rawValue) {
                                 rawValue = rawValue[0];
 
                                 element.dirs.for = {
-                                    value: rawValue
+                                    value: {
+                                        arg: arg,
+                                        expression: expression,
+                                        get: rawValue.get
+                                    }
                                 };
 
                                 element.dirs.for.value.index = index;
@@ -632,7 +635,7 @@ var Compile = function (template) {
         },
 
         onerror: function (error) {
-            utils.warn(error);
+            logger.warn(error);
         }
     },
     {

@@ -1,6 +1,6 @@
 var log4js = require('log4js');
 
-var filtersGlobal = require('./../filters');
+var filtersGlobal = require('vue/src/filters');
 
 var asset = require('./asset.js');
 var scope = require('./scope.js');

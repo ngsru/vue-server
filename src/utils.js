@@ -100,33 +100,18 @@ var utils = module.exports = {
         };
     },
 
-    /**
-     * Custom Methods from Andrey Solodovnikov
-     */
     extend: function () {
-        var extend = function (to, from) {
-            for (var i in from) {
-                to[i] = from[i];
+        return Array.prototype.reduce.call(arguments, function (previousValue, currentValue) {
+            for (var item in currentValue) {
+                previousValue[item] = currentValue[item];
             }
 
-            return to;
-        };
-
-        for (var arg in arguments) {
-            extend(arguments[0], arguments[Number(arg) + 1]);
-        }
-
-        return arguments[0];
+            return previousValue;
+        });
     },
 
-    clone: function (source) {
-        var obj = {};
-
-        for (var arg in source) {
-            obj[arg] = source[arg];
-        }
-
-        return obj;
+    clone: function (object) {
+        return this.extend({}, object);
     },
 
     cloneFull: function (obj) {
@@ -171,6 +156,19 @@ var utils = module.exports = {
         return clone(obj);
     },
 
+    each: function (object, callback) {
+        var keys = Object.keys(object);
+        var key;
+        for (var i = 0; i < keys.length; i++) {
+            key = keys[i];
+            callback(object[key], key);
+        }
+    },
+
+    size: function (value) {
+        return Object.keys(value).length;
+    },
+
     // For debuging (to trace problems)
     recostructTag: function (element) {
         if (element.type === 'partial') {
@@ -195,53 +193,6 @@ var utils = module.exports = {
         tag += '>';
 
         return tag;
-    },
-
-    /**
-     *  Convert an object to Array
-     *  used in v-repeat and array filters
-     */
-    objectToArray: function (obj) {
-        var res = [], val, data;
-        for (var key in obj) {
-            val = obj[key];
-            data = utils.isObject(val) ?
-                val
-                : {$value: val};
-            data.$key = key;
-            res.push(data);
-        }
-        return res;
     }
 
 };
-
-enableDebug();
-function enableDebug() {
-    /**
-     *  log for debugging
-     */
-    utils.log = function (msg) {
-        if (console && msg) {
-            console.log(msg.magenta);
-        }
-    };
-
-    utils.warn = function (msg) {
-        if (console && msg) {
-            console.warn(msg.yellow);
-
-            if (console.trace) {
-                console.trace();
-            }
-        }
-    };
-
-    utils.error = function (msg) {
-        if (console && console.trace) {
-            console.trace();
-        }
-
-        throw msg;
-    };
-}

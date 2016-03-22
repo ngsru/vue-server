@@ -1,4 +1,4 @@
-var Path = require('./../parsers/path');
+var utils = require('./../utils.js');
 
 var common = {
     getValue: function (vm, value) {
@@ -47,7 +47,7 @@ var common = {
         }
 
         if (options) {
-            this.extend(config, options);
+            utils.extend(config, options);
         }
 
         if (config.isEscape) {
@@ -177,20 +177,6 @@ var common = {
         return '';
     },
 
-    extend: function () {
-        return Array.prototype.reduce.call(arguments, function (previousValue, currentValue) {
-            for (var item in currentValue) {
-                previousValue[item] = currentValue[item];
-            }
-
-            return previousValue;
-        });
-    },
-
-    clone: function (object) {
-        return this.extend({}, object);
-    },
-
     dashToCamelCase: function (value) {
         return value.replace(/-(\w)/g, function (a, b) {
             return b.toUpperCase();
@@ -215,10 +201,6 @@ var common = {
         });
     },
 
-    size: function (value) {
-        return Object.keys(value).length;
-    },
-
     filterClassNames: function (array) {
         var seen = [];
         var result = [];
@@ -234,15 +216,6 @@ var common = {
         }
 
         return result;
-    },
-
-    each: function (object, callback) {
-        var keys = Object.keys(object);
-        var key;
-        for (var i = 0; i < keys.length; i++) {
-            key = keys[i];
-            callback(object[key], key);
-        }
     }
 };
 

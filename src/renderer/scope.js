@@ -1,9 +1,7 @@
+var utils = require('./../utils.js');
 var common = require('./common.js');
 var builders = require('./builders.js');
-var utils = require('../utils.js');
 var events = require('./events.js');
-
-var util = require('util');
 
 var scope = {
     // Init VMs for components and repeat items
@@ -12,11 +10,11 @@ var scope = {
         var data = {};
 
         if (contexts.isComponent) {
-            common.extend(options, new contexts.component());
+            utils.extend(options, new contexts.component());
 
         // Inherit data to v-repeat items contexts
         } else if (contexts.isRepeat) {
-            common.each(contexts.parent, function (item, key) {
+            utils.each(contexts.parent, function (item, key) {
                 if (!scope.isSystemProp(key, contexts.parent) && !data[key]) {
                     data[key] = item;
                 }
@@ -29,7 +27,7 @@ var scope = {
         }
 
         // Init context
-        var vm = common.extend(data, this.globalPrototype);
+        var vm = utils.extend(data, this.globalPrototype);
         vm.__states = {};
         vm.__states.parent = contexts.parent;
         vm.__states.children = [];
@@ -44,17 +42,17 @@ var scope = {
         }
 
         if (this.config.strict) {
-            options.filters = common.extend({}, this.filters, options.filters);
-            options.partials = common.extend({}, this.partials, options.partials);
-            options.components = common.extend({}, this.components, options.components);
+            options.filters = utils.extend({}, this.filters, options.filters);
+            options.partials = utils.extend({}, this.partials, options.partials);
+            options.components = utils.extend({}, this.components, options.components);
             // In strict mode components should be able to invoke itself
             if (contexts.componentName) {
                 options.components[contexts.componentName] = contexts.components[contexts.componentName];
             }
         } else {
-            options.filters = common.extend({}, this.filters, contexts.filters, options.filters);
-            options.partials = common.extend({}, this.partials, contexts.partials, options.partials);
-            options.components = common.extend({}, this.components, contexts.components, options.components);
+            options.filters = utils.extend({}, this.filters, contexts.filters, options.filters);
+            options.partials = utils.extend({}, this.partials, contexts.partials, options.partials);
+            options.components = utils.extend({}, this.components, contexts.components, options.components);
         }
 
         vm.__states.$logger = this.$logger;
@@ -95,7 +93,7 @@ var scope = {
             scope.setKeyElementInner(vm, tpl);
 
             // Setting component method to VM
-            common.extend(vm, vm.$options.methods);
+            utils.extend(vm, vm.$options.methods);
 
             scope.setEventListeners(vm);
         }
@@ -109,7 +107,7 @@ var scope = {
         scope.pullPropsData(vm);
 
         if (contexts.repeatData) {
-            common.extend(vm, contexts.repeatData);
+            utils.extend(vm, contexts.repeatData);
         }
 
         // Events option binded event handlers
@@ -215,7 +213,7 @@ var scope = {
 
     initVmSystemMethods: function (vm) {
         // Setting event control methods
-        common.extend(vm, events);
+        utils.extend(vm, events);
 
         vm.$set = function (keypath, value) {
             utils.set(this, keypath, value);
@@ -239,7 +237,7 @@ var scope = {
 
             if (!presentVm) {
                 newVm = scope.initViewModel(
-                    common.extend({
+                    utils.extend({
                         parent: this,
                         parentLink: $target,
                         filters: $target.$options.filters,
@@ -289,7 +287,7 @@ var scope = {
 
         vm.$addLightChild = function (options) {
             var newVm = scope.initLightViewModel(
-                common.extend({
+                utils.extend({
                     parent: this,
                     filters: this.$options.filters
                 }, options)
@@ -451,7 +449,7 @@ var scope = {
                 delete vm[key];
             }
             withReplaceData = common.getValue(vm.__states.parent, contexts.withReplaceData);
-            common.extend(vm, withReplaceData);
+            utils.extend(vm, withReplaceData);
         }
 
         if (contexts.withData) {
@@ -500,12 +498,12 @@ var scope = {
 
             mixinResults = mixinResults.reverse();
             mixinResults.push(ownData);
-            result = common.extend.apply(common, mixinResults);
+            result = utils.extend.apply(common, mixinResults);
         } else {
             result = ownData;
         }
 
-        common.extend(vm, result);
+        utils.extend(vm, result);
     },
 
     initDataUnit: function (vm, data) {
@@ -584,7 +582,7 @@ var scope = {
 
             // If props is Object
             } else {
-                common.each(props, function (item, name) {
+                utils.each(props, function (item, name) {
                     scope.pullPropsDataItem(vm, name, item);
                 });
             }
@@ -616,7 +614,7 @@ var scope = {
             if (config === null || config.constructor && config.name) {
                 descriptor.type = config;
             } else {
-                common.extend(descriptor, config);
+                utils.extend(descriptor, config);
             }
         }
 
@@ -721,9 +719,9 @@ var scope = {
     // Init VMs for v-for
     initLightViewModel: function (contexts) {
         var options = {};
-        var vm = common.extend({}, this.globalPrototype);
+        var vm = utils.extend({}, this.globalPrototype);
 
-        common.each(contexts.parent, function (item, key) {
+        utils.each(contexts.parent, function (item, key) {
             if (!scope.isSystemProp(key, contexts.parent) && !vm[key]) {
                 vm[key] = item;
             }
@@ -736,9 +734,9 @@ var scope = {
         vm.__states.notPublic = true;
 
         if (this.config.strict) {
-            options.filters = common.extend({}, this.filters, options.filters);
+            options.filters = utils.extend({}, this.filters, options.filters);
         } else {
-            options.filters = common.extend({}, this.filters, contexts.filters, options.filters);
+            options.filters = utils.extend({}, this.filters, contexts.filters, options.filters);
         }
 
         vm.__states.$logger = this.$logger;
@@ -763,7 +761,7 @@ var scope = {
         scope.markKeyElement(vm);
 
         if (contexts.repeatData) {
-            common.extend(vm, contexts.repeatData);
+            utils.extend(vm, contexts.repeatData);
         }
 
         scope.updateRootReadyCount(vm.$root);

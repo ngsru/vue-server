@@ -1,5 +1,6 @@
 var cssParser = require('../css');
 var common = require('./common.js');
+var utils = require('./../utils.js');
 var slotContent = require('./slot-content.js');
 
 var compilers = {
@@ -119,7 +120,7 @@ var compilers = {
             }
 
             // Compile node attributes
-            common.each(element.attribs, function (item, key) {
+            utils.each(element.attribs, function (item, key) {
                 element.attribs[key] = common.execute(vm, item, {
                     isEscape: false
                 });
@@ -130,7 +131,7 @@ var compilers = {
             // NEW SYNTAX
             // v-bind:
             if (element.dirs.bind) {
-                common.each(element.dirs.bind, function (item, name) {
+                utils.each(element.dirs.bind, function (item, name) {
                     if (item.isCompiled) {
                         return;
                     }
@@ -154,7 +155,7 @@ var compilers = {
                             if (typeof value === 'string') {
                                 value = cssParser.parse(value);
                             } else if (Array.isArray(value)) {
-                                value = common.extend.apply(common, value);
+                                value = utils.extend.apply(common, value);
                             }
 
                             element.attribs.style = {
@@ -208,7 +209,7 @@ var compilers = {
                         filters: element.dirs.bindMany.value.filters,
                     });
 
-                    common.extend(element.attribs, value);
+                    utils.extend(element.attribs, value);
                 })();
             }
 
@@ -279,14 +280,14 @@ var compilers = {
             // The correct application of styles from these directives
             // will depend on the order they are declared in the tag
             if (element.dirs.style.order < element.dirs.show.order) {
-                common.extend(
+                utils.extend(
                     styles,
                     compilers.compileDirectiveStyle(vm, element),
                     compilers.compileDirectiveShow(vm, element, originalStyle)
                 );
 
             } else {
-                common.extend(
+                utils.extend(
                     styles,
                     compilers.compileDirectiveShow(vm, element, originalStyle),
                     compilers.compileDirectiveStyle(vm, element)
@@ -302,9 +303,9 @@ var compilers = {
             styles = compilers.compileDirectiveShow(vm, element, originalStyle);
         }
 
-        if (common.size(styles)) {
+        if (utils.size(styles)) {
             if (originalStyle) {
-                element.attribs.style = cssParser.stringify(common.extend(originalStyle, styles));
+                element.attribs.style = cssParser.stringify(utils.extend(originalStyle, styles));
             } else {
                 element.attribs.style = cssParser.stringify(styles);
             }

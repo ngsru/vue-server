@@ -1,3 +1,4 @@
+var utils = require('./../utils.js');
 var common = require('./common');
 var cssParser = require('../css');
 
@@ -15,7 +16,7 @@ var renders = {
 
             if (element.type === 'tag') {
                 if (
-                    (element.name === 'template' && common.size(element.dirs)) ||
+                    (element.name === 'template' && utils.size(element.dirs)) ||
                     element.name === 'partial' ||
                     element.name === 'slot'
                 ) {
@@ -52,7 +53,7 @@ var renders = {
                 }
 
                 if (attrName === 'style') {
-                    attrVal = cssParser.stringify(common.extend(attrVal.own, attrVal.dir));
+                    attrVal = cssParser.stringify(utils.extend(attrVal.own, attrVal.dir));
                 }
             }
 
@@ -200,7 +201,7 @@ var renders = {
                     list.push(childDyn);
                 }
 
-                element.attribs[name] = cssParser.stringify(common.extend.apply(common, list));
+                element.attribs[name] = cssParser.stringify(utils.extend.apply(common, list));
             })();
         }
 
