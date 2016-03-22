@@ -1,8 +1,10 @@
+var Entities = require('html-entities').XmlEntities;
+entities = new Entities();
 var wrapComponent = require('./wrapComponent.js');
 var $;
 var contentComponent = {
 
-    template: '<div><ndash>{{arr | join \'&ndash;\'}}</ndash></div>',
+    template: '<div><ndash>{{arr | join \'&ndash;&&\'}}</ndash></div>',
     data: function () {
         return {
             arr: [1,2,3]
@@ -25,6 +27,8 @@ beforeAll(function (done) {
 describe('filters', function () {
     // To implement this look: src/parsers/directive.js:57
     it('should be able to use web symbols as arguments', function () {
-        expect($('ndash').text()).toEqual('1–2–3');
+        expect(
+            entities.decode($('ndash').text())
+        ).toEqual('1&ndash;&&2&ndash;&&3');
     });
 });

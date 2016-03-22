@@ -1,3 +1,5 @@
+var Entities = require('html-entities').XmlEntities;
+entities = new Entities();
 var wrapComponent = require('./../wrapComponent.js');
 var contentComponent = require('./component');
 var $;
@@ -40,11 +42,15 @@ describe('In plain templating', function () {
     });
 
     it('should be able to escape html', function () {
-        expect($('#plain .html-stripped').text()).toEqual('<span>WATWG<sup>2</sup></span>');
+        expect(
+            entities.decode($('#plain .html-stripped').text())
+        ).toEqual('<span>WATWG<sup>2</sup></span>');
     });
 
     it('should be able to escape and not to escape html in one row', function () {
-        expect($('#plain .html-mixed').text()).toEqual('WATWG2 <span>WATWG<sup>2</sup></span>');
+        expect(
+            entities.decode($('#plain .html-mixed').text())
+        ).toEqual('WATWG2 <span>WATWG<sup>2</sup></span>');
     });
 
     describe('with a filter', function () {
@@ -495,7 +501,6 @@ describe('v-repeat', function () {
         });
     });
 
-
     it('should ignore v-if', function () {
         expect($('#v-repeat .with-v-if').length).toEqual(3);
     });
@@ -504,10 +509,9 @@ describe('v-repeat', function () {
         expect($('#v-repeat .with-v-if-comoonent').length).toEqual(3);
     });
 
-
     it('should use items\'s scope for v-show', function () {
         var report = [];
-        $('#v-repeat .with-v-show').each(function() {
+        $('#v-repeat .with-v-show').each(function () {
             report.push($(this).attr('style'));
         });
         expect(report.join('')).toEqual('');
@@ -515,7 +519,7 @@ describe('v-repeat', function () {
 
     it('with v-component should use parent\'s scope for v-show', function () {
         var report = [];
-        $('#v-repeat .with-v-show-component').each(function() {
+        $('#v-repeat .with-v-show-component').each(function () {
             report.push($(this).attr('style'));
         });
         expect(report.join('')).toEqual('');

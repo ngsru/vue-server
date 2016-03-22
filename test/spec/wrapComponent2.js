@@ -10,16 +10,17 @@ module.exports = function (content, callback) {
 
     var vm = new Vue(content);
 
-    var timeout = setTimeout(function() {
+    var timeout = setTimeout(function () {
         $ = cheerio.load('<div>vueServer.htmlReady didnt fire</div>');
         callback($);
-    }, 1000)
+    }, 1000);
 
     vm.$on('vueServer.htmlReady', function (html) {
-        clearTimeout(timeout)
-        $ = cheerio.load(html);
+        clearTimeout(timeout);
+        $ = cheerio.load(html, {
+            decodeEntities: false
+        });
         callback($);
     });
-
 
 };

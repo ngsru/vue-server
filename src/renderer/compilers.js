@@ -120,7 +120,9 @@ var compilers = {
 
             // Compile node attributes
             common.each(element.attribs, function (item, key) {
-                element.attribs[key] = common.execute(vm, item);
+                element.attribs[key] = common.execute(vm, item, {
+                    isEscape: false
+                });
             });
 
             compilers.compileAttributeDirectives(vm, element);

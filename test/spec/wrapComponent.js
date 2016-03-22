@@ -19,26 +19,6 @@ module.exports = function (content, callback, config) {
                 this.$emit('loaded');
             };
         }
-
-        // var prepareComponents = function(components) {
-        //     _.each(components, function(component) {
-        //         if (component.template) {
-        //            component.template = VueCompile(component.template);
-        //         }
-        //         preparePartials(component.partials);
-
-        //         prepareComponents(component.components);
-        //     });
-        // };
-
-        // var preparePartials = function(partials) {
-        //     _.each(partials, function(partial, name) {
-        //         partials[name] = VueCompile(partial);
-        //     });
-        // };
-
-        // prepareComponents(content.components);
-        // preparePartials(content.partials);
     })();
 
     var Vue = new VueRender();
@@ -62,7 +42,9 @@ module.exports = function (content, callback, config) {
     });
 
     vm.$on('vueServer.htmlReady', function (html) {
-        $ = cheerio.load(html);
+        $ = cheerio.load(html, {
+            decodeEntities: false
+        });
         callback($);
     });
 };
