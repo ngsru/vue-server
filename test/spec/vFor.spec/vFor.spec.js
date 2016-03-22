@@ -7,6 +7,7 @@ var contentComponent = {
     data: function () {
         return {
             number: 3,
+            nan: NaN,
             vRepeat: {
                 parentValue: '',
                 simpleArray: [],
@@ -346,6 +347,10 @@ describe('v-for', function () {
 
     it('should work render components width two top-level elements', function () {
         expect($('#replace-two-top').html()).toEqual('<i>111</i><i>222</i><i>111</i><i>222</i>');
+    });
+
+    it('should be okay with NaN as data', function () {
+        expect($('#nan').html()).toEqual('');
     });
 
 });
