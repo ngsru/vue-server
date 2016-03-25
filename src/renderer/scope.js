@@ -28,10 +28,9 @@ var scope = {
 
         // Init context
         var vm = utils.extend(data, this.globalPrototype);
-        vm.__states = {};
-        vm.__states.parent = contexts.parent;
-        vm.__states.children = [];
-        vm.__states.childrenReadyCount = 0;
+        scope.initPrivateState(vm, {
+            parent: contexts.parent
+        });
 
         if (contexts.isRepeat) {
             vm.__states.isRepeat = true;
@@ -247,10 +246,9 @@ var scope = {
                 );
             } else {
                 options.element._components = presentVm.__states.VMs;
-                presentVm.$el = options.element;
+                scope.resetVmInstance(presentVm, options.element);
                 scope.buildWithedData(presentVm, options);
                 scope.pullPropsData(presentVm);
-                scope.resetVmInstance(presentVm);
                 newVm = presentVm;
             }
 
@@ -314,8 +312,12 @@ var scope = {
         };
     },
 
-    resetVmInstance: function (vm) {
+    resetVmInstance: function (vm, newEl) {
         this.setRefsAndEls(vm);
+        if (newEl) {
+            vm.$el = newEl;
+            scope.markKeyElement(vm);
+        }
         vm.$children = [];
         vm.__states.children = [];
         vm.__states.childrenReadyCount = 0;
@@ -331,7 +333,6 @@ var scope = {
             scope.setEventListeners(vm);
         }
         scope.buildComputedProps(vm);
-        scope.markKeyElement(vm);
         scope.updateRootReadyCount(vm.$root);
         builders.build(vm, function () {
             vm._isReady = true;
@@ -441,6 +442,7 @@ var scope = {
         var value;
         // Replace data context by w-with "flat" inheritance
         if (contexts.withReplaceData) {
+            vm.__states.hasWithData = true;
             for (var key in vm) {
                 if (scope.isSystemProp(key) || vm.$options.methods[key]) {
                     continue;
@@ -453,6 +455,7 @@ var scope = {
         }
 
         if (contexts.withData) {
+            vm.__states.hasWithData = true;
             for (var i = 0, l = contexts.withData.length; i < l; i++) {
                 item = contexts.withData[i];
                 vm[item.arg] = common.getValue(vm.__states.parent, item.get);
@@ -571,9 +574,10 @@ var scope = {
 
     pullPropsData: function (vm) {
         var props = vm.$options.props;
-        vm.__states.initialDataMirror = vm.__states.initialDataMirror || {};
 
         if (typeof props === 'object') {
+            vm.__states.hasProps = true;
+
             // If props is Array
             if (Array.isArray(props)) {
                 for (var i = 0, l = props.length; i < l; i++) {
@@ -645,6 +649,9 @@ var scope = {
         if (mirroredValue !== undefined && vm.__states.initialDataMirror[propName] === value) {
             return;
         } else {
+            // if (!vm.__states.indepent) {
+            //     typeof
+            // }
             vm.__states.initialDataMirror[propName] = value;
         }
 
@@ -727,11 +734,10 @@ var scope = {
             }
         });
 
-        vm.__states = {};
-        vm.__states.parent = contexts.parent;
-        vm.__states.children = [];
-        vm.__states.childrenReadyCount = 0;
-        vm.__states.notPublic = true;
+        scope.initPrivateState(vm, {
+            parent: contexts.parent,
+            notPublic: true
+        });
 
         if (this.config.strict) {
             options.filters = utils.extend({}, this.filters, options.filters);
@@ -807,6 +813,16 @@ var scope = {
         if (vm.__states.notReadyCount < 0) {
             vm.__states.$logger.warn('Deviance in VMs ready check detected', common.onLogMessage(vm));
         }
+    },
+
+    initPrivateState: function (vm, extra) {
+        vm.__states = utils.extend({
+            children: [],
+            childrenReadyCount: 0,
+            initialDataMirror: {},
+            hasProps: false,
+            hasWithData: false
+        }, extra);
     }
 };
 

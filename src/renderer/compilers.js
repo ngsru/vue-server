@@ -32,11 +32,16 @@ var compilers = {
         }
     },
 
-    compileElements: function (vm, elements) {
+    compileElements: function (vm, elements, customIndex) {
         var element;
 
-        for (var i = 0, l = elements.length; i < l; i++) {
+        for (var i = customIndex || 0, l = elements.length; i < l; i++) {
             element = common.setElement(elements[i]);
+            if (element.hidden) {
+                elements.splice(i, 1);
+                compilers.compileElements(vm, elements, i);
+                break;
+            }
             compilers.compileElement(vm, element, i);
         }
     },

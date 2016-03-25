@@ -66,6 +66,9 @@ var builders = {
 
         for (var i = customIndex || 0, l = elements.length; i < l; i++) {
             element = common.setElement(elements[i]);
+            if (element.hidden) {
+                continue;
+            }
 
             if (element.type === 'tag') {
 
@@ -149,9 +152,8 @@ var builders = {
                     });
 
                     if (!vIfResult) {
-                        elements.splice(i, 1);
-                        builders.buildElements(vm, elements, i);
-                        break;
+                        element.hidden = true;
+                        continue;
                     }
                 }
 
