@@ -1,4 +1,5 @@
 var htmlparser = require('htmlparser2');
+var utils = require('./../utils.js');
 var _ = require('underscore');
 var strFnObj = require('../serializer');
 var log4js = require('log4js');
@@ -16,8 +17,12 @@ var noCloseTags = {
 var directiveOptions = {
     'v-model': ['lazy', 'number', 'options', 'debounce'],
     'v-repeat': ['track-by'],
+    'v-for': ['track-by'],
     'v-component': ['keep-alive', 'transition-mode', 'inline-template']
 };
+
+var vueConfig = require('vue/src/config');
+vueConfig.silent = true;
 
 var parsers = {
     directive: require('vue/src/parsers/directive'),
@@ -40,23 +45,20 @@ var textToFn = function (text) {
 
 var parseDirective = function (value) {
     var result = parsers.directive.parse(value);
-    var error = false;
 
-    result.forEach(function (item) {
-        if (error) {
-            return;
-        }
+    var item;
+    for (var i = 0; i < result.length; i++) {
+        item = result[i];
 
         var parsedExp = parsers.expression.parse(item.expression);
         if (!parsedExp) {
             logger.warn('Invalid expression: "' + item.expression + '"');
-            error = true;
             result = false;
-            return;
+            break;
         }
         item.get = parsedExp.get;
         delete item.raw;
-    });
+    }
 
     return result;
 };
@@ -70,13 +72,11 @@ var dashToCamelCase = function (value) {
 var getMetaValue = function (value) {
     var result = [];
     var tokens = parsers.text.parse(value);
-    var error = false;
 
     if (tokens) {
-        tokens.forEach(function (token) {
-            if (error) {
-                return;
-            }
+        var token;
+        for (var i = 0; i < tokens.length; i++) {
+            token = tokens[i];
 
             if (token.tag) {
                 var parsedToken = parsers.directive.parse(token.value)[0];
@@ -84,9 +84,8 @@ var getMetaValue = function (value) {
 
                 if (!exp) {
                     logger.warn('Invalid expression: "' + parsedToken.expression + '"');
-                    error = true;
                     result = false;
-                    return;
+                    break;
                 }
                 var item = {
                     value: exp.get,
@@ -105,7 +104,7 @@ var getMetaValue = function (value) {
                     isClean: false
                 });
             }
-        });
+        }
 
         if (result && result.length === 1) {
             return result[0];
@@ -190,7 +189,7 @@ var Compile = function (template) {
 
                 current = element;
 
-                _.each(attribs, function (attrVal, attr) {
+                utils.each(attribs, function (attrVal, attr) {
                     // Removing Vue-directives from tree
                     if (attr.match(/^v-/)) {
                         delete attribs[attr];
@@ -232,10 +231,10 @@ var Compile = function (template) {
                     element.close = false;
                 }
 
-                var attribsForExclude = {};
+                var attribsForExclude = [];
                 var attribsCounter = 0;
 
-                _.each(attribs, function (value, name) {
+                utils.each(attribs, function (value, name) {
                     // v-bind
                     if (name.match(bindRE)) {
                         (function () {
@@ -521,22 +520,21 @@ var Compile = function (template) {
                     }
 
                     // Directive options to be excluded
-                    if (directiveOptions[name]) {
-                        directiveOptions[name].forEach(function (item) {
-                            attribsForExclude[item] = true;
-                        });
+                    var dirOptions = directiveOptions[name];
+                    if (dirOptions) {
+                        attribsForExclude = attribsForExclude.concat(dirOptions);
                     }
 
                     attribsCounter++;
                 });
 
-                _.each(attribs, function (value, name) {
+                utils.each(attribs, function (value, name) {
                     // Removing Vue-directives from tree except v-clock
                     if (
                         (!name.match(/^v-/) || name.match(/^v-cloak$/)) &&
                         !name.match(/^:(.+)/) &&
                         !name.match(onRE) &&
-                        !attribsForExclude[name]
+                        attribsForExclude.indexOf(name) === -1
                     ) {
                         element.attribs[name] = getMetaValue(value);
                     }
@@ -544,11 +542,15 @@ var Compile = function (template) {
 
                 // v-attr
                 if (element.dirs.attr) {
-                    element.dirs.attr.value.forEach(function (item) {
-                        element.attribs[item.arg] = {
-                            value: item.get
-                        };
-                    });
+                    (function () {
+                        var item;
+                        for (var i = 0; i < element.dirs.attr.value.length; i++) {
+                            item = element.dirs.attr.value[i];
+                            element.attribs[item.arg] = {
+                                value: item.get
+                            };
+                        }
+                    })();
                 }
 
                 // Removing empty object "dirs" from tag

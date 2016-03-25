@@ -1,11 +1,14 @@
+var utils = require('./utils.js');
+
 function stringify(obj) {
     var result = '';
 
     var cycle = function (source) {
+        var sourceType = typeof source;
 
-        if (typeof source !== 'object') {
+        if (sourceType !== 'object') {
             // Function & Boolean & Number
-            if (typeof source === 'function' || typeof source === 'boolean' || typeof source === 'number') {
+            if (sourceType === 'function' || sourceType === 'boolean' || sourceType === 'number') {
                 result += source;
 
             } else if (source === undefined) {
@@ -19,13 +22,16 @@ function stringify(obj) {
             if (source instanceof Array) {
                 result += '[';
 
-                source.forEach(function (item, index) {
-                    cycle(item);
+                (function () {
+                    var item;
+                    for (var i = 0; i < source.length; i++) {
+                        cycle(source[i]);
 
-                    if (index != source.length - 1) {
-                        result += ',';
+                        if (i !== source.length - 1) {
+                            result += ',';
+                        }
                     }
-                });
+                })();
 
                 result += ']';
 
