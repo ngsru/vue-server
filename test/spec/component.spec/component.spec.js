@@ -15,7 +15,8 @@ var contentComponent = {
             overlapping: {
                 show: true,
                 attr: 'example'
-            }
+            },
+            emptyName: 'compName'
         };
     },
 
@@ -52,6 +53,7 @@ var contentComponent = {
 
     compiledBe: function () {
         this.parto = 'comp';
+        this.emptyName = 'compEmpty';
         this.$emit('loaded');
     }
 };
@@ -120,6 +122,7 @@ describe('component', function () {
 
     it('should use extra provided elements if its template is empty', function () {
         expect($('#comp-empty-inner').html()).toEqual('rakushka-content');
+        expect($('#comp-empty-inner-dyn').html()).toEqual('rakushka-content');
     });
 
     it('should not use extra provided elements if its template is not empty', function () {

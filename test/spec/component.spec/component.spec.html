@@ -39,6 +39,10 @@
         <comp-empty>rakushka-{{childValue}}</comp-empty>
     </div>
 
+    <div id="comp-empty-inner-dyn">
+        <component :is="emptyName">rakushka-{{childValue}}</comp-empty>
+    </div>
+
     <div id="comp-not-empty-inner">
         <comp-name>rakushka</comp-name>
     </div>

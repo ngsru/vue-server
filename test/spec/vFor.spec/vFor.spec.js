@@ -47,11 +47,18 @@ var contentComponent = {
             },
             childValue: 'content',
             parto: 'compParted',
-            name: 'comp'
+            name: 'comp',
+            cycle: ['X', 'Y', 'X']
         };
     },
 
     components: {
+        simpleX: {
+            template: '<i>X</i>'
+        },
+        simpleY: {
+            template: '<i>Y</i>'
+        },
         compName: {
             props: {
                 item: null,
@@ -171,6 +178,10 @@ var contentComponent = {
             }
         },
 
+        bIf: {
+            template: '<i><b v-if="item.name">111</b></i>'
+        },
+
         item: {
             template: '<i>111</i><i>222</i>'
         }
@@ -256,6 +267,9 @@ var contentComponent = {
                 array: [1,2,3]
             }
         ];
+
+        this.cycle = ['Y', 'X', 'nothing'];
+        this.items = [{name: 123}];
 
         insert();
     },
@@ -353,6 +367,11 @@ describe('v-for', function () {
         expect($('#nan').html()).toEqual('');
     });
 
+    it('should render "cycle"', function () {
+        expect($('#cycle').html()).toEqual('<i>Y</i><i>X</i><div></div>');
+        expect($('#cycle-template').html()).toEqual('<i>Y</i><i>X</i>');
+        expect($('#cycle-template-nested').html()).toEqual('<i>Y</i><i>X</i><div></div>');
+    });
 });
 
 // v-repeat - begin
@@ -409,6 +428,10 @@ describe('v-for', function () {
 
     it('should be able to use component\'s filters inside v-repeat', function () {
         expect($('#v-repeat .filter-repeated.evil-filter').eq(1).text()).toEqual('evil boy boy evil');
+    });
+
+    it('should be able to use v-if inside component inside v-repeat', function () {
+        expect($('#v-repeat .b-if').html()).toEqual('<i><b>111</b></i>');
     });
 
     describe('with a component', function () {

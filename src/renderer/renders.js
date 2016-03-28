@@ -16,7 +16,7 @@ var renders = {
 
             if (element.type === 'tag') {
                 if (
-                    (element.name === 'template' && utils.size(element.dirs)) ||
+                    (element.name === 'template' && !element.isMaterial) ||
                     element.name === 'partial' ||
                     element.name === 'slot'
                 ) {
@@ -83,9 +83,9 @@ var renders = {
         }
 
         // Component's outside inner contents
-        if (elementChild.type === '$content') {
-            elementChild = element.inner[1];
-        }
+        // if (elementChild.type === '$content') {
+        //     elementChild = element.inner[1];
+        // }
 
         // Pass through non-visible elements
         if (
@@ -95,6 +95,10 @@ var renders = {
             elementChild.name === 'slot'
         ) {
             return renders.renderTemplate(element.inner);
+        }
+
+        if (elementChild.type === 'text') {
+            return renders.renderText(elementChild);
         }
 
         element.inner = elementChild.inner;

@@ -1,27 +1,27 @@
 var common = require('./common');
 
 module.exports = {
-    insert: function (vm, slot) {
+    getContent: function (vm) {
         var content = null;
 
         if (vm.__states.notPublic) {
-            content = vm.__states.parent.$el._content;
+            content = vm.__states.parent.$el._innerContent;
         } else {
-            content = vm.$el._content;
+            content = vm.$el._innerContent;
         }
 
-        if (!content) {
-            return;
-        }
+        return content;
+    },
 
+    insert: function (vm, slot, content) {
         var slotName = null;
         if (slot.attribs && slot.attribs.name) {
             slotName = slot.attribs.name;
         }
 
-        for (var j = 0; j < content.inner.length; j++) {
+        for (var j = 0; j < content.length; j++) {
             (function () {
-                var element = content.inner[j];
+                var element = content[j];
                 var elementSlotName = null;
                 if (element.attribs && element.attribs.slot) {
                     elementSlotName = element.attribs.slot;

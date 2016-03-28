@@ -245,7 +245,6 @@ var scope = {
                     }, options)
                 );
             } else {
-                options.element._components = presentVm.__states.VMs;
                 scope.resetVmInstance(presentVm, options.element);
                 scope.buildWithedData(presentVm, options);
                 scope.pullPropsData(presentVm);
@@ -324,8 +323,13 @@ var scope = {
         vm.__states.VMsDetached = vm.__states.VMs;
         vm.__states.VMs = {};
         vm._isReady = false;
-        var tpl = scope.initTemplate(vm);
-        scope.setKeyElementInner(vm, tpl);
+        // var tpl = scope.initTemplate(vm);
+
+        if (vm.$el.builded) {
+            scope.setKeyElementInner(vm, vm.$el.builded.inner);
+        }
+
+        // Should not reset $root VM events
         if (vm.__states.parent) {
             vm._events = {};
             vm._eventsCount = {};
@@ -359,30 +363,27 @@ var scope = {
             shouldReplace = vm.$options.replace;
         }
 
+        vm.$el.original = {
+            name: vm.$el.name,
+            inner: vm.$el.inner
+        };
+
         if (tpl) {
             // Element merge mode
             if (shouldReplace) {
-
                 // If there is only one top level element
                 if (!tpl[1]) {
-                    // scope.saveInnerTemplate(vm, tpl);
                     vm.$el.name = '$merge';
-                    vm.$el.inner = tpl;
 
                 // If there are many top level elements
                 } else {
-                    vm.$el.name = 'partial';
-                    vm.$el.inner = tpl;
+                    vm.$el.name = 'template';
                 }
-
-            } else {
-                // scope.saveInnerTemplate(vm, tpl);
-                vm.$el.inner = tpl;
             }
+            vm.$el.inner = tpl;
         } else {
-            vm.$el.name = 'partial';
-            // scope.saveInnerTemplate(vm);
-            // vm.$el.inner = [];
+            vm.$el.name = 'template';
+            vm.$el._componentEmptyTpl = true;
         }
     },
 
@@ -479,7 +480,6 @@ var scope = {
     markKeyElement: function (vm) {
         // Mark the key element for VM
         vm.$el._isKeyElement = true;
-        vm.$el._isReadyToBuild = false;
         if (vm.__states.isComponent && !vm.__states.isRepeat) {
             vm.$el._compileSelfInParentVm = true;
         }
@@ -680,7 +680,7 @@ var scope = {
                     if (value === null || value === undefined) {
                         hasTypeError = true;
                         type = value;
-                    } else if (value.constructor != descriptor.type) {
+                    } else if (value.constructor !== descriptor.type) {
                         hasTypeError = true;
                         type = value.constructor.name;
                     }

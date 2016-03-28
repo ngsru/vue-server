@@ -85,7 +85,18 @@ var compilers = {
 
         if (element.type === 'tag') {
             if (element.name === 'slot') {
-                slotContent.insert(vm, element);
+                (function () {
+                    var content = slotContent.getContent(vm);
+                    if (content) {
+                        compilers.compileElements(vm.$parent, content);
+                        slotContent.insert(vm, element, content);
+                    }
+                })();
+            }
+
+            if (element._componentEmptyTpl && element._innerContent) {
+                compilers.compileElements(vm, element._innerContent);
+                element.inner = element._innerContent;
             }
 
             // v-model

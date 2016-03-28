@@ -553,9 +553,9 @@ var Compile = function (template) {
                     })();
                 }
 
-                // Removing empty object "dirs" from tag
-                if (!_.size(element.dirs)) {
-                    delete element.dirs;
+                // If a <template> has no directives it means it should be rendered as real tag
+                if (element.name === 'template' && !_.size(element.dirs)) {
+                    element.isMaterial = true;
                 }
 
                 current.inner.push(element);

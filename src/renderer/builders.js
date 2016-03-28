@@ -18,8 +18,6 @@ var builders = {
                 return;
             }
 
-            vm.$el._isReadyToBuild = true;
-
             builders.buildElements(vm, vm.$el.inner);
 
             if (vm.__states.children.length) {
@@ -66,15 +64,16 @@ var builders = {
 
         for (var i = customIndex || 0, l = elements.length; i < l; i++) {
             element = common.setElement(elements[i]);
-            if (element.hidden) {
-                continue;
-            }
 
             if (element.type === 'tag') {
 
                 // trying to check for custom-tag component
                 // <comp-name></comp-name>
                 (function () {
+                    if (element.dirs.component) {
+                        return;
+                    }
+
                     var name;
                     var cameledName;
                     var upperCameledName;
@@ -105,41 +104,37 @@ var builders = {
 
                         element.dirs.component = {
                             value: name,
-                            options: {spareInnerContent: true}
+                            options: {}
                         };
                     }
                 })();
 
                 // Statement <component is="{{name}}"></component>
-                if (
-                    element.attribs.is ||
-                    (
-                        element.dirs.bind &&
-                        element.dirs.bind.is
-                    )
-                ) {
-                    element.dirs.component = {
-                        value: common.getAttribute(vm, element, 'is', true),
-                        options: {}
-                    };
-                }
+                (function () {
+                    var value = common.getAttribute(vm, element, 'is', true);
+                    if (value) {
+                        element.dirs.component = {
+                            value: value,
+                            options: {}
+                        };
+                    }
+                })();
 
                 // v-for
                 if (element.dirs.for) {
+                    repeatElements = builders.buildForElements(vm, elements, element) || [];
 
-                    if (!element.dirs.for.isCompiled) {
-                        elements.splice(i, 1);
+                    // Insert resulting elements into "pseudo DOM"
+                    Array.prototype.splice.apply(
+                        elements,
+                        [i + 1, element.dirs.for.renderedCount || 0].concat(repeatElements)
+                    );
 
-                        repeatElements = builders.buildForElements(vm, elements, element);
+                    element.hidden = true;
+                    element.dirs.for.renderedCount = repeatElements.length;
 
-                        if (repeatElements) {
-                            // Insert resulting elements into "pseudo DOM"
-                            Array.prototype.splice.apply(elements, [i, 0].concat(repeatElements));
-                        }
-
-                        builders.buildElements(vm, elements, i);
-                        break;
-                    }
+                    builders.buildElements(vm, elements, i + 1);
+                    break;
                 }
 
                 // v-if
@@ -154,18 +149,21 @@ var builders = {
                     if (!vIfResult) {
                         element.hidden = true;
                         continue;
+                    } else {
+                        element.hidden = false;
                     }
                 }
 
                 // partial
                 if (element.name === 'partial') {
                     builders.getPartial({
-                        'vm': vm,
-                        'partialName': common.getAttribute(vm, element, 'name', true),
-                        'onDoesExist': function (partial) {
+                        vm: vm,
+                        element: element,
+                        partialName: common.getAttribute(vm, element, 'name', true),
+                        onDoesExist: function (partial) {
                             element.inner = partial();
                         },
-                        'onDoesNotExist': function () {
+                        onDoesNotExist: function () {
                             element.inner = [];
                         }
                     });
@@ -173,46 +171,50 @@ var builders = {
 
                 // v-repeat
                 if (element.dirs.repeat) {
-
+                    // Can't remove the repeat directive like with v-for
+                    // because it will cause re-rendering v-repeat instances as simple components
                     if (!element.dirs.repeat.isCompiled) {
-                        elements.splice(i, 1);
+                        repeatElements = builders.buildRepeatElements(vm, elements, element) || [];
 
-                        repeatElements = builders.buildRepeatElements(vm, elements, element);
+                        // Insert resulting elements into "pseudo DOM"
+                        Array.prototype.splice.apply(
+                            elements,
+                            [i + 1, element.dirs.repeat.renderedCount || 0].concat(repeatElements)
+                        );
 
-                        if (repeatElements) {
-                            // Insert resulting elements into "pseudo DOM"
-                            Array.prototype.splice.apply(elements, [i, 0].concat(repeatElements));
-                        }
+                        element.hidden = true;
+                        element.dirs.repeat.renderedCount = repeatElements.length;
 
-                        builders.buildElements(vm, elements, i);
+                        builders.buildElements(vm, elements, i + 1);
                         break;
                     }
 
                 // v-component
                 } else if (element.dirs.component) {
-                    if (element.inner.length) {
-                        (function () {
-                            var content = {
-                                type: '$content',
-                                inner: element.inner,
-                                close: true
-                            };
-
-                            element.inner = [];
-                            element._content = content;
-                            elements.splice(i, 0, content);
-                        })();
-                        builders.buildElements(vm, elements, i);
-                        break;
-                    } else {
-                        builders.buildComponent(vm, element);
+                    // Rebuilding the component
+                    // reverting to original
+                    if (element.original) {
+                        element.builded = {
+                            inner: element.inner
+                        };
+                        utils.extend(element, element.original);
+                        element.original = undefined;
                     }
-                    // element.dirs.component = undefined;
-                }
 
+                    if (element.inner.length) {
+                        element._innerContent = element.inner;
+                        element.inner = [];
+                    }
+
+                    if (element._innerContent) {
+                        builders.buildElements(vm, element._innerContent, i);
+                    }
+
+                    builders.buildComponent(vm, element);
+                }
             }
 
-            if (element.inner && !(element._isKeyElement && !element._isReadyToBuild)) {
+            if (element.inner && !(element._isKeyElement)) {
                 builders.buildElements(vm, element.inner);
             }
         }
@@ -220,12 +222,16 @@ var builders = {
 
     getPartial: function (meta) {
         var vm = meta.vm;
+        var element = meta.element;
         var partialName = common.getValue(vm, meta.partialName);
         var partial = builders.getAsset(vm, 'partials')[partialName];
         var logMsg;
 
         if (partial) {
-            meta.onDoesExist(partial);
+            if (element._prevPartialName !== partialName) {
+                meta.onDoesExist(partial);
+            }
+            element._prevPartialName = partialName;
         } else {
             logMsg = 'There is no partial "' + partialName + '"';
             if (meta.partialName) {
@@ -340,6 +346,9 @@ var builders = {
                 // Creating "pseudo DOM" element clone
                 repeatElement = cloneElement();
                 repeatElement.dirs.repeat.isCompiled = true;
+                if (repeatElement.dirs.if) {
+                    repeatElement.dirs.if = undefined;
+                }
 
                 // repeatElement - element replication created by compiler
                 // If component is custom tag then it has not "v-component" directive
@@ -530,7 +539,7 @@ var builders = {
 
                 // Creating "pseudo DOM" element clone
                 repeatElement = cloneElement();
-                repeatElement.dirs.for.isCompiled = true;
+                repeatElement.dirs.for = undefined;
 
                 // repeatElement - element replication created by compiler
                 // If component is custom tag then it has not "v-component" directive

@@ -56,6 +56,19 @@
         <i v-for="n in nan"></i>
     </div>
 
+    <div id="cycle">
+        <div v-for="cyc in cycle" :is="'simple' + cyc"></div>
+    </div>
+    <div id="cycle-template">
+        <template v-for="cyc in cycle" :is="'simple' + cyc"></template>
+    </div>
+    <div id="cycle-template-nested">
+        <template v-for="cyc in cycle">
+            <div :is="'simple' + cyc"></div>
+        </template>
+    </div>
+
+
     <!-- v-repeat -->
     <section id="v-repeat">
         <ul class="simple-array">
@@ -120,5 +133,9 @@
 
 
         <div class="filter-repeated" v-for="item in vRepeat.simpleArray" is="filterRepeated"></div>
+
+        <div class="b-if">
+            <b-if v-repeat="item: items">fff</b-if>
+        </div>
     </section>
 </div>
