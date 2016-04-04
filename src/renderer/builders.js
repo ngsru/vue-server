@@ -18,6 +18,10 @@ var builders = {
                 return;
             }
 
+            vm.__states.componentsNames = Object.keys(
+                builders.getAsset(vm, 'components')
+            );
+
             builders.buildElements(vm, vm.$el.inner);
 
             if (vm.__states.children.length) {
@@ -74,34 +78,30 @@ var builders = {
                         return;
                     }
 
+                    var tag = element.name.toLowerCase();
+                    if (commonTagRE.test(tag)) {
+                        return;
+                    }
+
                     var name;
                     var cameledName;
                     var upperCameledName;
-                    var $components = builders.getAsset(vm, 'components');
-                    if ($components[element.name]) {
+                    var compNames = vm.__states.componentsNames;
+                    if (compNames.indexOf(element.name) !== -1) {
                         name = element.name;
                     } else {
                         cameledName = common.dashToCamelCase(element.name);
-                        if ($components[cameledName]) {
+                        if (compNames.indexOf(cameledName) !== -1) {
                             name = cameledName;
                         } else {
                             upperCameledName = common.dashToUpperCamelCase(element.name);
-                            if ($components[upperCameledName]) {
+                            if (compNames.indexOf(upperCameledName) !== -1) {
                                 name = upperCameledName;
                             }
                         }
                     }
 
                     if (name) {
-                        var tag = element.name.toLowerCase();
-                        if (commonTagRE.test(tag) && tag !== 'component') {
-                            vm.__states.$logger.debug(
-                                'Native tag "' + element.name + '" matched component name "' + name + '"',
-                                common.onLogMessage(vm)
-                            );
-                            return;
-                        }
-
                         element.dirs.component = {
                             value: name,
                             options: {}
