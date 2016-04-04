@@ -296,52 +296,12 @@ var builders = {
             var repeatElements = [];
             var cloneElement = element.clone;
 
-            var item;
             var repeatElement;
             var repeatDataItem;
-            var repeatOptions;
 
             // Walk through directive data
             for (var i = 0; i < repeatData.length; i++) {
-                repeatDataItem = {};
-
-                // When object is repeated
-                if (repeatData[i].$value) {
-                    item = repeatData[i].$value;
-
-                // When array is repeated
-                } else {
-                    item = repeatData[i];
-                }
-
-                // Case with the creation of a namespace for "v-repeat" data
-                // Eg. v-repeat="item: data"
-                if (element.dirs.repeat.value.arg) {
-                    repeatDataItem[element.dirs.repeat.value.arg] = item;
-
-                // Without a namespace
-                } else {
-                    // Data is object
-                    if (typeof item === 'object' && !Array.isArray(item)) {
-                        repeatDataItem = item;
-
-                    // Data is not an object
-                    } else {
-                        repeatDataItem.$value = item;
-                    }
-                }
-
-                if (repeatData[i].$key) {
-                    repeatDataItem.$key = repeatData[i].$key;
-                }
-
-                // Explict key/index prop name definition
-                // Eg. v-for="(index, value) in array"
-                if (element.dirs.repeat.value.index) {
-                    repeatDataItem[element.dirs.repeat.value.index] = i;
-                } else {
-                    repeatDataItem.$index = i;
-                }
+                repeatDataItem = builders.getRepeatItemData(repeatData[i], i, element.dirs.repeat);
 
                 // Creating "pseudo DOM" element clone
                 repeatElement = cloneElement();
@@ -489,53 +449,13 @@ var builders = {
             var repeatElements = [];
             var cloneElement = element.clone;
 
-            var item;
             var repeatElement;
             var repeatElementWrapper;
             var repeatDataItem;
-            var repeatOptions;
 
             // Walk through direcitve data
             for (var i = 0; i < repeatData.length; i++) {
-                repeatDataItem = {};
-
-                // When data is Object
-                if (repeatData[i].$value) {
-                    item = repeatData[i].$value;
-
-                // When data is Array
-                } else {
-                    item = repeatData[i];
-                }
-
-                // Case with the creation of a namespace for "v-repeat" data
-                // Eg. v-repeat="item: data"
-                if (element.dirs.for.value.arg) {
-                    repeatDataItem[element.dirs.for.value.arg] = item;
-
-                // Without namespace
-                } else {
-                    // Data is Object
-                    if (typeof item === 'object' && !Array.isArray(item)) {
-                        repeatDataItem = item;
-
-                    // Data is not an Object
-                    } else {
-                        repeatDataItem.$value = item;
-                    }
-                }
-
-                if (repeatData[i].$key) {
-                    repeatDataItem.$key = repeatData[i].$key;
-                }
-
-                // Explict key/index prop name definition
-                // Eg. v-for="(index, value) in array"
-                if (element.dirs.for.value.index) {
-                    repeatDataItem[element.dirs.for.value.index] = i;
-                } else {
-                    repeatDataItem.$index = i;
-                }
+                repeatDataItem = builders.getRepeatItemData(repeatData[i], i, element.dirs.for);
 
                 // Creating "pseudo DOM" element clone
                 repeatElement = cloneElement();
@@ -569,6 +489,55 @@ var builders = {
         }
 
         return false;
+    },
+
+    getRepeatItemData: function (data, index, directive) {
+        var item;
+        var repeatDataItem = {};
+
+        if (data === undefined || data === null) {
+            return data;
+        }
+
+        // When data is Object
+        if (data.$value) {
+            item = data.$value;
+
+        // When data is Array
+        } else {
+            item = data;
+        }
+
+        // Case with a namespace
+        // Eg. v-repeat="item: data" || v-for="item in data"
+        if (directive.value.arg) {
+            repeatDataItem[directive.value.arg] = item;
+
+        // Without a namespace
+        } else {
+            // Data is an Object
+            if (typeof item === 'object' && !Array.isArray(item)) {
+                repeatDataItem = item;
+
+            // Data is not an Object
+            } else {
+                repeatDataItem.$value = item;
+            }
+        }
+
+        if (data.$key) {
+            repeatDataItem.$key = data.$key;
+        }
+
+        // Explict key/index prop name definition
+        // Eg. v-for="(index, value) in array"
+        if (directive.value.index) {
+            repeatDataItem[directive.value.index] = index;
+        } else {
+            repeatDataItem.$index = index;
+        }
+
+        return repeatDataItem;
     },
 
     getAsset: function (vm, asset) {

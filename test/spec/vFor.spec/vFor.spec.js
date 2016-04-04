@@ -48,7 +48,8 @@ var contentComponent = {
             childValue: 'content',
             parto: 'compParted',
             name: 'comp',
-            cycle: ['X', 'Y', 'X']
+            cycle: ['X', 'Y', 'X'],
+            undefinedInside: [1, undefined, null, Infinity, NaN, 2]
         };
     },
 
@@ -367,6 +368,10 @@ describe('v-for', function () {
         expect($('#nan').html()).toEqual('');
     });
 
+    it('should be okay with undefined/null/etc inside array', function () {
+        expect($('#undefined-inside').html()).toEqual('<i>1</i><i></i><i></i><i>Infinity</i><i>NaN</i><i>2</i>');
+    });
+
     it('should render "cycle"', function () {
         expect($('#cycle').html()).toEqual('<i>Y</i><i>X</i><div></div>');
         expect($('#cycle-template').html()).toEqual('<i>Y</i><i>X</i>');
@@ -375,7 +380,7 @@ describe('v-for', function () {
 });
 
 // v-repeat - begin
-describe('v-for', function () {
+describe('v-repeat', function () {
 
     it('should be able to render arrays', function () {
         expect($('#v-repeat .simple-array').find('li').length).toEqual(3);
