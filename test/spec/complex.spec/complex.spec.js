@@ -738,6 +738,10 @@ describe('v-class', function () {
             expect($el.hasClass('class2')).toEqual(true);
         });
     });
+
+    it('should enable rendering element', function () {
+        expect($('#v-class-obj > div').attr('class')).toEqual('_active _ok');
+    });
 });
 
 // v-pre - begin

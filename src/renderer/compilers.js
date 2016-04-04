@@ -52,7 +52,7 @@ var compilers = {
         // Depending on whether the element is a key to the v-repeat context or no, need to differently to compile it.
         // If it is v-repeat element then we need to compile it inside repeat context
         // If no, ONLY its own attributes compiled inside repeat context
-        if (element._isKeyElement && vm.$el != element) {
+        if (element._isKeyElement && vm.$el !== element) {
             foreignKeyElement = true;
         }
 
@@ -277,7 +277,7 @@ var compilers = {
 
                 for (var name in vClassItem) {
                     if (vClassItem[name]) {
-                        classList.push(vClassItem[name]);
+                        classList.push(name);
                     }
                 }
             }

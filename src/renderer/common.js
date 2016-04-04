@@ -159,14 +159,7 @@ var common = {
     },
 
     setElement: function (element) {
-        // Recofigure loop due to elements order changes
-        if (element) {
-            element.dirs = element.dirs || {};
-            element.attribs = element.attribs || {};
-            return element;
-        } else {
-            return false;
-        }
+        return element;
     },
 
     onLogMessage: function (vm) {
