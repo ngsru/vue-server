@@ -54,14 +54,6 @@ module.exports = {
             return this.vClass.class1;
         },
 
-        forVIfShow: function () {
-            return this.vIf.show;
-        },
-
-        forVIfHide: function () {
-            return this.vIf.hide;
-        },
-
         getFnUndefined: function () {
             return;
         }
@@ -238,11 +230,6 @@ module.exports = {
                 {value: 'Repeat value'},
                 {value: 'Repeat value'}
             ]
-        };
-
-        this.vIf = {
-            show: true,
-            hide: false
         };
 
         this.computed = {

@@ -44,6 +44,13 @@ var textToFn = function (text) {
 };
 
 var parseDirective = function (value) {
+    // Special anti-escaping.
+    // Looks like browsers perfrom the operation automatically,
+    // while we need to do it manually
+    value = value
+        .replace(/&gt;/, '>')
+        .replace(/&lt;/, '<');
+
     var result = parsers.directive.parse(value);
 
     var item;

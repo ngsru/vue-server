@@ -14,9 +14,9 @@ module.exports = function (content, callback, config) {
         }
 
         // Not to bother about this hook
-        if (!content.compiledBe) {
-            content.compiledBe = function () {
-                this.$emit('loaded');
+        if (!content.compiledBe && !content.activateBe) {
+            content.activateBe = function (done) {
+                done();
             };
         }
     })();

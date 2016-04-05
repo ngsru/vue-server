@@ -754,22 +754,3 @@ describe('v-pre', function () {
         expect($('#v-pre .repeat').length).toEqual(1);
     });
 });
-
-// v-if - begin
-describe('v-if', function () {
-    it('should enable rendering element', function () {
-        expect($('#v-if .show').length).toEqual(1);
-    });
-
-    it('should disable rendering element', function () {
-        expect($('#v-if .hide').length).toEqual(0);
-    });
-
-    it('should enable rendering element when value provided by a method', function () {
-        expect($('#v-if .show-method').length).toEqual(1);
-    });
-
-    it('should disable rendering element when value provided by a method', function () {
-        expect($('#v-if .hide-method').length).toEqual(0);
-    });
-});
