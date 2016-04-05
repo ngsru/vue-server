@@ -125,6 +125,9 @@ describe('<slot> API', function () {
         expect($('#partial').html()).toEqual(
             '<div><p slot="one">content</p>default<i>partial</i></div>'
         );
+        expect($('#partial2').html()).toEqual(
+            '<b></b><b></b><div><p slot="one">content</p>default<i>partial</i></div>'
+        );
     });
 
     it('should be able insert content into several copies of slot', function () {

@@ -207,7 +207,7 @@ var builders = {
                     }
 
                     if (element._innerContent) {
-                        builders.buildElements(vm, element._innerContent, i);
+                        builders.buildElements(vm, element._innerContent);
                     }
 
                     builders.buildComponent(vm, element);
