@@ -44,14 +44,15 @@ var scope = {
             options.filters = utils.extend({}, this.filters, options.filters);
             options.partials = utils.extend({}, this.partials, options.partials);
             options.components = utils.extend({}, this.components, options.components);
-            // In strict mode components should be able to invoke itself
-            if (contexts.componentName) {
-                options.components[contexts.componentName] = contexts.components[contexts.componentName];
-            }
         } else {
             options.filters = utils.extend({}, this.filters, contexts.filters, options.filters);
             options.partials = utils.extend({}, this.partials, contexts.partials, options.partials);
             options.components = utils.extend({}, this.components, contexts.components, options.components);
+        }
+
+        // Special alias for recursive component invocation
+        if (options.name && contexts.componentName) {
+            options.components[options.name] = contexts.components[contexts.componentName];
         }
 
         vm.__states.$logger = this.$logger;
@@ -140,7 +141,7 @@ var scope = {
             scope.buildComputedProps(vm);
         }
 
-        scope.updateRootReadyCount(vm.$root);
+        scope.updateNotReadyCount(vm, +1);
         builders.build(vm, function () {
             var isCompiledBePresent = false;
             vm._isCompiled = true;
@@ -148,7 +149,7 @@ var scope = {
             if (!vm.$options.activateBe && contexts.waitFor) {
                 vm.$on(contexts.waitFor, function () {
                     vm.$root.__states.toRebuild = true;
-                    scope.updateRootReadyCount(vm.$root, true);
+                    scope.updateNotReadyCount(vm, -1);
                 });
             }
 
@@ -180,11 +181,11 @@ var scope = {
                 // so lets rebuild the VM
                 if (isCompiledBePresent && vm !== vm.$root) {
                     scope.resetVmInstance(vm);
-                    scope.updateRootReadyCount(vm.$root, true);
                 } else {
                     vm._isReady = true;
-                    scope.updateRootReadyCount(vm.$root, true);
                 }
+
+                scope.updateNotReadyCount(vm, -1);
             }
         });
 
@@ -318,10 +319,10 @@ var scope = {
             scope.setEventListeners(vm);
         }
         scope.buildComputedProps(vm);
-        scope.updateRootReadyCount(vm.$root);
+        scope.updateNotReadyCount(vm, +1);
         builders.build(vm, function () {
             vm._isReady = true;
-            scope.updateRootReadyCount(vm.$root, true);
+            scope.updateNotReadyCount(vm, -1);
         });
     },
 
@@ -765,10 +766,10 @@ var scope = {
             utils.extend(vm, contexts.repeatData);
         }
 
-        scope.updateRootReadyCount(vm.$root);
+        scope.updateNotReadyCount(vm, +1);
         builders.build(vm, function () {
             vm._isReady = true;
-            scope.updateRootReadyCount(vm.$root, true);
+            scope.updateNotReadyCount(vm, -1);
         });
 
         return vm;
@@ -789,24 +790,22 @@ var scope = {
         vm.$$ = vm.$els;
     },
 
-    updateRootReadyCount: function (vm, decrement) {
-        if (decrement) {
-            vm.__states.notReadyCount--;
-        } else {
-            vm.__states.notReadyCount++;
-        }
+    updateNotReadyCount: function (vm, change) {
+        vm.$root.__states.notReadyCount += change;
 
-        if (vm.__states.notReadyCount === 0) {
-            if (vm.__states.toRebuild) {
-                scope.resetVmInstance(vm);
-                vm.__states.toRebuild = false;
+        if (vm.$root.__states.notReadyCount === 0) {
+            if (vm.$root.__states.toRebuild) {
+                scope.resetVmInstance(vm.$root);
+                vm.$root.__states.toRebuild = false;
             } else {
-                vm.$emit('_vueServer.tryBeginCompile');
+                vm.$root.$emit('_vueServer.tryBeginCompile');
             }
         }
 
-        if (vm.__states.notReadyCount < 0) {
-            vm.__states.$logger.warn('Deviance in VMs ready check detected', common.onLogMessage(vm));
+        if (vm.$root.__states.notReadyCount < 0) {
+            vm.$root.__states.$logger.warn(
+                'Deviance in VMs ready check detected', common.onLogMessage(vm.$root)
+            );
         }
     },
 
@@ -830,7 +829,7 @@ var scope = {
                 // "done" callback
                 hook.call(vm, function () {
                     vm.$root.__states.toRebuild = true;
-                    scope.updateRootReadyCount(vm.$root, true);
+                    scope.updateNotReadyCount(vm, -1);
                 });
             } else {
                 hook.call(vm);

@@ -48,6 +48,11 @@ var contentComponent = {
                 };
             },
             template: '<i :title="attr" :style="{color: clr}">rakushka</i>'
+        },
+        reco: {
+            props: ['val'],
+            name: 'myReco',
+            template: '<span>111: <my-reco v-if="val"></my-reco></span>'
         }
     },
 
@@ -132,5 +137,9 @@ describe('component', function () {
     // Will be the opposite in 1.0.16. In 1.0.0 still it.
     it('should render provided extra content if "is" attribute is empty', function () {
         expect($('#comp-name-empty').html()).toEqual('<component is="">rakushka</component>');
+    });
+
+    it('should be able to use "name" option for recursive invocation', function () {
+        expect($('#name-for-invocation').html()).toEqual('<span>111: <span>111: </span></span>');
     });
 });
