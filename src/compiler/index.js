@@ -278,9 +278,9 @@ var Compile = function (template) {
                             var parsedDir = parseDirective(attribs[name]);
                             var handler = parsedDir[0].get;
                             if (event) {
-                                element.dirs.on = {
+                                element.dirs.on = element.dirs.on || {};
+                                element.dirs.on[event[1]] = {
                                     value: {
-                                        event: event[1],
                                         handler: handler,
                                         hasArgs: /\((.*)\)/.test(value)
                                     }

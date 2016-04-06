@@ -131,11 +131,7 @@ var scope = {
         }
 
         // Server Created hook
-        if (vm.$options.createdBe) {
-            vm.$options.createdBe.call(vm);
-            vm.$emit('hook:createdBe');
-            createdHookFired = true;
-        }
+        scope.callHook(vm, 'createdBe');
 
         scope.buildWithedData(vm, contexts);
         if (createdHookFired) {
@@ -165,41 +161,26 @@ var scope = {
                     }
                 }
 
-                process.nextTick(function () {
-                    for (var i = 0; i < vm.$options.mixins.length; i++) {
-                        if (vm.$options.mixins[i].compiledBe) {
-                            vm.$options.mixins[i].compiledBe.call(vm);
-                        }
+                for (var i = 0; i < vm.$options.mixins.length; i++) {
+                    if (vm.$options.mixins[i].compiledBe) {
+                        vm.$options.mixins[i].compiledBe.call(vm);
                     }
-                });
+                }
             }
 
             // Server Compiled hook
-            if (vm.$options.compiledBe) {
+            if (scope.callHook(vm, 'compiledBe')) {
                 isCompiledBePresent = true;
-                process.nextTick(function () {
-                    vm.$options.compiledBe.call(vm);
-                    vm.$emit('hook:compiledBe');
-                });
             }
 
-            if (vm.$options.activateBe) {
-                process.nextTick(function () {
-                    vm.$options.activateBe.call(vm, function () {
-                        vm.$root.__states.toRebuild = true;
-                        scope.updateRootReadyCount(vm.$root, true);
-                    });
-                    vm.$emit('hook:activateBe');
-                });
-            }
+            scope.callHook(vm, 'activateBe');
 
             if (!contexts.waitFor && !vm.$options.activateBe) {
-                // Experimental option
+                // if the hook is present data could be changed
+                // so lets rebuild the VM
                 if (isCompiledBePresent && vm !== vm.$root) {
-                    process.nextTick(function () {
-                        scope.resetVmInstance(vm);
-                        scope.updateRootReadyCount(vm.$root, true);
-                    });
+                    scope.resetVmInstance(vm);
+                    scope.updateRootReadyCount(vm.$root, true);
                 } else {
                     vm._isReady = true;
                     scope.updateRootReadyCount(vm.$root, true);
@@ -413,27 +394,41 @@ var scope = {
             }
 
             // Server Ready hook
-            if (vm.$options.readyBe) {
-                vm.$options.readyBe.call(vm);
-                vm.$emit('hook:readyBe');
-            }
+            scope.callHook(vm, 'readyBe');
         });
 
         // Cross-VM events defined inside templates
-        if (vm.$el.dirs && vm.$el.dirs.on) {
-            if (vm.$el.dirs.on.value.hasArgs) {
-                vm.$on(
-                    vm.$el.dirs.on.value.event,
-                    function () {
-                        vm.$el.dirs.on.value.handler.call(vm.$parent, vm.$parent);
-                    }
-                );
-            } else {
-                vm.$on(
-                    vm.$el.dirs.on.value.event,
-                    common.getValue(vm.$parent, vm.$el.dirs.on.value.handler).bind(vm.$parent)
-                );
+        if (vm.$el.dirs.on) {
+            for (var eventName in vm.$el.dirs.on) {
+                scope.setTemplateEventHandler(vm, vm.$el.dirs.on[eventName], eventName);
             }
+        }
+    },
+
+    setTemplateEventHandler: function (vm, directive, eventName) {
+        // Converting hooks names
+        // for example: "hook:created-be" -> "hook:createdBe"
+        eventName = eventName.replace(/^(hook:)(.+)/, function (a, b, c) {
+            return b + common.dashToCamelCase(c);
+        });
+
+        if (directive.value.hasArgs) {
+            vm.$on(
+                eventName,
+                function () {
+                    directive.value.handler.call(vm.$parent, vm.$parent);
+                }
+            );
+        } else {
+            vm.$on(
+                eventName,
+                function () {
+                    var result = common.getValue(vm.$parent, directive.value.handler);
+                    if (typeof result === 'function') {
+                        result.apply(vm.$parent, arguments);
+                    }
+                }
+            );
         }
     },
 
@@ -823,6 +818,28 @@ var scope = {
             hasProps: false,
             hasWithData: false
         }, extra);
+    },
+
+    callHook: function (vm, name, isAsync) {
+        var isPresent = false;
+        var hook = vm.$options[name];
+
+        if (hook) {
+            isPresent = true;
+            if (name === 'activateBe') {
+                // "done" callback
+                hook.call(vm, function () {
+                    vm.$root.__states.toRebuild = true;
+                    scope.updateRootReadyCount(vm.$root, true);
+                });
+            } else {
+                hook.call(vm);
+            }
+        }
+
+        vm.$emit('hook:' + name);
+
+        return isPresent;
     }
 };
 

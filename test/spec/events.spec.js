@@ -17,6 +17,14 @@ var contentComponent = {
         '<div id="cross-vm-4">',
             '<cross-vm :value="childValue[4]" v-on:go-wild="setChildValue(meta.number, meta.set)"></cross-vm>',
         '</div>',
+        '<div>',
+            '<div id="hooks"><i v-for="v in pack">{{v}}</i>{{ready}}</div>',
+            '<comp ',
+                '@hook:created-be="pack.cre = true" ',
+                '@hook:compiled-be="pack.com = true" ',
+                '@hook:ready-be="ready = true"',
+            '></comp>',
+        '</div>',
     ].join(''),
     data: function () {
         return {
@@ -34,12 +42,14 @@ var contentComponent = {
             meta: {
                 number: 4,
                 set: 'changed'
-            }
+            },
+            pack: {},
+            ready: false
         };
     },
 
     events: {
-        test: function() {
+        test: function () {
             this.prop = 'changed';
         }
     },
@@ -123,6 +133,10 @@ describe('events', function () {
 
         it('should work in syntax 4', function () {
             expect($('#cross-vm-4').html()).toEqual('<i>changed</i>');
+        });
+
+        it('should work with hooks', function () {
+            expect($('#hooks').html()).toEqual('<i>true</i><i>true</i>true');
         });
     });
 
