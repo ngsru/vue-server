@@ -1,3 +1,6 @@
+var Entities = require('html-entities').AllHtmlEntities;
+entities = new Entities();
+
 var utils = require('./../utils.js');
 
 var common = {

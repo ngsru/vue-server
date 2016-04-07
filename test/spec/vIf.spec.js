@@ -10,6 +10,10 @@ var contentComponent = {
 
         '<div class="escaped-gts" v-if="2 &gt; 1"></div>',
         '<div class="escaped-lts" v-if="1 &lt; 2"></div>',
+        '<div class="escaped-double-ampersand">',
+            '<i v-if="1 &amp;&amp; 0"></i>',
+            '<i v-if="1 &amp;&amp; 1"></i>',
+        '</div>'
     ].join(''),
     data: function () {
         return {
@@ -64,5 +68,9 @@ describe('v-if', function () {
     it('should understand escaped ">" and "<" signs', function () {
         expect($('.escaped-gts').length).toEqual(1);
         expect($('.escaped-lts').length).toEqual(1);
+    });
+
+    it('should understand escaped double ampersand', function () {
+        expect($('.escaped-double-ampersand i').length).toEqual(1);
     });
 });

@@ -1,13 +1,18 @@
-var Entities = require('html-entities').XmlEntities;
+var Entities = require('html-entities').AllHtmlEntities;
 entities = new Entities();
+
+var entity = '&ndash;&&';
+var encodedEntity = entities.encode(entity); // escaped
+var decodedEntity = entities.decode(entity); // converted into real symbols
+
 var wrapComponent = require('./wrapComponent.js');
 var $;
 var contentComponent = {
 
-    template: '<div><ndash>{{arr | join \'&ndash;&&\'}}</ndash></div>',
+    template: '<div><ndash>{{arr | join \'' + entity + '\'}}</ndash></div>',
     data: function () {
         return {
-            arr: [1,2,3]
+            arr: [10, 20, 30]
         };
     },
     filters: {
@@ -29,6 +34,6 @@ describe('filters', function () {
     it('should be able to use web symbols as arguments', function () {
         expect(
             entities.decode($('ndash').text())
-        ).toEqual('1&ndash;&&2&ndash;&&3');
+        ).toEqual([10, 20, 30].join(decodedEntity));
     });
 });

@@ -1,3 +1,6 @@
+var Entities = require('html-entities').AllHtmlEntities;
+entities = new Entities();
+
 var htmlparser = require('htmlparser2');
 var utils = require('./../utils.js');
 var _ = require('underscore');
@@ -44,12 +47,10 @@ var textToFn = function (text) {
 };
 
 var parseDirective = function (value) {
-    // Special anti-escaping.
+    // Decoding entities.
     // Looks like browsers perfrom the operation automatically,
     // while we need to do it manually
-    value = value
-        .replace(/&gt;/, '>')
-        .replace(/&lt;/, '<');
+    value = entities.decode(value);
 
     var result = parsers.directive.parse(value);
 
@@ -77,6 +78,10 @@ var dashToCamelCase = function (value) {
 };
 
 var getMetaValue = function (value) {
+    // Decoding entities.
+    // Looks like browsers perfrom the operation automatically,
+    // while we need to do it manually
+    value = entities.decode(value);
     var result = [];
     var tokens = parsers.text.parse(value);
 
@@ -86,6 +91,7 @@ var getMetaValue = function (value) {
             token = tokens[i];
 
             if (token.tag) {
+
                 var parsedToken = parsers.directive.parse(token.value)[0];
                 var exp = parsers.expression.parse(parsedToken.expression);
 

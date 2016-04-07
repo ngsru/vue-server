@@ -1,4 +1,4 @@
-var Entities = require('html-entities').XmlEntities;
+var Entities = require('html-entities').AllHtmlEntities;
 entities = new Entities();
 var wrapComponent = require('./../wrapComponent.js');
 var contentComponent = require('./component');
