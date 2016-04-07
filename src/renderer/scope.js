@@ -143,10 +143,17 @@ var scope = {
 
         scope.updateNotReadyCount(vm, +1);
         builders.build(vm, function () {
-            var isCompiledBePresent = false;
             vm._isCompiled = true;
+            var isToRebuild = false;
+            var isRepeatInstance = false;
+            if (
+                vm.__states.isRepeat ||
+                (vm.__states.parent && vm.__states.parent.__states.notPublic)
+            ) {
+                isRepeatInstance = true;
+            }
 
-            if (!vm.$options.activateBe && contexts.waitFor) {
+            if (!isRepeatInstance && !vm.$options.activateBe && contexts.waitFor) {
                 vm.$on(contexts.waitFor, function () {
                     vm.$root.__states.toRebuild = true;
                     scope.updateNotReadyCount(vm, -1);
@@ -157,7 +164,7 @@ var scope = {
             if (vm.$options.mixins) {
                 for (var i = 0; i < vm.$options.mixins.length; i++) {
                     if (vm.$options.mixins[i].compiledBe) {
-                        isCompiledBePresent = true;
+                        isToRebuild = true;
                         break;
                     }
                 }
@@ -169,24 +176,35 @@ var scope = {
                 }
             }
 
-            // Server Compiled hook
             if (scope.callHook(vm, 'compiledBe')) {
-                isCompiledBePresent = true;
+                // Data could be changed inside the hook
+                // if so we should rebuild the instance
+                isToRebuild = true;
             }
 
-            scope.callHook(vm, 'activateBe');
+            if (!isRepeatInstance) {
+                // If the hook is present it will be rebuilded automatically
+                // no need turn on 'isToRebuild'
+                scope.callHook(vm, 'activateBe');
 
-            if (!contexts.waitFor && !vm.$options.activateBe) {
-                // if the hook is present data could be changed
-                // so lets rebuild the VM
-                if (isCompiledBePresent && vm !== vm.$root) {
-                    scope.resetVmInstance(vm);
-                } else {
-                    vm._isReady = true;
+                if (contexts.waitFor || vm.$options.activateBe) {
+                    return;
                 }
-
-                scope.updateNotReadyCount(vm, -1);
+            } else if (vm.$options.activateBe) {
+                vm.__states.$logger.warn(
+                    'activateBe can\'t be fired on "v-for"-ed or "v-repeat"-ed instances',
+                    common.onLogMessage(vm)
+                );
             }
+
+            if (isToRebuild && vm !== vm.$root) {
+                scope.resetVmInstance(vm);
+                scope.updateNotReadyCount(vm, -1);
+                return;
+            }
+
+            vm._isReady = true;
+            scope.updateNotReadyCount(vm, -1);
         });
 
         return vm;

@@ -185,6 +185,18 @@ var contentComponent = {
 
         item: {
             template: '<i>111</i><i>222</i>'
+        },
+
+        testCompiled: {
+            data: function () {
+                return {
+                    value: null
+                };
+            },
+            template: '<i><b v-if="value">111</b></i>',
+            compiledBe: function () {
+                this.value = true;
+            }
         }
     },
 
@@ -376,6 +388,10 @@ describe('v-for', function () {
         expect($('#cycle').html()).toEqual('<i>Y</i><i>X</i><div></div>');
         expect($('#cycle-template').html()).toEqual('<i>Y</i><i>X</i>');
         expect($('#cycle-template-nested').html()).toEqual('<i>Y</i><i>X</i><div></div>');
+    });
+
+    it('should rebuild instances if data is changed inside compiledBe hook', function () {
+        expect($('#compiled-be-rebuild').html()).toEqual('<i><b>111</b></i>');
     });
 });
 
