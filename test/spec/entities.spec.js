@@ -24,13 +24,18 @@ var contentComponent = {
         '<div id="join-filter-attr" :title="arr | join \'' + entity + '\'"></div>',
         '<div id="comp-prop"><item value="' + entity + '"></item></div>',
         '<div id="comp-prop-dyn"><item :value="value"></item></div>',
-        '<div id="comp-prop-dyn-filter"><item :value="arr | join \'' + entity + '\'"></item></div>'
+        '<div id="comp-prop-dyn-filter"><item :value="arr | join \'' + entity + '\'"></item></div>',
+
+        '<div id="tag-attrib-two" title="{{tag}}"></div>',
+        '<div id="tag-attrib-three" title="{{{tag}}}"></div>',
+        '<div id="tag-attrib-dyn" :title="tag"></div>'
     ].join(''),
     data: function () {
         return {
             arr: [10, 20],
             value: entity,
-            value2: entityTag
+            value2: entityTag,
+            tag: '<img src="1.jpg"/>'
         };
     },
 
@@ -117,6 +122,13 @@ describe('entities', function () {
                     $('#comp-prop-dyn-filter i').html()
                 )
             ).toEqual('10' + decodedEntity + '20');
+        });
+
+        it('should escape quotes', function () {
+            var result = '<img src=&quot;1.jpg&quot;/>';
+            expect($('#tag-attrib-two').attr('title')).toEqual(result);
+            expect($('#tag-attrib-three').attr('title')).toEqual(result);
+            expect($('#tag-attrib-dyn').attr('title')).toEqual(result);
         });
     });
 });

@@ -57,6 +57,10 @@ var common = {
             value = this.escapeHtml(value);
         }
 
+        if (config.isEscapeQuotes) {
+            value = this.escapeQuotes(value);
+        }
+
         if (config.isClean) {
             value = this.cleanValue(value);
         }
@@ -140,6 +144,14 @@ var common = {
     escapeHtml: function (str) {
         if (typeof str === 'string') {
             return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+
+        return str;
+    },
+
+    escapeQuotes: function (str) {
+        if (typeof str === 'string') {
+            return str.replace(/"/g, '&quot;');
         }
 
         return str;
