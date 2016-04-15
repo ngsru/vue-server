@@ -289,7 +289,8 @@ var contentComponent = {
 
     filters: {
         reduce: function (value) {
-            return [value[0], value[2]];
+            var keys = Object.keys(value);
+            return [value[keys[0]], value[keys[2]]];
         }
     }
 };

@@ -264,16 +264,33 @@ var builders = {
                 }
             }
 
-            // If its a Number
-            if (
-                (type === 'string' || type === 'number') &&
-                isNumber.test(value)
-            ) {
-                for (var i = 0; i < value; i++) {
-                    array.push(i);
-                }
-            }
+            value = array;
+        }
 
+        try {
+            value = common.applyFilters(vm, dir.filters, value);
+        } catch (e) {
+            vm.__states.$logger.warn(e, common.onLogMessage(vm));
+        }
+
+        return value;
+    },
+
+    getForData: function (vm, dir) {
+        var value = common.getValue(vm, dir.get);
+        var array;
+        var type = typeof value;
+
+        if (!value) {
+            return value;
+        } else if (
+            (type === 'number' || type === 'string') &&
+            isNumber.test(value)
+        ) {
+            array = [];
+            for (var i = 0; i < value; i++) {
+                array.push(i);
+            }
             value = array;
         }
 
@@ -442,10 +459,10 @@ var builders = {
     // NEW
     // Building v-for items
     buildForElements: function (vm, elements, element) {
-        var repeatData = builders.getRepeatData(vm, element.dirs.for.value);
+        var repeatData = builders.getForData(vm, element.dirs.for.value);
 
         // If repeat data is exists
-        if (repeatData && repeatData.length) {
+        if (repeatData) {
             var repeatElements = [];
             var cloneElement = element.clone;
 
@@ -454,8 +471,8 @@ var builders = {
             var repeatDataItem;
 
             // Walk through direcitve data
-            for (var i = 0; i < repeatData.length; i++) {
-                repeatDataItem = builders.getRepeatItemData(repeatData[i], i, element.dirs.for);
+            utils.every(repeatData, function (item, index, key) {
+                repeatDataItem = builders.getForItemData(item, index, element.dirs.for, key);
 
                 // Creating "pseudo DOM" element clone
                 repeatElement = cloneElement();
@@ -483,7 +500,7 @@ var builders = {
                     element: repeatElementWrapper,
                     repeatData: repeatDataItem,
                 });
-            }
+            });
 
             return repeatElements;
         }
@@ -509,7 +526,7 @@ var builders = {
         }
 
         // Case with a namespace
-        // Eg. v-repeat="item: data" || v-for="item in data"
+        // Eg. v-repeat="item: data"
         if (directive.value.arg) {
             repeatDataItem[directive.value.arg] = item;
 
@@ -529,15 +546,34 @@ var builders = {
             repeatDataItem.$key = data.$key;
         }
 
+        repeatDataItem.$index = index;
+
+        return repeatDataItem;
+    },
+
+    getForItemData: function (data, index, directive, key) {
+        var forDataItem = {};
+        var hasKey = (key !== undefined);
+
+        if (data === undefined || data === null) {
+            return data;
+        }
+
+        forDataItem[directive.value.arg] = data;
+
+        if (hasKey) {
+            forDataItem.$key = index;
+        }
+
+        forDataItem.$index = index;
+
         // Explict key/index prop name definition
         // Eg. v-for="(index, value) in array"
         if (directive.value.index) {
-            repeatDataItem[directive.value.index] = index;
-        } else {
-            repeatDataItem.$index = index;
+            forDataItem[directive.value.index] = hasKey ? key : index;
         }
 
-        return repeatDataItem;
+        return forDataItem;
     },
 
     getAsset: function (vm, asset) {

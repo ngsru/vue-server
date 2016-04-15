@@ -156,12 +156,25 @@ var utils = module.exports = {
         return clone(obj);
     },
 
+    // Runs objects
     each: function (object, callback) {
         var keys = Object.keys(object);
-        var key;
         for (var i = 0; i < keys.length; i++) {
-            key = keys[i];
-            callback(object[key], key);
+            callback(object[keys[i]], keys[i]);
+        }
+    },
+
+    // Runs arrays and objects
+    every: function (value, callback) {
+        if (Array.isArray(value)) {
+            for (var i = 0; i < value.length; i++) {
+                callback(value[i], i);
+            }
+        } else {
+            var keys = Object.keys(value);
+            for (var i = 0; i < keys.length; i++) {
+                callback(value[keys[i]], i, keys[i]);
+            }
         }
     },
 
