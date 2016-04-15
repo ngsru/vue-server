@@ -44,7 +44,7 @@ function stringify(obj) {
                 for (var item in source) {
                     notEmpty = true;
 
-                    result += '"' + item + '":';
+                    result += '"' + item.replace(/"/g, '\\"') + '":';
                     cycle(source[item]);
                     result += ',';
                 }

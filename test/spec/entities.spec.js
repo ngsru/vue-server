@@ -28,7 +28,10 @@ var contentComponent = {
 
         '<div id="tag-attrib-two" title="{{tag}}"></div>',
         '<div id="tag-attrib-three" title="{{{tag}}}"></div>',
-        '<div id="tag-attrib-dyn" :title="tag"></div>'
+        '<div id="tag-attrib-dyn" :title="tag"></div>',
+
+        // A compiler test for incorrect attribute with quotes
+        '<div id="incorrect-attribute-1" on:"test"></div>'
     ].join(''),
     data: function () {
         return {
@@ -131,4 +134,9 @@ describe('entities', function () {
             expect($('#tag-attrib-dyn').attr('title')).toEqual(result);
         });
     });
+
+    it('Compiler should be able to compile attrbutes with quotes', function () {
+        expect($('#incorrect-attribute-1').attr('on:"test"')).toEqual('');
+    });
+
 });
