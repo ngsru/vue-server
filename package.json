@@ -1,6 +1,6 @@
 {
   "name": "vue-server",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "Vue.js server side version",
   "main": "index.js",
   "author": {
@@ -12,7 +12,7 @@
     "htmlparser2": "^3.8.3",
     "log4js": "^0.6.21",
     "underscore": "^1.7.0",
-    "vue": "^1.0.0-migration"
+    "vue": "1.0.0-migration"
   },
   "repository": {
     "type": "git",
