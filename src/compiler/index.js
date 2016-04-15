@@ -367,16 +367,34 @@ var Compile = function (template) {
                         (function () {
                             for (var i = current.inner.length - 1; i >= 0; i--) {
                                 if (current.inner[i].type === 'tag') {
-                                    if (current.inner[i].dirs && current.inner[i].dirs.if) {
-                                        var vIfDir = parseDirective(
-                                            '!(' + current.inner[i].dirs.if.value.expression + ')'
-                                        );
-                                        if (vIfDir) {
-                                            element.dirs.if = {
-                                                value: vIfDir[0]
-                                            };
+                                    if (current.inner[i].dirs) {
+                                        // v-if
+                                        if (current.inner[i].dirs.if) {
+                                            var vIfDir = parseDirective(
+                                                '!(' + current.inner[i].dirs.if.value.expression + ')'
+                                            );
+                                            if (vIfDir) {
+                                                element.dirs.if = {
+                                                    value: vIfDir[0]
+                                                };
+                                            }
+
+                                            break;
+                                        }
+
+                                        // v-show
+                                        if (current.inner[i].dirs.show) {
+                                            var vIfDir = parseDirective(
+                                                '!(' + current.inner[i].dirs.show.value.expression + ')'
+                                            );
+                                            if (vIfDir) {
+                                                element.dirs.show = {
+                                                    value: vIfDir[0]
+                                                };
+                                            }
                                         }
                                     }
+
                                     break;
                                 }
                             }
