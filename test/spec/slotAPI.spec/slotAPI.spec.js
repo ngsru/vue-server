@@ -138,7 +138,7 @@ describe('<slot> API', function () {
 
     it('should be able insert content into deep down slots', function () {
         expect($('#deep').html()).toEqual(
-            '<div><i>content</i> <i><p slot="one">content</p></i></div>'
+            '<div><i>content</i><i><p slot="one">content</p></i></div>'
         );
     });
 
