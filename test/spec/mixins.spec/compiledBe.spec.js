@@ -59,8 +59,8 @@ beforeAll(function (done) {
     }, {replace: true});
 });
 
-describe('mixins', function () {
-    it('should be used in certain order', function () {
+describe('compiledBe inside mixins', function () {
+    it('should be work', function () {
         expect($('#content').html()).toEqual('3333|3333|3333|2222|2222|2222');
     });
 });

@@ -12,18 +12,15 @@ var contentComponent = {
 
     createdBe: function () {
         this.data.push('own createdBe');
-        // console.log('own createdBe');
     },
 
     compiledBe: function () {
         this.data.push('own compiledBe');
         this.$emit('loaded');
-        // console.log('own compiledBe');
     },
     mixins: [
         {
             data: function () {
-                // console.log('mixin 1 data')
                 return {
                     flag1: '1',
                     flag2: '1',
@@ -34,18 +31,15 @@ var contentComponent = {
 
             createdBe: function () {
                 this.data.push('mixin 1 createdBe');
-                // console.log('mixin 1 createdBe');
             },
 
             compiledBe: function () {
                 this.data.push('mixin 1 compiledBe');
-                // console.log('mixin 1 compiledBe');
             }
         },
 
         {
             data: function () {
-                // console.log('mixin 2 data')
                 return {
                     flag1: '2',
                     flag2: '2',
@@ -55,18 +49,15 @@ var contentComponent = {
 
             createdBe: function () {
                 this.data.push('mixin 2 createdBe');
-                // console.log('mixin 2 createdBe');
             },
 
             compiledBe: function () {
                 this.data.push('mixin 2 compiledBe');
-                // console.log('mixin 2 compiledBe');
             }
         },
 
         {
             data: function () {
-                // console.log('mixin 3 data')
                 return {
                     flag1: '3',
                     flag2: '3'
@@ -75,12 +66,10 @@ var contentComponent = {
 
             createdBe: function () {
                 this.data.push('mixin 3 createdBe');
-                // console.log('mixin 3 createdBe');
             },
 
             compiledBe: function () {
                 this.data.push('mixin 3 compiledBe');
-                // console.log('mixin 3 compiledBe');
             }
         }
     ]
@@ -93,7 +82,7 @@ beforeAll(function (done) {
     }, {replace: true});
 });
 
-describe('mixins', function () {
+describe('hooks inside mixins', function () {
     it('should be used in certain order', function () {
         expect($('order').text())
             .toEqual('mixin 1 createdBe,mixin 2 createdBe,mixin 3 createdBe,own createdBe,' +

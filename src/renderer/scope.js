@@ -7,7 +7,9 @@ var scope = {
     // Init VMs for components and repeat items
     initViewModel: function (contexts) {
         var options = {};
+        var optionsMix = {};
         var data = {};
+        var vm;
 
         if (contexts.isComponent) {
             utils.extend(options, new contexts.component());
@@ -27,7 +29,7 @@ var scope = {
         }
 
         // Init context
-        var vm = utils.extend(data, this.globalPrototype);
+        vm = utils.extend(data, this.globalPrototype);
         scope.initPrivateState(vm, {
             parent: contexts.parent
         });
@@ -40,14 +42,25 @@ var scope = {
             vm.__states.isComponent = true;
         }
 
+        vm.$options = options;
+
+        if (vm.$options.mixins) {
+            for (var i = 0; i < vm.$options.mixins.length; i++) {
+                if (vm.$options.mixins[i].methods) {
+                    optionsMix.methods = optionsMix.methods || {};
+                    utils.extend(optionsMix.methods, vm.$options.mixins[i].methods);
+                }
+            }
+        }
+
         if (this.config.strict) {
-            options.filters = utils.extend({}, this.filters, options.filters);
-            options.partials = utils.extend({}, this.partials, options.partials);
-            options.components = utils.extend({}, this.components, options.components);
+            vm.$options.filters = utils.extend({}, this.filters, vm.$options.filters);
+            vm.$options.partials = utils.extend({}, this.partials, vm.$options.partials);
+            vm.$options.components = utils.extend({}, this.components, vm.$options.components);
         } else {
-            options.filters = utils.extend({}, this.filters, contexts.filters, options.filters);
-            options.partials = utils.extend({}, this.partials, contexts.partials, options.partials);
-            options.components = utils.extend({}, this.components, contexts.components, options.components);
+            vm.$options.filters = utils.extend({}, this.filters, contexts.filters, vm.$options.filters);
+            vm.$options.partials = utils.extend({}, this.partials, contexts.partials, vm.$options.partials);
+            vm.$options.components = utils.extend({}, this.components, contexts.components, vm.$options.components);
         }
 
         // Special alias for recursive component invocation
@@ -59,7 +72,6 @@ var scope = {
 
         this.setRefsAndEls(vm);
         vm.$el = contexts.element;
-        vm.$options = options;
         vm.$data = data;
         vm.$parent = contexts.parentLink ? contexts.parentLink : contexts.parent;
         vm.$root = contexts.parent ? contexts.parent.$root : vm;
@@ -92,8 +104,7 @@ var scope = {
 
             scope.setKeyElementInner(vm, tpl);
 
-            // Setting component method to VM
-            utils.extend(vm, vm.$options.methods);
+            scope.insertMethods(vm, optionsMix);
 
             scope.setEventListeners(vm);
         }
@@ -122,14 +133,9 @@ var scope = {
         scope.buildComputedProps(vm);
 
         // Server Created mixins
-        if (vm.$options.mixins) {
-            for (var i = 0; i < vm.$options.mixins.length; i++) {
-                if (vm.$options.mixins[i].createdBe) {
-                    vm.$options.mixins[i].createdBe.call(vm);
-                    createdHookFired = true;
-                }
-            }
-        }
+        scope.callHookMixin(vm, 'createdBe', function () {
+            createdHookFired = true;
+        });
 
         // Server Created hook
         scope.callHook(vm, 'createdBe');
@@ -161,26 +167,15 @@ var scope = {
             }
 
             // Server Compiled mixins
-            if (vm.$options.mixins) {
-                for (var i = 0; i < vm.$options.mixins.length; i++) {
-                    if (vm.$options.mixins[i].compiledBe) {
-                        isToRebuild = true;
-                        break;
-                    }
-                }
-
-                for (var i = 0; i < vm.$options.mixins.length; i++) {
-                    if (vm.$options.mixins[i].compiledBe) {
-                        vm.$options.mixins[i].compiledBe.call(vm);
-                    }
-                }
-            }
-
-            if (scope.callHook(vm, 'compiledBe')) {
-                // Data could be changed inside the hook
-                // if so we should rebuild the instance
+            scope.callHookMixin(vm, 'compiledBe', function () {
                 isToRebuild = true;
-            }
+            });
+
+            // Data could be changed inside the hook
+            // if so we should rebuild the instance
+            scope.callHook(vm, 'compiledBe', function () {
+                isToRebuild = true;
+            });
 
             if (!isRepeatInstance) {
                 // If the hook is present it will be rebuilded automatically
@@ -404,13 +399,7 @@ var scope = {
 
         vm.$on('_vueServer.readyToCompile', function () {
             // Server Ready mixins
-            if (vm.$options.mixins) {
-                for (var i = 0; i < vm.$options.mixins.length; i++) {
-                    if (vm.$options.mixins[i].readyBe) {
-                        vm.$options.mixins[i].readyBe.call(vm);
-                    }
-                }
-            }
+            scope.callHookMixin(vm, 'readyBe');
 
             // Server Ready hook
             scope.callHook(vm, 'readyBe');
@@ -837,7 +826,7 @@ var scope = {
         }, extra);
     },
 
-    callHook: function (vm, name, isAsync) {
+    callHook: function (vm, name, callback) {
         var isPresent = false;
         var hook = vm.$options[name];
 
@@ -856,7 +845,37 @@ var scope = {
 
         vm.$emit('hook:' + name);
 
+        if (isPresent && callback) {
+            callback();
+        }
+
         return isPresent;
+    },
+
+    /**
+     * Running a hook's of mixins
+     */
+    callHookMixin: function (vm, name, callback) {
+        if (vm.$options.mixins) {
+            for (var i = 0; i < vm.$options.mixins.length; i++) {
+                if (vm.$options.mixins[i][name]) {
+                    vm.$options.mixins[i][name].call(vm);
+                    if (callback) {
+                        callback();
+                    }
+                }
+            }
+        }
+    },
+
+    /**
+     * Setting component method into VM
+     */
+    insertMethods: function (vm, optionsMix) {
+        if (optionsMix.methods) {
+            utils.extend(vm, optionsMix.methods);
+        }
+        utils.extend(vm, vm.$options.methods);
     }
 };
 
