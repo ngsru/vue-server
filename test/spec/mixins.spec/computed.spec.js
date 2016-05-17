@@ -1,19 +1,21 @@
 var wrapComponent = require('./../wrapComponent.js');
 var $;
 var contentComponent = {
-
+    data: function () {
+        return {value: ''};
+    },
     template: [
-        '<div id="plain">{{go()}}, {{run()}}, {{slide()}}, {{walk()}}</div>',
-        '<div id="v-for"><i v-for="n in 1" :title="walk()"></i></div>',
+        '<div id="plain">{{go}}, {{run}}, {{slide}}, {{walk}}</div>',
+        '<div id="v-for"><i v-for="n in 1" :title="walk"></i></div>',
     ].join(''),
-    methods: {
+    computed: {
         go: function () {
             return 'original';
         }
     },
     mixins: [
         {
-            methods: {
+            computed: {
                 go: function () {;
                     return 'mixed1';
                 },
@@ -26,7 +28,7 @@ var contentComponent = {
             }
         },
         {
-            methods: {
+            computed: {
                 run: function () {
                     return 'mixed2';
                 },
@@ -45,7 +47,7 @@ beforeAll(function (done) {
     }, {replace: true});
 });
 
-describe('methods from mixins', function () {
+describe('computed from mixins', function () {
     it('should work', function () {
         expect($('#plain').html()).toEqual('original, mixed2, mixed1, mixed2');
     });

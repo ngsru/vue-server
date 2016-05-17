@@ -1,4 +1,5 @@
 var compiler = require('./../compiler');
+var utils = require('./../utils.js');
 var excludeInstanceOptions = {
     'data': true,
     'methods': true,
@@ -86,7 +87,7 @@ var objectUtils = {
 
         return newNames;
     }
-}
+};
 
 exports.compileTemplate = function ($logger, template, logName) {
     var tplTypeof;
@@ -105,6 +106,58 @@ exports.compileTemplate = function ($logger, template, logName) {
     }
 
     return template;
+};
+
+var partsForMixins = ['methods', 'filters', 'partials', 'components', 'computed', 'events'];
+function injectOptionItemFromMixin(result, mixin) {
+    var names = Object.keys(mixin);
+    var name;
+    var mixinProp;
+    for (var i = 0; i < names.length; i++) {
+        name = names[i];
+        mixinProp = mixin[name];
+        if (name === 'props') {
+            mixinProp = convertProps(mixinProp);
+        } else if (partsForMixins.indexOf(name) === -1) {
+            continue;
+        }
+        result[name] = result[name] || {};
+        utils.extend(result[name], mixinProp);
+    }
+};
+
+/**
+ * Extracting options from mixins making them a flat layer
+ */
+function injectOptionsFromMixins(options) {
+    var result = {};
+
+    if (options.mixins) {
+        for (var i = 0; i < options.mixins.length; i++) {
+            injectOptionItemFromMixin(result,  options.mixins[i]);
+        }
+
+        for (var name in result) {
+            options[name] = utils.extend({}, result[name], options[name]);
+        }
+    }
+};
+
+/**
+ * Converting props into same format
+ */
+function convertProps(props) {
+    if (Array.isArray(props)) {
+        var newProps = {};
+        for (var i = 0, l = props.length; i < l; i++) {
+            newProps[props[i]] = null;
+        }
+        return newProps;
+    } else if (typeof props === 'object' && props !== null) {
+        return props;
+    } else {
+        return undefined;
+    }
 }
 
 exports.composeComponent = function ($logger, component, globalMixin) {
@@ -139,7 +192,7 @@ exports.composeComponent = function ($logger, component, globalMixin) {
     if (!data) {
         data = function () {
             return {};
-        }
+        };
     } else if (typeof data === 'object') {
         dataObject = data;
     }
@@ -148,25 +201,19 @@ exports.composeComponent = function ($logger, component, globalMixin) {
             this[name] = toData[name];
         }
         return dataObject || data.call(this);
-    }
+    };
 
     // Global mixin via Vue.mixin = ...
     if (globalMixin) {
         options.mixins = options.mixins || [];
-        options.mixins = globalMixin.concat(options.mixins);
+        options.mixins = [globalMixin].concat(options.mixins);
     }
+
+    options.props = convertProps(options.props);
+
+    injectOptionsFromMixins(options);
 
     options.template = exports.compileTemplate($logger, options.template, 'Component\'s template');
 
-    if (options.partials) {
-        for (var name in options.partials) {
-            options.partials[name] = exports.compileTemplate(
-                $logger,
-                options.partials[name],
-                'Partial "' + name + '"'
-            );
-        }
-    }
-
     return Component;
-}
+};

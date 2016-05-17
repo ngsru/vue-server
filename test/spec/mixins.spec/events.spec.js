@@ -1,37 +1,44 @@
 var wrapComponent = require('./../wrapComponent.js');
 var $;
 var contentComponent = {
-
+    data: function () {
+        return {value: ''};
+    },
     template: [
-        '<div id="plain">{{go()}}, {{run()}}, {{slide()}}, {{walk()}}</div>',
-        '<div id="v-for"><i v-for="n in 1" :title="walk()"></i></div>',
+        '<div id="plain">{{go}}, {{run}}, {{slide}}, {{walk}}</div>'
     ].join(''),
-    methods: {
+    events: {
         go: function () {
-            return 'original';
+            this.go = 'original';
         }
+    },
+    createdBe: function () {
+        this.$emit('go');
+        this.$emit('run');
+        this.$emit('slide');
+        this.$emit('walk');
     },
     mixins: [
         {
-            methods: {
+            events: {
                 go: function () {;
-                    return 'mixed1';
+                    this.go = 'mixed1';
                 },
                 run: function () {
-                    return 'mixed1';
+                    this.run = 'mixed1';
                 },
                 slide: function () {
-                    return 'mixed1';
+                    this.slide = 'mixed1';
                 }
             }
         },
         {
-            methods: {
+            events: {
                 run: function () {
-                    return 'mixed2';
+                    this.run = 'mixed2';
                 },
                 walk: function () {
-                    return 'mixed2';
+                    this.walk = 'mixed2';
                 }
             }
         }
@@ -45,12 +52,8 @@ beforeAll(function (done) {
     }, {replace: true});
 });
 
-describe('methods from mixins', function () {
+describe('events from mixins', function () {
     it('should work', function () {
         expect($('#plain').html()).toEqual('original, mixed2, mixed1, mixed2');
-    });
-
-    it('should work inside v-for', function () {
-        expect($('#v-for i').attr('title')).toEqual('mixed2');
     });
 });

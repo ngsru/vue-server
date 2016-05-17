@@ -3,8 +3,12 @@ var VueServer = require('../../index.js');
 var VueCompile = VueServer.compiler;
 var VueRender = VueServer.renderer;
 
-module.exports = function (content, callback) {
+module.exports = function (content, callback, vueCb) {
     var Vue = new VueRender();
+
+    if (vueCb) {
+        vueCb(Vue);
+    }
 
     Vue.config.silent = true;
 

@@ -224,10 +224,20 @@ var builders = {
         var vm = meta.vm;
         var element = meta.element;
         var partialName = common.getValue(vm, meta.partialName);
-        var partial = builders.getAsset(vm, 'partials')[partialName];
+        var partialAssests = builders.getAsset(vm, 'partials');
+        var partial = partialAssests[partialName];
         var logMsg;
 
         if (partial) {
+            // Compiling partial template
+            if (typeof partial !== 'function') {
+                partial = partialAssests[partialName] = asset.compileTemplate(
+                    vm.__states.$logger,
+                    partial,
+                    'Partial "' + partialName + '"'
+                );
+            }
+
             if (element._prevPartialName !== partialName) {
                 meta.onDoesExist(partial);
             }

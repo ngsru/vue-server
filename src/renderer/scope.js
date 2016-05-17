@@ -7,7 +7,6 @@ var scope = {
     // Init VMs for components and repeat items
     initViewModel: function (contexts) {
         var options = {};
-        var optionsMix = {};
         var data = {};
         var vm;
 
@@ -44,28 +43,25 @@ var scope = {
 
         vm.$options = options;
 
-        if (vm.$options.mixins) {
-            for (var i = 0; i < vm.$options.mixins.length; i++) {
-                if (vm.$options.mixins[i].methods) {
-                    optionsMix.methods = optionsMix.methods || {};
-                    utils.extend(optionsMix.methods, vm.$options.mixins[i].methods);
-                }
-            }
-        }
-
         if (this.config.strict) {
             vm.$options.filters = utils.extend({}, this.filters, vm.$options.filters);
             vm.$options.partials = utils.extend({}, this.partials, vm.$options.partials);
             vm.$options.components = utils.extend({}, this.components, vm.$options.components);
         } else {
-            vm.$options.filters = utils.extend({}, this.filters, contexts.filters, vm.$options.filters);
-            vm.$options.partials = utils.extend({}, this.partials, contexts.partials, vm.$options.partials);
-            vm.$options.components = utils.extend({}, this.components, contexts.components, vm.$options.components);
+            vm.$options.filters = utils.extend(
+                {}, this.filters, contexts.filters, vm.$options.filters
+            );
+            vm.$options.partials = utils.extend(
+                {}, this.partials, contexts.partials, vm.$options.partials
+            );
+            vm.$options.components = utils.extend(
+                {}, this.components, contexts.components, vm.$options.components
+            );
         }
 
         // Special alias for recursive component invocation
-        if (options.name && contexts.componentName) {
-            options.components[options.name] = contexts.components[contexts.componentName];
+        if (vm.$options.name && contexts.componentName) {
+            vm.$options.components[vm.$options.name] = contexts.components[contexts.componentName];
         }
 
         vm.__states.$logger = this.$logger;
@@ -104,7 +100,7 @@ var scope = {
 
             scope.setKeyElementInner(vm, tpl);
 
-            scope.insertMethods(vm, optionsMix);
+            utils.extend(vm, vm.$options.methods);
 
             scope.setEventListeners(vm);
         }
@@ -577,22 +573,11 @@ var scope = {
 
     pullPropsData: function (vm) {
         var props = vm.$options.props;
-
-        if (typeof props === 'object') {
+        if (props) {
             vm.__states.hasProps = true;
-
-            // If props is Array
-            if (Array.isArray(props)) {
-                for (var i = 0, l = props.length; i < l; i++) {
-                    this.pullPropsDataItem(vm, props[i]);
-                }
-
-            // If props is Object
-            } else {
-                utils.each(props, function (item, name) {
-                    scope.pullPropsDataItem(vm, name, item);
-                });
-            }
+            utils.each(props, function (item, name) {
+                scope.pullPropsDataItem(vm, name, item);
+            });
         }
     },
 
@@ -866,16 +851,6 @@ var scope = {
                 }
             }
         }
-    },
-
-    /**
-     * Setting component method into VM
-     */
-    insertMethods: function (vm, optionsMix) {
-        if (optionsMix.methods) {
-            utils.extend(vm, optionsMix.methods);
-        }
-        utils.extend(vm, vm.$options.methods);
     }
 };
 
