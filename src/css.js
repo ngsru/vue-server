@@ -7,7 +7,7 @@ var CSSParser = {
             (function () {
                 var item = temp[i];
                 if (item) {
-                    var prop = item.split(':');
+                    var prop = item.split(/\:(.+)/);
 
                     if (!prop[1]) {
                         throw 'CSS format is invalid: "' + item + '"';
