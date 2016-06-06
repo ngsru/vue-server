@@ -325,7 +325,7 @@ var compilers = {
 
         if (utils.size(styles)) {
             if (originalStyle) {
-                element.attribs.style = cssParser.stringify(utils.extend(originalStyle, styles));
+                element.attribs.style = cssParser.stringify(cssParser.merge(originalStyle, styles));
             } else {
                 element.attribs.style = cssParser.stringify(styles);
             }

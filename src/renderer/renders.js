@@ -53,7 +53,7 @@ var renders = {
                 }
 
                 if (attrName === 'style') {
-                    attrVal = cssParser.stringify(utils.extend(attrVal.own, attrVal.dir));
+                    attrVal = cssParser.stringify(cssParser.merge(attrVal.own, attrVal.dir));
                 }
             }
 
@@ -205,7 +205,8 @@ var renders = {
                     list.push(childDyn);
                 }
 
-                element.attribs[name] = cssParser.stringify(utils.extend.apply(common, list));
+                // list - is an Array of style-objects
+                element.attribs[name] = cssParser.stringify(cssParser.merge.apply(cssParser, list));
             })();
         }
 

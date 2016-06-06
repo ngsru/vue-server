@@ -1,3 +1,9 @@
+function kebabify(prop) {
+    return prop.replace(/[A-Z]/g, function (a) {
+        return '-' + a.toLowerCase();
+    });
+}
+
 var CSSParser = {
     parse: function (string) {
         var temp = string.split(';');
@@ -7,7 +13,7 @@ var CSSParser = {
             (function () {
                 var item = temp[i];
                 if (item) {
-                    var prop = item.split(/\:(.+)/);
+                    var prop = item.split(/:(.+)/);
 
                     if (!prop[1]) {
                         throw 'CSS format is invalid: "' + item + '"';
@@ -28,11 +34,24 @@ var CSSParser = {
             if (object[prop] === undefined || object[prop] === null || object[prop] === '') {
                 continue;
             }
-            string += prop.replace(/[A-Z]/g, function (a) { return '-' + a.toLowerCase(); }) + ': ' + object[prop] + '; ';
-            // string += prop + ': ' + object[prop] + '; ';
+            string += kebabify(prop) + ': ' + object[prop] + '; ';
         }
 
         return string.trim();
+    },
+
+    merge: function () {
+        var list = [{}];
+        for (var i = 0; i < arguments.length; i++) {
+            list.push(arguments[i]);
+        }
+        return list.reduce(function (previousValue, currentValue) {
+            for (var item in currentValue) {
+                previousValue[kebabify(item)] = currentValue[item];
+            }
+
+            return previousValue;
+        });
     }
 };
 
