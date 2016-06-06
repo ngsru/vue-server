@@ -1,5 +1,5 @@
 var Entities = require('html-entities').AllHtmlEntities;
-entities = new Entities();
+var entities = new Entities();
 
 var utils = require('./../utils.js');
 
@@ -68,6 +68,23 @@ var common = {
         return value;
     },
 
+    getAttributeExpression: function (vm, element, name, setCompiled) {
+        if (element.attribs[name]) {
+            return element.attribs[name];
+        }
+
+        if (element.dirs.bind && element.dirs.bind[name]) {
+            if (setCompiled) {
+                element.dirs.bind[name].isCompiled = true;
+            }
+            return {
+                value: element.dirs.bind[name].value.get,
+                filters: element.dirs.bind[name].value.filters
+            };
+        }
+        return null;
+    },
+
     getAttribute: function (vm, element, name, setCompiled) {
         var value;
         if (element.dirs.bind && element.dirs.bind[name]) {
@@ -75,7 +92,7 @@ var common = {
                 vm,
                 {
                     value: element.dirs.bind[name].value.get,
-                    filters: element.dirs.bind[name].value.filters,
+                    filters: element.dirs.bind[name].value.filters
                 },
                 {
                     isEscape: false,

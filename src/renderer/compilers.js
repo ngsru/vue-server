@@ -257,6 +257,7 @@ var compilers = {
         // v-class
         if (element.dirs.class) {
             var classList;
+            var vClassItem;
 
             if (element.attribs.class) {
                 classList = element.attribs.class.split(' ');

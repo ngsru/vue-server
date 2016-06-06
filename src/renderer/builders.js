@@ -111,7 +111,7 @@ var builders = {
 
                 // Statement <component is="{{name}}"></component>
                 (function () {
-                    var value = common.getAttribute(vm, element, 'is', true);
+                    var value = common.getAttributeExpression(vm, element, 'is', true);
                     if (value) {
                         element.dirs.component = {
                             value: value,
@@ -366,7 +366,7 @@ var builders = {
 
     // Building element with "v-component" directive
     buildComponent: function (vm, element, options) {
-        var componentName = common.getValue(vm, element.dirs.component.value);
+        var componentName = common.execute(vm, element.dirs.component.value);
         var component = builders.getAsset(vm, 'components')[componentName];
 
         // If component exists
