@@ -46,13 +46,13 @@ beforeAll(function (done) {
             done();
         },
         function (Vue) {
-            Vue.mixin = {
+            Vue.mixin({
                 props: {
                     globe: {
                         default: 'sphere'
                     }
                 }
-            };
+            });
         }
     );
 });

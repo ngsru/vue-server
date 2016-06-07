@@ -170,14 +170,11 @@ var VueRender = function (logger) {
         return this.prototype.partials[id];
     };
 
-    Object.defineProperty(VueRoot, 'mixin', {
-        get: function () {
-            return this.prototype.mixin;
-        },
-        set: function (val) {
-            this.prototype.mixin = val;
+    VueRoot.mixin = function (mixin) {
+        if (mixin) {
+            this.prototype.mixin = mixin;
         }
-    });
+    };
 
     VueRoot.prototype._logger = logger;
 

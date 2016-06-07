@@ -19,13 +19,13 @@ beforeAll(function (done) {
 
     var Part = Vue.partial('part', '<i>partial content</i>');
 
-    Vue.mixin = {
+    Vue.mixin({
         data: function () {
             return {
                 globalMixinValue: 'global mixin data value'
             };
         }
-    };
+    });
 
     Vue.prototype.$myMethod = function () {
         return '$myMethod returns value';
