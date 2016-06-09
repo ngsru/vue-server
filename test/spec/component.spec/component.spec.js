@@ -91,7 +91,7 @@ describe('component', function () {
         expect($('#dash-first-upper').html()).toEqual('<i>rakushka2</i>');
     });
 
-    it('should mount via custom tag in dashed-case with v-repeat', function () {
+    it('should mount via custom tag in dashed-case with v-for', function () {
         expect($('#repeat-tag').html()).toEqual('<i>rakushka</i><i>rakushka</i><i>rakushka</i>');
     });
 

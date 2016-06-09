@@ -448,16 +448,6 @@ var Compile = function (template) {
                         }
                     }
 
-                    if (name === 'v-repeat') {
-                        var vRepeatDir = parseDirective(attribs['v-repeat']);
-                        if (vRepeatDir) {
-                            element.dirs.repeat = {
-                                value: vRepeatDir[0]
-                            };
-                            repeatItems.push(element);
-                        }
-                    }
-
                     if (name === 'v-with') {
                         var vWithDir = parseDirective(attribs['v-with']);
                         if (vWithDir) {

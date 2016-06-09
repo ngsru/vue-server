@@ -259,60 +259,6 @@ module.exports = {
                 }
             }
         },
-        'syntetic': {
-            'template': [
-                '<button v-repeat="buttons" v-on="click: setRoom(this)" v-class="active: setRoomActive(this)">',
-                    '<span>{{label}}</span>',
-                    '<span class="in-repeat-nested-filter">{{checkFilter | nestedFilter}}</span>',
-                '</button>',
-                '<span class="nested-filter">{{checkFilter | nestedFilter}}</span>'
-            ].join(''),
-            data: function () {
-                return {
-                    buttons: [
-                        {value: 1, label: 'one'},
-                        {value: 2, label: 'two'},
-                        {value: 3, label: 'three'},
-                        {value: 4, label: 'four'}
-                    ],
-
-                    form: {
-                        rooms: [2, 3]
-                    },
-
-                    checkFilter: 'ok'
-                };
-            },
-
-            filters: {
-                nestedFilter: function (value) {
-                    return value + '!?!?!?!';
-                }
-            },
-
-            methods: {
-                setRoom: function (vm) {
-                    var index = this.form.rooms.indexOf(vm.value);
-
-                    if (index == -1) {
-                        this.form.rooms.push(vm.value);
-                    } else {
-                        this.form.rooms.splice(index, 1);
-                    }
-                },
-
-                setRoomActive: function (vm) {
-                    var result = false;
-                    this.form.rooms.forEach(function (item) {
-                        if (item == vm.value) {
-                            result = true;
-                        }
-                    });
-
-                    return result;
-                }
-            }
-        },
 
         'compon1': {
             template: '' +
@@ -392,31 +338,7 @@ module.exports = {
                     value: 'This is no-template value'
                 };
             }
-        },
-
-        'compound': {
-            template: '<ul><li v-repeat="item:some" is="compoundChild"></li></ul>',
-
-            data: function () {
-                return {
-                    some: [
-                        {value: 'value from v-repeat', test: 'this should not work'}
-                    ]
-                };
-            },
-
-            components: {
-                'compoundChild': {
-                    template: '<span class="nested">{{item.value}}</span> <span class="own">{{value}}</span>',
-                    data: function () {
-                        return {
-                            value: 'Component\'s own value'
-                        };
-                    }
-                }
-            }
         }
-
     },
 
     filters: {

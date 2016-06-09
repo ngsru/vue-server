@@ -12,19 +12,6 @@ var scope = {
 
         if (contexts.isComponent) {
             utils.extend(options, new contexts.component());
-
-        // Inherit data to v-repeat items contexts
-        } else if (contexts.isRepeat) {
-            utils.each(contexts.parent, function (item, key) {
-                if (!scope.isSystemProp(key, contexts.parent) && !data[key]) {
-                    data[key] = item;
-                }
-            });
-        }
-
-        // Inherit parent data
-        if (contexts.parent && options.inherit) {
-            scope.inheritData(data, contexts.parent);
         }
 
         // Init context
@@ -32,10 +19,6 @@ var scope = {
         scope.initPrivateState(vm, {
             parent: contexts.parent
         });
-
-        if (contexts.isRepeat) {
-            vm.__states.isRepeat = true;
-        }
 
         if (contexts.isComponent) {
             vm.__states.isComponent = true;
@@ -147,15 +130,12 @@ var scope = {
         builders.build(vm, function () {
             vm._isCompiled = true;
             var isToRebuild = false;
-            var isRepeatInstance = false;
-            if (
-                vm.__states.isRepeat ||
-                (vm.__states.parent && vm.__states.parent.__states.notPublic)
-            ) {
-                isRepeatInstance = true;
+            var isLightVM = false;
+            if (vm.__states.parent && vm.__states.parent.__states.lightVM) {
+                isLightVM = true;
             }
 
-            if (!isRepeatInstance && !vm.$options.activateBe && contexts.waitFor) {
+            if (!isLightVM && !vm.$options.activateBe && contexts.waitFor) {
                 vm.$on(contexts.waitFor, function () {
                     vm.$root.__states.toRebuild = true;
                     scope.updateNotReadyCount(vm, -1);
@@ -173,7 +153,7 @@ var scope = {
                 isToRebuild = true;
             });
 
-            if (!isRepeatInstance) {
+            if (!isLightVM) {
                 // If the hook is present it will be rebuilded automatically
                 // no need turn on 'isToRebuild'
                 scope.callHook(vm, 'activateBe');
@@ -183,7 +163,7 @@ var scope = {
                 }
             } else if (vm.$options.activateBe) {
                 vm.__states.$logger.warn(
-                    'activateBe can\'t be fired on "v-for"-ed or "v-repeat"-ed instances',
+                    'activateBe can\'t be fired on "v-for"-ed instances',
                     common.onLogMessage(vm)
                 );
             }
@@ -258,7 +238,7 @@ var scope = {
                 (function () {
                     var name = common.dashToCamelCase(options.element.dirs.ref.value);
 
-                    if (newVm.__states.isRepeat || newVm.__states.parent.__states.notPublic) {
+                    if (newVm.__states.parent.__states.lightVM) {
                         $target.$refs[name] = $target.$refs[name] || [];
                         $target.$refs[name].push(newVm);
                     } else {
@@ -268,7 +248,7 @@ var scope = {
                 })();
             }
 
-            if (!this.__states.notPublic && options.component && !options.repeatData) {
+            if (!this.__states.lightVM && options.component && !options.repeatData) {
                 this.__states.VMs = this.__states.VMs || {};
                 this.__states.VMs[options.element.id + options.componentName] = newVm;
             }
@@ -479,9 +459,6 @@ var scope = {
     markKeyElement: function (vm) {
         // Mark the key element for VM
         vm.$el._isKeyElement = true;
-        if (vm.__states.isComponent && !vm.__states.isRepeat) {
-            vm.$el._compileSelfInParentVm = true;
-        }
     },
 
     // Set data context and validate data
@@ -700,17 +677,6 @@ var scope = {
         vm[propName] = value;
     },
 
-    inheritData: function (dataTo, dataFrom) {
-        for (var key in dataFrom) {
-            if (scope.isSystemProp(key) || dataTo[key] || dataFrom.$options.methods[key]) {
-                continue;
-            }
-            dataTo[key] = dataFrom[key];
-        }
-
-        return dataTo;
-    },
-
     // Init VMs for v-for
     initLightViewModel: function (contexts) {
         var options = {};
@@ -724,7 +690,7 @@ var scope = {
 
         scope.initPrivateState(vm, {
             parent: contexts.parent,
-            notPublic: true
+            lightVM: true
         });
 
         if (this.config.strict) {
@@ -768,7 +734,7 @@ var scope = {
     },
 
     getRealParent: function (vm) {
-        if (vm.__states.notPublic) {
+        if (vm.__states.lightVM) {
             return this.getRealParent(vm.__states.parent);
         }
 

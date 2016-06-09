@@ -76,8 +76,8 @@
         <test-compiled v-for="n in 1"></test-compiled>
     </div>
 
-    <!-- v-repeat -->
-    <section id="v-repeat">
+    <!-- v-for -->
+    <section id="v-for">
         <ul class="simple-array">
             <li v-for="item in vRepeat.simpleArray">
                 <span class="value">{{item.value}}</span>
@@ -142,7 +142,7 @@
         <div class="filter-repeated" v-for="item in vRepeat.simpleArray" is="filterRepeated"></div>
 
         <div class="b-if">
-            <b-if v-repeat="item: items">fff</b-if>
+            <b-if v-for="item in items" :item="item">fff</b-if>
         </div>
     </section>
 </div>

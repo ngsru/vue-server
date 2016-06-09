@@ -169,28 +169,7 @@ var builders = {
                     });
                 }
 
-                // v-repeat
-                if (element.dirs.repeat) {
-                    // Can't remove the repeat directive like with v-for
-                    // because it will cause re-rendering v-repeat instances as simple components
-                    if (!element.dirs.repeat.isCompiled) {
-                        repeatElements = builders.buildRepeatElements(vm, elements, element) || [];
-
-                        // Insert resulting elements into "pseudo DOM"
-                        Array.prototype.splice.apply(
-                            elements,
-                            [i + 1, element.dirs.repeat.renderedCount || 0].concat(repeatElements)
-                        );
-
-                        element.hidden = true;
-                        element.dirs.repeat.renderedCount = repeatElements.length;
-
-                        builders.buildElements(vm, elements, i + 1);
-                        break;
-                    }
-
-                // v-component
-                } else if (element.dirs.component) {
+                if (element.dirs.component) {
                     // Rebuilding the component
                     // reverting to original
                     if (element.original) {
@@ -253,39 +232,6 @@ var builders = {
         }
     },
 
-    getRepeatData: function (vm, dir) {
-        var value = common.getValue(vm, dir.get);
-        var array;
-        var type = typeof value;
-
-        if (!value) {
-            return value;
-        } else if (!Array.isArray(value)) {
-            array = [];
-
-            // If its an Object for iteration
-            if (type === 'object') {
-
-                for (var prop in value) {
-                    array.push({
-                        $key: prop,
-                        $value: value[prop]
-                    });
-                }
-            }
-
-            value = array;
-        }
-
-        try {
-            value = common.applyFilters(vm, dir.filters, value);
-        } catch (e) {
-            vm.__states.$logger.warn(e, common.onLogMessage(vm));
-        }
-
-        return value;
-    },
-
     getForData: function (vm, dir) {
         var value = common.getValue(vm, dir.get);
         var array;
@@ -311,57 +257,6 @@ var builders = {
         }
 
         return value;
-    },
-
-    // Creating elements from v-repeat
-    buildRepeatElements: function (vm, elements, element) {
-        var repeatData = builders.getRepeatData(vm, element.dirs.repeat.value);
-        // var repeatDataIsArray = Array.isArray(repeatData);
-
-        // If directive data exists
-        if (repeatData && repeatData.length) {
-            var repeatElements = [];
-            var cloneElement = element.clone;
-
-            var repeatElement;
-            var repeatDataItem;
-
-            // Walk through directive data
-            for (var i = 0; i < repeatData.length; i++) {
-                repeatDataItem = builders.getRepeatItemData(repeatData[i], i, element.dirs.repeat);
-
-                // Creating "pseudo DOM" element clone
-                repeatElement = cloneElement();
-                repeatElement.dirs.repeat.isCompiled = true;
-                if (repeatElement.dirs.if) {
-                    repeatElement.dirs.if = undefined;
-                }
-
-                // repeatElement - element replication created by compiler
-                // If component is custom tag then it has not "v-component" directive
-                // so setting it manually
-                repeatElement.dirs.component = element.dirs.component;
-                repeatElements.push(repeatElement);
-
-                // Creating data context for element
-                if (!element.dirs.component) {
-                    vm.$addChild({
-                        isRepeat: true,
-                        element: repeatElement,
-                        repeatData: repeatDataItem,
-                    });
-                } else {
-                    builders.buildComponent(vm, repeatElement, {
-                        isRepeat: true,
-                        repeatData: repeatDataItem,
-                    });
-                }
-            }
-
-            return repeatElements;
-        }
-
-        return false;
     },
 
     // Building element with "v-component" directive
@@ -506,7 +401,6 @@ var builders = {
                 repeatElements.push(repeatElementWrapper);
 
                 vm.$addLightChild({
-                    isRepeat: true,
                     element: repeatElementWrapper,
                     repeatData: repeatDataItem,
                 });
@@ -516,49 +410,6 @@ var builders = {
         }
 
         return false;
-    },
-
-    getRepeatItemData: function (data, index, directive) {
-        var item;
-        var repeatDataItem = {};
-
-        if (data === undefined || data === null) {
-            return data;
-        }
-
-        // When data is Object
-        if (data.$value) {
-            item = data.$value;
-
-        // When data is Array
-        } else {
-            item = data;
-        }
-
-        // Case with a namespace
-        // Eg. v-repeat="item: data"
-        if (directive.value.arg) {
-            repeatDataItem[directive.value.arg] = item;
-
-        // Without a namespace
-        } else {
-            // Data is an Object
-            if (typeof item === 'object' && !Array.isArray(item)) {
-                repeatDataItem = item;
-
-            // Data is not an Object
-            } else {
-                repeatDataItem.$value = item;
-            }
-        }
-
-        if (data.$key) {
-            repeatDataItem.$key = data.$key;
-        }
-
-        repeatDataItem.$index = index;
-
-        return repeatDataItem;
     },
 
     getForItemData: function (data, index, directive, key) {
@@ -587,7 +438,7 @@ var builders = {
     },
 
     getAsset: function (vm, asset) {
-        if (vm.__states.notPublic) {
+        if (vm.__states.lightVM) {
             return this.getAsset(vm.$parent, asset);
         }
         return vm.$options[asset];

@@ -240,7 +240,7 @@ describe('v-model', function () {
         });
     });
 
-    describe('in v-repeat with dynamic input[radio] value', function () {
+    describe('in v-for with dynamic input[radio] value', function () {
         it('should properly set checked', function () {
             expect($('#v-model .radio-in-repeat-dyn input').is(':checked')).toEqual(true);
         });

@@ -48,25 +48,11 @@ var compilers = {
     },
 
     compileElement: function (vm, element, index) {
-        var foreignKeyElement = false;
+        compilers.compileTag(vm, element);
 
-        // Depending on whether the element is a key to the v-repeat context or no, need to differently to compile it.
-        // If it is v-repeat element then we need to compile it inside repeat context
-        // If no, ONLY its own attributes compiled inside repeat context
         if (element._isKeyElement && vm.$el !== element) {
-            foreignKeyElement = true;
-        }
-
-        // _compileSelfInParentVm for no repeated elements
-        if (foreignKeyElement) {
-            if (element._compileSelfInParentVm) {
-                compilers.compileTag(vm, element);
-            }
-
             return;
         }
-
-        compilers.compileTag(vm, element);
 
         // Text node
         if (element.type === 'text') {

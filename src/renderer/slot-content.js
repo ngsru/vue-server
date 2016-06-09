@@ -4,7 +4,7 @@ module.exports = {
     getContent: function (vm) {
         var content = null;
 
-        if (vm.__states.notPublic) {
+        if (vm.__states.lightVM) {
             content = vm.__states.parent.$el._innerContent;
         } else {
             content = vm.$el._innerContent;

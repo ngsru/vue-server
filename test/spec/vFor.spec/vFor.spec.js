@@ -102,7 +102,7 @@ var contentComponent = {
             data: function () {
                 return {
                     some: [
-                        {value: 'value from v-repeat', test: 'this should not work'}
+                        {value: 'value from v-for', test: 'this should not work'}
                     ]
                 };
             },
@@ -126,8 +126,10 @@ var contentComponent = {
         syntetic: {
             replace: false,
             'template': [
-                '<button v-repeat="buttons" v-on="click: setRoom(this)" v-class="active: setRoomActive(this)">',
-                    '<span>{{label}}</span>',
+                '<button ',
+                    'v-for="button in buttons" v-class="active: setRoomActive(button)"',
+                '>',
+                    '<span>{{button.label}}</span>',
                     '<span class="in-repeat-nested-filter">{{checkFilter | nestedFilter}}</span>',
                 '</button>',
                 '<span class="nested-filter">{{checkFilter | nestedFilter}}</span>'
@@ -180,6 +182,7 @@ var contentComponent = {
         },
 
         bIf: {
+            props: ['item'],
             template: '<i><b v-if="item.name">111</b></i>'
         },
 
@@ -394,89 +397,85 @@ describe('v-for', function () {
     it('should rebuild instances if data is changed inside compiledBe hook', function () {
         expect($('#compiled-be-rebuild').html()).toEqual('<i><b>111</b></i>');
     });
-});
-
-// v-repeat - begin
-describe('v-repeat', function () {
 
     it('should be able to render arrays', function () {
-        expect($('#v-repeat .simple-array').find('li').length).toEqual(3);
+        expect($('#v-for .simple-array').find('li').length).toEqual(3);
     });
 
     it('should not display any items if value in undefined', function () {
-        expect($('#v-repeat .undefined').find('li').length).toEqual(0);
+        expect($('#v-for .undefined').find('li').length).toEqual(0);
     });
 
     it('should not display any items if array in empty', function () {
-        expect($('#v-repeat .hollow').find('li').length).toEqual(0);
+        expect($('#v-for .hollow').find('li').length).toEqual(0);
     });
 
     it('should be able to use a filter', function () {
-        expect($('#v-repeat .array-filter-by').find('li').length).toEqual(2);
-        expect($('#v-repeat .array-filter-by').find('li').eq(1).find('.age').text()).toEqual('32');
+        expect($('#v-for .array-filter-by').find('li').length).toEqual(2);
+        expect($('#v-for .array-filter-by').find('li').eq(1).find('.age').text()).toEqual('32');
     });
 
     it('should be able to use multiple filters', function () {
-        expect($('#v-repeat .array-filter-by-multiple').find('li').eq(0).find('.age').text()).toEqual('25');
+        expect($('#v-for .array-filter-by-multiple').find('li').eq(0).find('.age').text()).toEqual('25');
     });
 
     it('should be able to render objects', function () {
-        expect($('#v-repeat .object').find('li').length).toEqual(3);
+        expect($('#v-for .object').find('li').length).toEqual(3);
     });
 
     it('should be able to display array items\' values', function () {
-        var $items = $('#v-repeat .simple-array').find('li .value');
+        var $items = $('#v-for .simple-array').find('li .value');
         expect($items.eq(2).text()).toEqual('simple array value 3');
     });
 
     it('array items\' should not inherit prev item\'s values', function () {
-        var $items = $('#v-repeat .simple-array').find('li .dont-inherit');
+        var $items = $('#v-for .simple-array').find('li .dont-inherit');
         expect($items.eq(0).text()).toEqual('me');
         expect($items.eq(1).text()).toEqual('');
     });
 
     it('in array items\' parent\'s values should be available', function () {
-        var $items = $('#v-repeat .simple-array').find('li .parent-value');
+        var $items = $('#v-for .simple-array').find('li .parent-value');
         expect($items.eq(2).text()).toEqual('i\'m parent\'s value');
     });
 
     it('should be able to use separated datas (parent & repeat-item) in methods', function () {
-        expect($('#v-repeat .syntetic .active').length).toEqual(2);
+        expect($('#v-for .syntetic .active').length).toEqual(2);
     });
 
-    it('should be able to use component\'s filters inside component\'s v-repeat', function () {
-        expect($('#v-repeat .syntetic .in-repeat-nested-filter').eq(1).text()).toEqual('ok!?!?!?!');
+    it('should be able to use component\'s filters inside component\'s v-for', function () {
+        expect($('#v-for .syntetic .in-repeat-nested-filter').eq(1).text()).toEqual('ok!?!?!?!');
     });
 
-    it('should be able to use component\'s filters inside v-repeat', function () {
-        expect($('#v-repeat .filter-repeated.evil-filter').eq(1).text()).toEqual('evil boy boy evil');
+    it('should be able to use component\'s filters inside v-for', function () {
+        expect($('#v-for .filter-repeated.evil-filter').eq(1).text()).toEqual('evil boy boy evil');
     });
 
-    it('should be able to use v-if inside component inside v-repeat', function () {
-        expect($('#v-repeat .b-if').html()).toEqual('<i><b>111</b></i>');
+    it('should be able to use v-if inside component inside v-for', function () {
+        expect($('#v-for .b-if').html()).toEqual('<i><b>111</b></i>');
     });
 
     describe('with a component', function () {
         it('should be able to render component\'s items', function () {
-            expect($('#v-repeat .repeat-component').find('i').length).toEqual(3);
+            expect($('#v-for .repeat-component').find('i').length).toEqual(3);
         });
 
         it('should not leave default content inside', function () {
-            expect($('#v-repeat .repeat-component').find('.should-not-be-there').length).toEqual(0);
+            expect($('#v-for .repeat-component').find('.should-not-be-there').length).toEqual(0);
         });
 
         it('should display parent component\'s data values', function () {
-            var $items = $('#v-repeat .repeat-component').find('li .comp-parent-value');
+            var $items = $('#v-for .repeat-component').find('li .comp-parent-value');
             expect($items.eq(2).text()).not.toBe('i\'m parent\'s value');
         });
 
         describe('with items namespace', function () {
             it('should display values with namespace', function () {
-                expect($('#v-repeat .compound-nesting .nested').text()).toEqual('value from v-repeat');
+                expect($('#v-for .compound-nesting .nested').text()).toEqual('value from v-for');
             });
 
             it('should display component\'s values', function () {
-                expect($('#v-repeat .compound-nesting .own').text()).toEqual('Component\'s own value');
+                expect($('#v-for .compound-nesting .own').text()).toEqual('Component\'s own value');
             });
         });
 
@@ -485,32 +484,32 @@ describe('v-repeat', function () {
     describe('with setting namespace for children', function () {
 
         it('should render items', function () {
-            expect($('#v-repeat .name-seting').length).toEqual(3);
+            expect($('#v-for .name-seting').length).toEqual(3);
         });
 
         it('should properly display items\' values', function () {
-            expect($('#v-repeat .name-seting').eq(1).find('.item-value').text()).toEqual('simple array value 2');
+            expect($('#v-for .name-seting').eq(1).find('.item-value').text()).toEqual('simple array value 2');
         });
 
         describe('in 2nd level repeat without setting namespace', function () {
             it('should render items', function () {
-                expect($('#v-repeat .name-seting').eq(2).find('.item-array .item-array-unit').length).toEqual(2);
+                expect($('#v-for .name-seting').eq(2).find('.item-array .item-array-unit').length).toEqual(2);
             });
 
             it('should properly display items\' values', function () {
-                expect($('#v-repeat .name-seting').eq(1).find('.item-array .item-array-unit')
+                expect($('#v-for .name-seting').eq(1).find('.item-array .item-array-unit')
                     .eq(1).text()).toEqual('222222');
             });
         });
 
         describe('in 2nd level repeat with setting namespace', function () {
             it('should render items', function () {
-                expect($('#v-repeat .name-seting')
+                expect($('#v-for .name-seting')
                     .eq(2).find('.item-array-nesting .item-array-nesting-unit').length).toEqual(2);
             });
 
             it('should properly display items\' values', function () {
-                expect($('#v-repeat .name-seting').eq(1).find('.item-array-nesting .item-array-nesting-unit')
+                expect($('#v-for .name-seting').eq(1).find('.item-array-nesting .item-array-nesting-unit')
                     .eq(1).text()).toEqual('222222');
             });
         });
