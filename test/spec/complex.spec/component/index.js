@@ -377,13 +377,13 @@ module.exports = {
         'inheritor': {
             template: '' +
                 '<h1>Inheritor</h1>' +
-                '<div v-component="compon1"></div>' +
+                '<div is="compon1"></div>' +
                 '<partial name="part1"></partial>' +
                 '<span class="filter">{{vComponent.componentName | inheritIndicator}}</span>'
         },
 
         'inheritorWrap': {
-            template: '<div v-component="inheritor"></div>'
+            template: '<div is="inheritor"></div>'
         },
 
         'noTemplate': {
@@ -395,7 +395,7 @@ module.exports = {
         },
 
         'compound': {
-            template: '<ul><li v-repeat="item:some" v-component="compoundChild"></li></ul>',
+            template: '<ul><li v-repeat="item:some" is="compoundChild"></li></ul>',
 
             data: function () {
                 return {

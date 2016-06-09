@@ -27,8 +27,8 @@ var contentComponent = {
             props: {
                 kk: null
             },
-            data: function() {
-                return {val: 123}
+            data: function () {
+                return {val: 123};
             },
             template: '<div>{{val}}:{{kk}}</div><i>{{val}}:{{kk}}</i>'
         }
@@ -48,15 +48,11 @@ beforeAll(function (done) {
 });
 
 describe('while using replace: true', function () {
-    it('v-repeat should not render its element while repeating component', function () {
-        expect($('#one').html()).toEqual('<i>1</i><i>2</i><i>3</i>');
-    });
-
-    it('a component should properly mount on element via v-component', function () {
+    it('a component should properly mount on element via is attribute', function () {
         expect($('#two').html()).toEqual('<i>content</i>');
     });
 
-    it('a component should properly mount on <template> via v-component', function () {
+    it('a component should properly mount on <template> via is attribute', function () {
         expect($('#three').html()).toEqual('<i>content</i>');
     });
 

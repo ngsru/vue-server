@@ -14,9 +14,9 @@ var contentComponent = {
             '<div id="one"><template>content</template></div>',
             '<div id="two"><template v-if="yes">content</template></div>',
             '<div id="three"><template v-if="not">content</template></div>',
-            '<div id="four"><template v-component="comp"></template></div>',
+            '<div id="four"><template is="comp"></template></div>',
             '<div id="five"><template v-if="yes">cat<template v-if="yes">dog</template></template></div>',
-            '<div id="six"><template v-repeat="arr">{{$value}}</template></div>',
+            '<div id="six"><template v-for="ar in arr">{{ar}}</template></div>',
         '</div>'
     ].join(''),
 
@@ -47,7 +47,7 @@ describe('<template>', function () {
         expect($('#three').html()).toEqual('');
     });
 
-    it('should be able to use v-component', function () {
+    it('should be able to use component', function () {
         expect($('#four > article').length).toEqual(1);
     });
 
@@ -55,7 +55,7 @@ describe('<template>', function () {
         expect($('#five').html()).toEqual('catdog');
     });
 
-    it('should be able to use v-repeat', function () {
+    it('should be able to use v-for', function () {
         expect($('#six').html()).toEqual('123');
     });
 });

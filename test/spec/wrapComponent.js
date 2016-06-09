@@ -14,7 +14,7 @@ module.exports = function (content, callback, config) {
         }
 
         // Not to bother about this hook
-        if (!content.compiledBe && !content.activateBe) {
+        if (!content.activateBe) {
             content.activateBe = function (done) {
                 done();
             };
@@ -34,7 +34,7 @@ module.exports = function (content, callback, config) {
         data: {
             dynamic: 'content'
         },
-        template: VueCompile('<div v-component="{{dynamic}}" wait-for="loaded"></div>'),
+        template: VueCompile('<div :is="dynamic"></div>'),
 
         components: {
             content: content

@@ -18,9 +18,7 @@ var noCloseTags = {
 
 var directiveOptions = {
     'v-model': ['lazy', 'number', 'options', 'debounce'],
-    'v-repeat': ['track-by'],
-    'v-for': ['track-by'],
-    'v-component': ['keep-alive', 'transition-mode', 'inline-template']
+    'v-for': ['track-by']
 };
 
 var vueConfig = require('vue/src/config');
@@ -450,22 +448,6 @@ var Compile = function (template) {
                         }
                     }
 
-                    if (name === 'v-component') {
-                        (function () {
-                            element.dirs.component = {
-                                options: {}
-                            };
-
-                            var tokens = parsers.text.parse(attribs['v-component']);
-
-                            if (!tokens) {
-                                element.dirs.component.value = attribs['v-component'].trim();
-                            } else {
-                                element.dirs.component.value = tokensToFn(tokens);
-                            }
-                        })();
-                    }
-
                     if (name === 'v-repeat') {
                         var vRepeatDir = parseDirective(attribs['v-repeat']);
                         if (vRepeatDir) {
@@ -590,7 +572,7 @@ var Compile = function (template) {
                 }
 
                 // If a <template> has no directives it means it should be rendered as real tag
-                if (element.name === 'template' && !utils.size(element.dirs)) {
+                if (element.name === 'template' && !utils.size(element.dirs) && !element.attribs.is) {
                     element.isMaterial = true;
                 }
 

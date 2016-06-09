@@ -83,10 +83,6 @@ describe('component', function () {
         expect($('#component-dyn-new').html()).toEqual('<i>rakushka</i>');
     });
 
-    it('should mount via v-component directive', function () {
-        expect($('#directive').html()).toEqual('<i>rakushka</i>');
-    });
-
     it('should mount via custom tag in dashed-case', function () {
         expect($('#dash').html()).toEqual('<i>rakushka</i>');
     });

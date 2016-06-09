@@ -1,14 +1,13 @@
 <div>
-    <div id="one"><span v-repeat="arr" v-component="comp"></span></div>
-    <div id="two"><div v-component="comp" value="{{childValue}}"></div></div>
-    <div id="three"><template v-component="comp" value="{{childValue}}"></template></div>
-    <div id="four"><comp value="{{childValue}}"></comp></div>
+    <div id="two"><div is="comp" :value="childValue"></div></div>
+    <div id="three"><template is="comp" :value="childValue"></template></div>
+    <div id="four"><comp :value="childValue"></comp></div>
 
-    <div id="five"><compParted value="{{childValue}}"></compParted></div>
-    <div id="six"><div v-component="{{parto}}" value="{{childValue}}"></div></div>
+    <div id="five"><compParted :value="childValue"></compParted></div>
+    <div id="six"><div :is="parto" :value="childValue"></div></div>
 
-    <div id="seven"><component is="comp" value="{{childValue}}"></component></div>
-    <div id="eight"><component is="{{name}}" value="{{childValue}}"></component></div>
+    <div id="seven"><component is="comp" :value="childValue"></component></div>
+    <div id="eight"><component :is="name" :value="childValue"></component></div>
 
     <div id="key-els-multiple"><item v-show="false" kk="out"></item></div>
 </div>
