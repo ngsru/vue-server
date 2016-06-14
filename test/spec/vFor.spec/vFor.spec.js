@@ -122,7 +122,7 @@ var contentComponent = {
             replace: false,
             'template': [
                 '<button ',
-                    'v-for="button in buttons" v-class="active: setRoomActive(button)"',
+                    'v-for="button in buttons" :class="{active: setRoomActive(button)}"',
                 '>',
                     '<span>{{button.label}}</span>',
                     '<span class="in-repeat-nested-filter">{{checkFilter | nestedFilter}}</span>',

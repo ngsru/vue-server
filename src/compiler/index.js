@@ -448,25 +448,6 @@ var Compile = function (template) {
                         }
                     }
 
-                    if (name === 'v-class') {
-                        var vClassDir = parseDirective(attribs['v-class']);
-
-                        if (vClassDir) {
-                            element.dirs.class = {
-                                value: null
-                            };
-
-                            // When classes is inside a directive
-                            if (vClassDir[0].arg) {
-                                element.dirs.class.value = vClassDir;
-
-                            // When directive value is Object
-                            } else {
-                                element.dirs.class.value = parsers.expression.parse(vClassDir[0].expression);
-                            }
-                        }
-                    }
-
                     if (name === 'v-style') {
                         var vStyleDir = parseDirective(attribs['v-style']);
 

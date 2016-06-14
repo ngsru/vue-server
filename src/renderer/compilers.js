@@ -246,41 +246,6 @@ var compilers = {
     },
 
     compileAttributeDirectives: function (vm, element) {
-        // v-class
-        if (element.dirs.class) {
-            var classList;
-            var vClassItem;
-
-            if (element.attribs.class) {
-                classList = element.attribs.class.split(' ');
-            } else {
-                classList = [];
-            }
-
-            // When directive value contains classes
-            if (Array.isArray(element.dirs.class.value)) {
-                for (var i = 0; i < element.dirs.class.value.length; i++) {
-                    vClassItem = element.dirs.class.value[i];
-
-                    if (common.execute(vm, {value: vClassItem.get})) {
-                        classList.push(vClassItem.arg);
-                    }
-                }
-
-            // When directive value is Object
-            } else {
-                vClassItem = common.execute(vm, {value: element.dirs.class.value.get});
-
-                for (var name in vClassItem) {
-                    if (vClassItem[name]) {
-                        classList.push(name);
-                    }
-                }
-            }
-
-            element.attribs.class = common.filterClassNames(classList).join(' ');
-        }
-
         // v-style && v-show
         var styles = {};
         var originalStyle = element.attribs.style;

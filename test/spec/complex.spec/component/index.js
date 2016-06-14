@@ -38,10 +38,6 @@ module.exports = {
             return this.vStyle.display;
         },
 
-        forVClass: function () {
-            return this.vClass.class1;
-        },
-
         getFnUndefined: function () {
             return;
         }
@@ -181,16 +177,6 @@ module.exports = {
             object: {
                 color: 'red',
                 display: 'inline-block'
-            }
-        };
-
-        this.vClass = {
-            class1: true,
-            class2: true,
-            obj: {
-                _active: true,
-                _disabled: false,
-                _ok: true
             }
         };
 

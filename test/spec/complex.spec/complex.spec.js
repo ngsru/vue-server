@@ -301,35 +301,6 @@ describe('v-style', function () {
     });
 });
 
-// v-class - begin
-describe('v-class', function () {
-    it('should set class', function () {
-        var $el = $('#v-class-no-class');
-        expect($el.hasClass('class1')).toEqual(true);
-    });
-
-    it('should not add unnecessary whitespace in begining of class attribute', function () {
-        expect($('#v-class-no-class').attr('class')).not.toMatch(/^ /);
-    });
-
-    it('should set new classes keeping default class', function () {
-        var $el = $('#v-class-simple');
-        expect($el.hasClass('simple')).toEqual(true);
-        expect($el.hasClass('class1')).toEqual(true);
-        expect($el.hasClass('class2')).toEqual(true);
-    });
-
-    it('should set new classes when a class provided by a method', function () {
-        var $el = $('#v-class-method');
-        expect($el.hasClass('class1')).toEqual(true);
-        expect($el.hasClass('class2')).toEqual(true);
-    });
-
-    it('should enable rendering element', function () {
-        expect($('#v-class-obj > div').attr('class')).toEqual('_active _ok');
-    });
-});
-
 // v-pre - begin
 describe('v-pre', function () {
     it('should disable rendering mustaches', function () {
