@@ -487,15 +487,6 @@ var Compile = function (template) {
                         }
                     }
 
-                    if (name === 'v-attr') {
-                        var vAttrDir = parseDirective(attribs['v-attr']);
-                        if (vAttrDir) {
-                            element.dirs.attr = {
-                                value: vAttrDir
-                            };
-                        }
-                    }
-
                     if (name === 'v-show') {
                         var vShowDir = parseDirective(attribs['v-show']);
                         if (vShowDir) {
@@ -538,19 +529,6 @@ var Compile = function (template) {
                         element.attribs[name] = getMetaValue(value);
                     }
                 });
-
-                // v-attr
-                if (element.dirs.attr) {
-                    (function () {
-                        var item;
-                        for (var i = 0; i < element.dirs.attr.value.length; i++) {
-                            item = element.dirs.attr.value[i];
-                            element.attribs[item.arg] = {
-                                value: item.get
-                            };
-                        }
-                    })();
-                }
 
                 // If a <template> has no directives it means it should be rendered as real tag
                 if (element.name === 'template' && !utils.size(element.dirs) && !element.attribs.is) {

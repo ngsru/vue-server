@@ -34,18 +34,6 @@ module.exports = {
             return this.vText.value;
         },
 
-        forVAttr: function () {
-            return this.vAttr.boxWidth;
-        },
-
-        forVShowHide: function () {
-            return this.vShow.hide;
-        },
-
-        forVShowShow: function () {
-            return this.vShow.show;
-        },
-
         forVStyle: function () {
             return this.vStyle.display;
         },
@@ -184,19 +172,6 @@ module.exports = {
                     {text: 'Sell', value: 'sell'}
                 ]
             },
-        };
-
-        this.vAttr = {
-            boxWidth: 100,
-            boxHeight: 60,
-
-            attrWithModel: 'Value from v-attr',
-            modelWithAttr: 'Nah value from v-model'
-        };
-
-        this.vShow = {
-            show: true,
-            hide: false
         };
 
         this.vStyle = {

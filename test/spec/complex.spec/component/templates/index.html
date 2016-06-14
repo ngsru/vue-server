@@ -131,32 +131,10 @@
 
     </section>
 
-
-    <!-- v-attr -->
-    <section id="v-attr">
-        <img class="simple" src="" v-attr="width: vAttr.boxWidth, height: vAttr.boxHeight">
-        <img class="method" src="" v-attr="width: forVAttr(), height: vAttr.boxHeight">
-        <input class="with-v-model" type="text" v-attr="value: vAttr.attrWithModel" v-model="vAttr.modelWithAttr">
-    </section>
-
-
-    <!-- v-show -->
-    <section id="v-show">
-        <div class="hide" v-show="vShow.hide"></div>
-        <div class="hide-by-method" v-show="forVShowHide()"></div>
-        <div class="show-hidden" style="display: none" v-show="vShow.show"></div>
-        <div class="show-hidden-by-method" style="display: none" v-show="forVShowShow()"></div>
-        <div class="hide-shown" style="display: block" v-show="vShow.hide"></div>
-
-        <div class="replace-v-attr" v-attr="style: 'display: none'" v-show="vShow.show"></div>
-    </section>
-
-
     <!-- v-style -->
     <section id="v-style">
         <div class="simple" v-style="display: vStyle.display, position: vStyle.position">Tadadam</div>
         <div class="method" v-style="display: forVStyle(), position: vStyle.position">Tadadam</div>
-        <div class="replace-v-attr" v-style="display: vStyle.display" v-attr="style: 'display: table'">Tadadam</div>
         <div class="replace-v-show" v-style="display: vStyle.display" v-show="hide">Tadadam</div>
         <div class="object" v-style="vStyle.object">Tadadam</div>
     </section>
@@ -167,7 +145,6 @@
         <div id="v-class-no-class" v-class="class1: vClass.class1"></div>
         <div id="v-class-simple" class="simple" v-class="class1: vClass.class1, class2: vClass.class2"></div>
         <div id="v-class-method" class="simple" v-class="class1: forVClass(), class2: vClass.class2"></div>
-        <div id="v-class-v-attr" class="simple" v-attr="class: 'v-attr-class'" v-class="class1: vClass.class1, class2: vClass.class2"></div>
         <div id="v-class-obj">
             <div v-class="vClass.obj"></div>
         </div>

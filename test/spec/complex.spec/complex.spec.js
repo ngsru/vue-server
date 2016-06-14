@@ -282,54 +282,6 @@ describe('v-model', function () {
 
 });
 
-// v-attr - begin
-describe('v-attr', function () {
-    it('should set attributes', function () {
-        var $img = $('#v-attr .simple');
-        expect($img.attr('width')).toEqual('100');
-        expect($img.attr('height')).toEqual('60');
-    });
-
-    it('should set attributes when a param provided by a method', function () {
-        var $img = $('#v-attr .method');
-        expect($img.attr('width')).toEqual('100');
-        expect($img.attr('height')).toEqual('60');
-    });
-
-    it('should replace v-model value', function () {
-        expect($('#v-attr .with-v-model').val()).toEqual('Value from v-attr');
-    });
-});
-
-// v-show - begin
-describe('v-show', function () {
-    it('should be able to set display: none', function () {
-        expect($('#v-show .hide').css('display')).toEqual('none');
-    });
-
-    it('should be able to set display: none when value provided by a method', function () {
-        expect($('#v-show .hide-by-method').css('display')).toEqual('none');
-    });
-
-    it('should remove display: none if it were set', function () {
-        expect($('#v-show .show-hidden').css('display')).not.toBe('none');
-    });
-
-    it('should remove display: none if it were set when value provided by a method', function () {
-        expect($('#v-show .show-hidden-by-method').css('display')).not.toBe('none');
-    });
-
-    it('should hide element even if other display value were set', function () {
-        expect($('#v-show .hide-shown').css('display')).toEqual('none');
-    });
-
-    // 1!! There should be more complex behaviour
-    it('should replace v-attr\'s style value', function () {
-        expect($('#v-show .replace-v-attr').css('display')).not.toBe('none');
-    });
-
-});
-
 // v-style - begin
 describe('v-style', function () {
     it('should set styles', function () {
@@ -342,10 +294,6 @@ describe('v-style', function () {
         var $el = $('#v-style .method');
         expect($el.css('display')).toEqual('inline-block');
         expect($el.css('position')).toEqual('relative');
-    });
-
-    it('should replace styles from v-attr', function () {
-        expect($('#v-style .replace-v-attr').css('display')).toEqual('inline-block');
     });
 
     it('should handle style object', function () {
@@ -375,24 +323,6 @@ describe('v-class', function () {
         var $el = $('#v-class-method');
         expect($el.hasClass('class1')).toEqual(true);
         expect($el.hasClass('class2')).toEqual(true);
-    });
-
-    describe('with class via v-attr', function () {
-        it('should not keep default class', function () {
-            var $el = $('#v-class-v-attr');
-            expect($el.hasClass('simple')).not.toBe(true);
-        });
-
-        it('should set v-attr class', function () {
-            var $el = $('#v-class-v-attr');
-            expect($el.hasClass('v-attr-class')).toEqual(true);
-        });
-
-        it('should set v-class classes', function () {
-            var $el = $('#v-class-v-attr');
-            expect($el.hasClass('class1')).toEqual(true);
-            expect($el.hasClass('class2')).toEqual(true);
-        });
     });
 
     it('should enable rendering element', function () {
