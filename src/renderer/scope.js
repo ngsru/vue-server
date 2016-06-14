@@ -715,8 +715,6 @@ var scope = {
     setRefsAndEls: function (vm) {
         vm.$refs = {};
         vm.$els = {};
-        vm.$ = vm.$refs;
-        vm.$$ = vm.$els;
     },
 
     updateNotReadyCount: function (vm, change) {

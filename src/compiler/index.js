@@ -478,18 +478,6 @@ var Compile = function (template) {
                         }
                     }
 
-                    if (name === 'v-ref') {
-                        element.dirs.ref = {
-                            value: attribs['v-ref']
-                        };
-                    }
-
-                    if (name === 'v-el') {
-                        element.dirs.el = {
-                            value: attribs['v-el']
-                        };
-                    }
-
                     // Directive options to be excluded
                     var dirOptions = directiveOptions[name];
                     if (dirOptions) {
