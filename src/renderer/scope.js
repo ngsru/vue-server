@@ -119,7 +119,6 @@ var scope = {
         // Server Created hook
         scope.callHook(vm, 'createdBe');
 
-        scope.buildWithedData(vm, contexts);
         if (createdHookFired) {
             // Building computed properties for the second time
             // If there was a possibility the data was modifed by hooks
@@ -217,7 +216,6 @@ var scope = {
                 );
             } else {
                 scope.resetVmInstance(presentVm, options.element);
-                scope.buildWithedData(presentVm, options);
                 scope.pullPropsData(presentVm);
                 scope.buildComputedProps(presentVm);
                 newVm = presentVm;
@@ -413,33 +411,6 @@ var scope = {
                     }
                 }
             );
-        }
-    },
-
-    buildWithedData: function (vm, contexts) {
-        var withReplaceData;
-        var name;
-        var value;
-        // Replace data context by w-with "flat" inheritance
-        if (contexts.withReplaceData) {
-            vm.__states.hasWithData = true;
-            for (var key in vm) {
-                if (scope.isSystemProp(key) || vm.$options.methods[key]) {
-                    continue;
-                }
-
-                delete vm[key];
-            }
-            withReplaceData = common.getValue(vm.__states.parent, contexts.withReplaceData);
-            utils.extend(vm, withReplaceData);
-        }
-
-        if (contexts.withData) {
-            vm.__states.hasWithData = true;
-            for (var i = 0, l = contexts.withData.length; i < l; i++) {
-                item = contexts.withData[i];
-                vm[item.arg] = common.getValue(vm.__states.parent, item.get);
-            }
         }
     },
 

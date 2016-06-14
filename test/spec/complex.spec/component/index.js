@@ -114,11 +114,6 @@ module.exports = {
 
             searchText: 'Andrey',
 
-            forWith: 'This value should be inherited with v-with',
-            forWith2: {
-                compon1Val: 'Data there should be, omn.'
-            },
-
             object: {
                 item1: {
                     value: 111

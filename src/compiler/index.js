@@ -448,15 +448,6 @@ var Compile = function (template) {
                         }
                     }
 
-                    if (name === 'v-with') {
-                        var vWithDir = parseDirective(attribs['v-with']);
-                        if (vWithDir) {
-                            element.dirs.with = {
-                                value: vWithDir
-                            };
-                        }
-                    }
-
                     if (name === 'v-class') {
                         var vClassDir = parseDirective(attribs['v-class']);
 

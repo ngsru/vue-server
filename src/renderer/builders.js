@@ -269,8 +269,6 @@ var builders = {
             options = utils.extend({
                 element: element,
                 repeatData: null,
-                withData: null,
-                withReplaceData: null,
                 isComponent: true,
                 componentName: componentName
             }, options);
@@ -331,17 +329,6 @@ var builders = {
 
         if (element.attribs.is) {
             element.attribs.is = undefined;
-        }
-
-        if (element.dirs.with) {
-            // If "v-with" directive value is single argument (Eg. v-with="cat") then data context
-            // for component is completely determined by this directive
-            // i.e. component will have data contained in parent's "cat"
-            if (element.dirs.with.value.length === 1 && !element.dirs.with.value[0].arg) {
-                options.withReplaceData = element.dirs.with.value[0].get;
-            } else {
-                options.withData = element.dirs.with.value;
-            }
         }
 
         vm.$addChild(options);
