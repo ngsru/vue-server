@@ -135,18 +135,21 @@ var renders = {
                 if (parentType === 'object') {
                     classList = classList.concat(parent.own);
                 } else {
+                    // no test case for that one
                     classList = classList.concat(parent.split(' '));
                 }
 
                 if (childType === 'object') {
                     classList = classList.concat(child.dir);
                 } else {
+                    // Probably would never happen
                     classList = classList.concat(child.split(' '));
                 }
 
                 if (parentType === 'object') {
                     classList = classList.concat(parent.dir);
                 } else {
+                    // Probably would never happen
                     classList = classList.concat(parent.split(' '));
                 }
 

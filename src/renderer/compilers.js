@@ -135,7 +135,9 @@ var compilers = {
                 });
             });
 
-            compilers.compileAttributeDirectives(vm, element);
+            // @todo Разобраться с форматами style и class - привести к одному виду
+            // не забыть про renders
+            compilers.compileDirectiveShow(vm, element);
 
             // NEW SYNTAX
             // v-bind:
@@ -154,18 +156,17 @@ var compilers = {
                     if (name === 'style') {
                         (function () {
                             // Need to consider element's own styles
-                            var originalStyle = element.attribs.style;
-                            if (originalStyle) {
-                                originalStyle = cssParser.parse(originalStyle);
-                            } else {
-                                originalStyle = {};
-                            }
+                            var originalStyle = cssParser.parse(element.attribs.style || '');
 
                             // Drop value if class is Array
                             if (typeof value === 'string') {
                                 value = cssParser.parse(value);
                             } else if (Array.isArray(value)) {
                                 value = utils.extend.apply(common, value);
+                            }
+
+                            if (value.display && element.dirs.show && element.dirs.show.order > item.order) {
+                                delete value.display;
                             }
 
                             element.attribs.style = {
@@ -197,7 +198,6 @@ var compilers = {
                                     }
                                 }
                             }
-
                             element.attribs.class = {
                                 own: classListOwn,
                                 dir: classListDir
@@ -245,39 +245,22 @@ var compilers = {
         }];
     },
 
-    compileAttributeDirectives: function (vm, element) {
-        // v-style && v-show
+    // v-show
+    compileDirectiveShow: function (vm, element) {
+        if (!element.dirs.show) {
+            return;
+        }
         var styles = {};
+        var isToShow = common.getValue(vm, element.dirs.show.value.get);
         var originalStyle = element.attribs.style;
         if (originalStyle) {
             originalStyle = cssParser.parse(originalStyle);
         }
 
-        if (element.dirs.style && element.dirs.show) {
-            // The correct application of styles from these directives
-            // will depend on the order they are declared in the tag
-            if (element.dirs.style.order < element.dirs.show.order) {
-                utils.extend(
-                    styles,
-                    compilers.compileDirectiveStyle(vm, element),
-                    compilers.compileDirectiveShow(vm, element, originalStyle)
-                );
-
-            } else {
-                utils.extend(
-                    styles,
-                    compilers.compileDirectiveShow(vm, element, originalStyle),
-                    compilers.compileDirectiveStyle(vm, element)
-                );
-            }
-
-        // v-style
-        } else if (element.dirs.style) {
-            styles = compilers.compileDirectiveStyle(vm, element);
-
-        // v-show
-        } else if (element.dirs.show) {
-            styles = compilers.compileDirectiveShow(vm, element, originalStyle);
+        if (!isToShow) {
+            styles.display = 'none';
+        } else if (originalStyle && originalStyle.display === 'none') {
+            styles.display = '';
         }
 
         if (utils.size(styles)) {
@@ -420,40 +403,6 @@ var compilers = {
                 item.attribs.selected = undefined;
             }
         }
-    },
-
-    // v-style
-    compileDirectiveStyle: function (vm, element) {
-        var styleObject = {};
-
-        if (Array.isArray(element.dirs.style.value)) {
-            element.dirs.style.value.forEach(function (item) {
-                styleObject[item.arg] = common.getValue(vm, item.get);
-            });
-        } else {
-            styleObject = common.getValue(vm, element.dirs.style.value.get);
-        }
-
-        return styleObject;
-    },
-
-    // v-show
-    compileDirectiveShow: function (vm, element, originalStyle) {
-        var elStyles = {};
-        var vmToUse = vm;
-        if (element.dirs.repeat && element.dirs.component) {
-            vmToUse = vm.$parent;
-        }
-        var isToShow = common.getValue(vmToUse, element.dirs.show.value.get);
-        if (isToShow && originalStyle && originalStyle.display === 'none') {
-            elStyles.display = '';
-        }
-
-        if (!isToShow) {
-            elStyles.display = 'none';
-        }
-
-        return elStyles;
     }
 };
 

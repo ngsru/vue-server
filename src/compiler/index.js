@@ -256,7 +256,8 @@ var Compile = function (template) {
 
                             if (dirValue) {
                                 element.dirs.bind[attr] = {
-                                    value: dirValue[0]
+                                    value: dirValue[0],
+                                    order: attribsCounter
                                 };
                             }
                         })();
@@ -444,26 +445,6 @@ var Compile = function (template) {
                                 if (vModelDirOptions) {
                                     element.dirs.model.options.options = vModelDirOptions[0];
                                 }
-                            }
-                        }
-                    }
-
-                    if (name === 'v-style') {
-                        var vStyleDir = parseDirective(attribs['v-style']);
-
-                        if (vStyleDir) {
-                            element.dirs.style = {
-                                value: null,
-                                order: attribsCounter
-                            };
-
-                            // When classes is inside a directive
-                            if (vStyleDir[0].arg) {
-                                element.dirs.style.value = vStyleDir;
-
-                            // When directive value is Object
-                            } else {
-                                element.dirs.style.value = parsers.expression.parse(vStyleDir[0].expression);
                             }
                         }
                     }

@@ -138,7 +138,7 @@ var builders = {
                 }
 
                 // v-if
-                if (element.dirs.if && !element.dirs.repeat) {
+                if (element.dirs.if) {
                     var vIfResult = common.execute(vm, {
                         value: element.dirs.if.value.get,
                         filters: element.dirs.if.value.filters,

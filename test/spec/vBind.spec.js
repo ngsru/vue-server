@@ -10,8 +10,11 @@ var contentComponent = {
         '<span id="class-array" class="own" :class="[otherProp, nothing, \'test\', false, 0]"></span>',
 
         '<span id="style-plain" style="overflow: hidden" :style="stylePlain"></span>',
-        '<span id="style-object" style="overflow: hidden" :style="{fontSize: 32 + \'px\', \'padding-top\': \'10px\'}"></span>',
+        '<span id="style-object" style="overflow: hidden" :style="{',
+            'fontSize: 32 + \'px\', \'padding-top\': \'10px\'',
+        '}"></span>',
         '<span id="style-array" style="overflow: hidden" :style="[styleObjectOne, styleObjectTwo]"></span>',
+        '<span id="v-bind-over-style" v-bind="{style: \'color: red\'}" :style="{color: \'green\'}"></span>',
     '</div>'].join(''),
     data: function () {
         return {
@@ -75,5 +78,9 @@ describe('v-bind', function () {
             expect($('#style-array').css('font-size')).toEqual('35px');
             expect($('#style-array').css('margin')).toEqual('10px');
         });
+    });
+
+    it('should win over :style', function () {
+        expect($('#v-bind-over-style').css('color')).toEqual('red');
     });
 });

@@ -10,6 +10,7 @@ var contentComponent = {
             '<div class="hide-shown" style="display: block" v-show="vShow.hide"></div>',
             '<div class="replace-v-bind" :style="{display: \'none\'}" v-show="vShow.show"></div>',
             '<div class="replace-v-bind-reverse" v-show="vShow.show" :style="{display: \'none\'}"></div>',
+            '<div class="v-bind-over-v-show" v-bind="{style: \'display: block\'}" v-show="false"></div>',
         '</section>'
     ].join(''),
     data: function () {
@@ -71,6 +72,10 @@ describe('v-show', function () {
     });
 
     it('should give in if v-show is before :style', function () {
-        expect($('#v-show .replace-v-bind').css('display')).toEqual('none');
+        expect($('#v-show .replace-v-bind-reverse').css('display')).toEqual('none');
+    });
+
+    it('should lose to v-bind', function () {
+        expect($('#v-show .v-bind-over-v-show').css('display')).toEqual('block');
     });
 });

@@ -282,25 +282,6 @@ describe('v-model', function () {
 
 });
 
-// v-style - begin
-describe('v-style', function () {
-    it('should set styles', function () {
-        var $el = $('#v-style .simple');
-        expect($el.css('display')).toEqual('inline-block');
-        expect($el.css('position')).toEqual('relative');
-    });
-
-    it('should set styles when a param provided by a method', function () {
-        var $el = $('#v-style .method');
-        expect($el.css('display')).toEqual('inline-block');
-        expect($el.css('position')).toEqual('relative');
-    });
-
-    it('should handle style object', function () {
-        expect($('#v-style .object').css('color')).toEqual('red');
-    });
-});
-
 // v-pre - begin
 describe('v-pre', function () {
     it('should disable rendering mustaches', function () {
