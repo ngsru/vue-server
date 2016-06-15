@@ -239,6 +239,7 @@ var scope = {
                 scope.resetVmInstance(presentVm, options.element);
                 scope.buildWithedData(presentVm, options);
                 scope.pullPropsData(presentVm);
+                scope.buildComputedProps(presentVm);
                 newVm = presentVm;
             }
 
@@ -327,7 +328,6 @@ var scope = {
             vm._eventCancelled = false;
             scope.setEventListeners(vm);
         }
-        scope.buildComputedProps(vm);
         scope.updateNotReadyCount(vm, +1);
         builders.build(vm, function () {
             vm._isReady = true;
