@@ -44,6 +44,9 @@ var contentComponent = {
                     own: 123
                 };
             }
+        },
+        dummy: {
+            template: '<i>123</i>'
         }
     },
 
@@ -157,6 +160,18 @@ describe('<slot> API', function () {
     it('in complex example should work properly', function () {
         expect($('#item-complex').html()).toEqual(
             '<i><b>111333</b></i>'
+        );
+    });
+
+    it('should properly render attributes on a component inside slot content', function () {
+        expect($('#attribs-on-component').html()).toEqual(
+            '<div><h1>original</h1><i title="dynval">123</i></div>'
+        );
+    });
+
+    it('should properly render v-show on a component inside slot content', function () {
+        expect($('#v-show-on-component').html()).toEqual(
+            '<div><h1>original</h1><i>123</i></div>'
         );
     });
 });

@@ -38,6 +38,7 @@ var compilers = {
         for (var i = customIndex || 0, l = elements.length; i < l; i++) {
             element = common.setElement(elements[i]);
             if (element.hidden) {
+                // @todo rethink the strategy
                 elements.splice(i, 1);
                 compilers.compileElements(vm, elements, i);
                 break;
@@ -79,7 +80,11 @@ var compilers = {
     },
 
     compileTag: function (vm, element) {
-        if (element.compiled) {
+        if (
+            element.compiled ||
+            // A hardcode for a case when a component compiles inside slot content
+            (vm.$el === element && !vm.__states.isRepeat)
+        ) {
             return;
         }
 
@@ -94,6 +99,7 @@ var compilers = {
                 })();
             }
 
+            // Element's component template should be empty to accept its inner content
             if (element._componentEmptyTpl && element._innerContent) {
                 compilers.compileElements(vm, element._innerContent);
                 element.inner = element._innerContent;
