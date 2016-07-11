@@ -68,17 +68,18 @@ var contentComponent = {
 
     components: {
         comp: {
-            template: '<i>11111111 <comp2></comp2></i>'
-        },
+            template: '<i>11111111 <comp2></comp2></i>',
+            components: {
+                comp2: {
+                    template: '<i>22222222_{{param}}</i>',
+                    createdBe: function () {
+                        this.$on('gotcha', function () {
+                            this.param = 21313;
+                        });
 
-        comp2: {
-            template: '<i>22222222_{{param}}</i>',
-            createdBe: function () {
-                this.$on('gotcha', function () {
-                    this.param = 21313;
-                });
-
-                this.$dispatch('child');
+                        this.$dispatch('child');
+                    }
+                }
             }
         },
 

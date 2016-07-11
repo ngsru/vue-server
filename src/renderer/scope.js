@@ -25,22 +25,10 @@ var scope = {
         }
 
         vm.$options = options;
-
-        if (this.config.strict) {
-            vm.$options.filters = utils.extend({}, this.filters, vm.$options.filters);
-            vm.$options.partials = utils.extend({}, this.partials, vm.$options.partials);
-            vm.$options.components = utils.extend({}, this.components, vm.$options.components);
-        } else {
-            vm.$options.filters = utils.extend(
-                {}, this.filters, contexts.filters, vm.$options.filters
-            );
-            vm.$options.partials = utils.extend(
-                {}, this.partials, contexts.partials, vm.$options.partials
-            );
-            vm.$options.components = utils.extend(
-                {}, this.components, contexts.components, vm.$options.components
-            );
-        }
+        // Assets
+        vm.$options.filters = utils.extend({}, this.filters, vm.$options.filters);
+        vm.$options.partials = utils.extend({}, this.partials, vm.$options.partials);
+        vm.$options.components = utils.extend({}, this.components, vm.$options.components);
 
         // Special alias for recursive component invocation
         if (vm.$options.name && contexts.componentName) {
@@ -664,11 +652,7 @@ var scope = {
             lightVM: true
         });
 
-        if (this.config.strict) {
-            options.filters = utils.extend({}, this.filters, options.filters);
-        } else {
-            options.filters = utils.extend({}, this.filters, contexts.filters, options.filters);
-        }
+        options.filters = utils.extend({}, this.filters, contexts.filters, options.filters);
 
         vm.__states.$logger = this.$logger;
 

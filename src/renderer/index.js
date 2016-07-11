@@ -185,7 +185,6 @@ var VueRender = function (logger) {
     VueRoot.prototype.config = {
         debug: false,
         silent: false,
-        strict: false,
         replace: true,
         onLogMessage: null
     };
