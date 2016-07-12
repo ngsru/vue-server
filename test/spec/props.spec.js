@@ -13,7 +13,12 @@ var contentComponent = {
             '<as-array value="{{transmit}}"></as-array>',
             '<as-object id="plain" value="{{transmit}}"></as-object>',
             '<as-object id="v-bind" v-bind:value="transmit"></as-object>',
-            '<type value="{{transmit}}"></type>',
+            '<div id="type-number">',
+                '<type-number :value="null"></type-number>',
+                '<type-number :value="undefined"></type-number>',
+                '<type-number :value="123"></type-number>',
+                '<type-number :value="\'ok\'"></type-number>',
+            '</div>',
             '<type-boolean value="{{bool}}"></type-boolean>',
             '<type-boolean-undefined value="{{nothing}}"></type-boolean-undefined>',
             '<type-default value="{{transmit}}"></type-default>',
@@ -22,7 +27,14 @@ var contentComponent = {
             '<default-function></default-function>',
             '<validator value="{{transmit}}"></validator>',
             '<validator-default value="{{transmit}}"></validator-default>',
-            '<default-false></<default-false>',
+            '<default-false></default-false>',
+            '<div id="types-multiple">',
+                '<types-multiple :value="123"></types-multiple>',
+                '<types-multiple :value="\'ok\'"></types-multiple>',
+                '<types-multiple :value="null"></types-multiple>',
+                '<types-multiple :value="undefined"></types-multiple>',
+                '<types-multiple :value="true"></types-multiple>',
+            '</div>',
         '</div>'
     ].join(''),
 
@@ -38,14 +50,14 @@ var contentComponent = {
             },
             template: '<div>{{value}}</div>'
         },
-
-        'type': {
+        'type-number': {
+            replace: true,
             props: {
                 value: {
                     type: Number
                 }
             },
-            template: '<div>{{value}}</div>'
+            template: '<i>{{typeof value}}</i>'
         },
         'type-boolean': {
             props: {
@@ -124,6 +136,16 @@ var contentComponent = {
             },
             template: '<div>{{typeof value}}</div>'
         },
+
+        'types-multiple': {
+            replace: true,
+            props: {
+                value: {
+                    type: [Number, String]
+                }
+            },
+            template: '<i>{{typeof value}}</i>'
+        }
     }
 };
 
@@ -147,8 +169,10 @@ describe('props should be able', function () {
         expect($('as-object#v-bind > div').text()).toEqual('value present');
     });
 
-    it('to use type option', function () {
-        expect($('type > div').text()).toEqual('');
+    it('to use types checking', function () {
+        expect($('#type-number').html()).toEqual(
+            '<i>object</i><i>undefined</i><i>number</i><i>undefined</i>'
+        );
     });
 
     it('to use type Boolean option correctly', function () {
@@ -188,4 +212,9 @@ describe('props should be able', function () {
         expect($('default-false > div').text()).toEqual('boolean');
     });
 
+    it('to use multiple types checking', function () {
+        expect($('#types-multiple').html()).toEqual(
+            '<i>number</i><i>string</i><i>object</i><i>undefined</i><i>undefined</i>'
+        );
+    });
 });

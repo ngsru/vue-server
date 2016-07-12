@@ -3,6 +3,8 @@ var common = require('./common.js');
 var builders = require('./builders.js');
 var events = require('./events.js');
 
+var props = require('./scope/props.js');
+
 var scope = {
     // Init VMs for components and repeat items
     initViewModel: function (contexts) {
@@ -82,7 +84,7 @@ var scope = {
         scope.initData(vm);
 
         // Pull props data
-        scope.pullPropsData(vm);
+        props.pullPropsData(vm);
 
         if (contexts.repeatData) {
             utils.extend(vm, contexts.repeatData);
@@ -97,7 +99,7 @@ var scope = {
 
         var createdHookFired = false;
         // Building computed properties for the first time
-        scope.buildComputedProps(vm);
+        props.buildComputedProps(vm);
 
         // Server Created mixins
         scope.callHookMixin(vm, 'createdBe', function () {
@@ -110,7 +112,7 @@ var scope = {
         if (createdHookFired) {
             // Building computed properties for the second time
             // If there was a possibility the data was modifed by hooks
-            scope.buildComputedProps(vm);
+            props.buildComputedProps(vm);
         }
 
         scope.updateNotReadyCount(vm, +1);
@@ -204,8 +206,8 @@ var scope = {
                 );
             } else {
                 scope.resetVmInstance(presentVm, options.element);
-                scope.pullPropsData(presentVm);
-                scope.buildComputedProps(presentVm);
+                props.pullPropsData(presentVm);
+                props.buildComputedProps(presentVm);
                 newVm = presentVm;
             }
 
@@ -352,7 +354,7 @@ var scope = {
 
     setEventListeners: function (vm) {
         vm.$on('vueServer:action.rebuildComputed', function () {
-            scope.buildComputedProps(vm);
+            props.buildComputedProps(vm);
         });
 
         vm.$on('_vueServer.stopBuilding', function () {
@@ -471,169 +473,6 @@ var scope = {
         } else {
             return null;
         }
-    },
-
-    // Compute "computed" props
-    buildComputedProps: function (vm) {
-        if (vm.$options.computed) {
-            var item;
-            for (var name in vm.$options.computed) {
-                item = vm.$options.computed[name];
-
-                if (typeof item === 'function') {
-                    try {
-                        vm[name] = item.call(vm);
-                    } catch (error) {
-                        vm.__states.$logger.debug(
-                            'Computed property "' + name + '" compilation error',
-                            common.onLogMessage(vm), '\n',
-                            error
-                        );
-                    }
-                } else {
-                    try {
-                        vm[name] = item.get.call(vm);
-                    } catch (error) {
-                        vm.__states.$logger.debug(
-                            'Computed property "' + name + '" compilation error',
-                            common.onLogMessage(vm), '\n',
-                            error
-                        );
-                    }
-                }
-            }
-        }
-
-        return this;
-    },
-
-    pullPropsData: function (vm) {
-        var props = vm.$options.props;
-        if (props) {
-            vm.__states.hasProps = true;
-            utils.each(props, function (item, name) {
-                scope.pullPropsDataItem(vm, name, item);
-            });
-        }
-    },
-
-    pullPropsDataItem: function (vm, name, config) {
-        var attrName = common.camelToDashCase(name);
-        var propName = common.dashToCamelCase(name);
-        var descriptor;
-
-        // It is to point to the entrance of the component content
-        // not to prematurely remove the attributes required for props
-        vm.$el.props = vm.$el.props || {};
-        if (vm.$el.attribs[attrName] !== undefined) {
-            vm.$el.props[attrName] = vm.$el.attribs[attrName];
-            vm.$el.attribs[attrName] = undefined;
-        }
-
-        // If props is Object
-        if (config !== undefined) {
-            descriptor = {
-                type: null,
-                default: null,
-                required: false,
-                validator: null
-            };
-
-            if (config === null || config.constructor && config.name) {
-                descriptor.type = config;
-            } else {
-                utils.extend(descriptor, config);
-            }
-        }
-
-        // v-for context
-        // var parentScope = vm.__states.vForScope ? vm.__states.vForScope: vm.$parent;
-
-        var value;
-
-        var rawValue = vm.$el.props[attrName];
-
-        // Implementation of setting props by v-bind
-        if (vm.$el.dirs.bind && vm.$el.dirs.bind[attrName]) {
-            rawValue = {
-                value: vm.$el.dirs.bind[attrName].value.get,
-                filters: vm.$el.dirs.bind[attrName].value.filters
-            };
-            vm.$el.dirs.bind[attrName].isCompiled = true;
-        }
-
-        if (rawValue) {
-            value = common.execute(vm.__states.parent, rawValue, {
-                isEscape: false,
-                isClean: false
-            });
-        }
-
-        var mirroredValue = vm.__states.initialDataMirror[propName];
-        if (mirroredValue !== undefined && vm.__states.initialDataMirror[propName] === value) {
-            return;
-        } else {
-            // if (!vm.__states.indepent) {
-            //     typeof
-            // }
-            vm.__states.initialDataMirror[propName] = value;
-        }
-
-        if (descriptor) {
-            if (!rawValue) {
-                // Default value
-                if (typeof descriptor.default === 'function') {
-                    value = descriptor.default();
-                } else {
-                    value = descriptor.default;
-                }
-
-                // Required field
-                if (descriptor.required) {
-                    vm.__states.$logger.warn(
-                        'Missing required prop: ' + propName, common.onLogMessage(vm)
-                    );
-                    return;
-                }
-            } else {
-                // Data types
-                if (descriptor.type) {
-                    var hasTypeError = false;
-                    var type;
-
-                    if (value === null || value === undefined) {
-                        hasTypeError = true;
-                        type = value;
-                    } else if (value.constructor !== descriptor.type) {
-                        hasTypeError = true;
-                        type = value.constructor.name;
-                    }
-
-                    if (hasTypeError) {
-                        vm.__states.$logger.warn(
-                            'Invalid prop: type check failed for "' + propName + '". Expected ' +
-                                descriptor.type.name + ', got ' + type,
-                            common.onLogMessage(vm)
-                        );
-                        return;
-                    }
-                }
-
-                // Data validation
-                if (rawValue && descriptor.validator && !descriptor.validator(value)) {
-                    vm.__states.$logger.warn('Invalid prop: custom validator check failed for "' + propName +
-                        '"', common.onLogMessage(vm));
-                    return;
-                }
-            }
-        }
-
-        // Callback inheritance from parent
-        if (typeof value === 'function') {
-            value = utils.bind(value, vm.__states.parent);
-        }
-
-        vm[propName] = value;
     },
 
     // Init VMs for v-for
