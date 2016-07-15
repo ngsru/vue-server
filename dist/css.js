@@ -1,3 +1,5 @@
+'use strict';
+
 function kebabify(prop) {
     return prop.replace(/[A-Z]/g, function (a) {
         return '-' + a.toLowerCase();
@@ -5,14 +7,14 @@ function kebabify(prop) {
 }
 
 var CSSParser = {
-    parse: function (string) {
+    parse: function parse(string) {
         var temp = string.split(';');
         var obj = {};
 
-        for (let i = 0; i < temp.length; i++) {
-            let item = temp[i];
+        for (var i = 0; i < temp.length; i++) {
+            var item = temp[i];
             if (item) {
-                let prop = item.split(/:(.+)/);
+                var prop = item.split(/:(.+)/);
 
                 if (!prop[1]) {
                     throw 'CSS format is invalid: "' + item + '"';
@@ -25,10 +27,10 @@ var CSSParser = {
         return obj;
     },
 
-    stringify: function (object) {
+    stringify: function stringify(object) {
         var string = '';
 
-        for (let prop in object) {
+        for (var prop in object) {
             if (object[prop] === undefined || object[prop] === null || object[prop] === '') {
                 continue;
             }
@@ -38,13 +40,13 @@ var CSSParser = {
         return string.trim();
     },
 
-    merge: function () {
+    merge: function merge() {
         var list = [{}];
         for (var i = 0; i < arguments.length; i++) {
             list.push(arguments[i]);
         }
         return list.reduce(function (previousValue, currentValue) {
-            for (let item in currentValue) {
+            for (var item in currentValue) {
                 previousValue[kebabify(item)] = currentValue[item];
             }
 

@@ -1,5 +1,5 @@
 module.exports = {
-    compiler: require('./src/compiler'),
-    renderer: require('./src/renderer'),
-    serializer: require('./src/serializer')
+    compiler: require('./dist/compiler'),
+    renderer: require('./dist/renderer'),
+    serializer: require('./dist/serializer')
 };

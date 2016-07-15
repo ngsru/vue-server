@@ -1,3 +1,5 @@
+'use strict';
+
 var log4js = require('log4js');
 
 var Vue = require('vue');
@@ -18,39 +20,39 @@ var systemOptions = {
     _logger: true
 };
 
-var initLogger = function (config, logger) {
+var initLogger = function initLogger(config, logger) {
     return {
         _config: config,
         _logger: logger,
-        log: function () {
+        log: function log() {
             if (!this._config.silent) {
                 this._logger.debug.apply(this._logger, arguments);
             }
 
             return this;
         },
-        debug: function () {
+        debug: function debug() {
             if (!this._config.silent && this._config.debug) {
                 this._logger.debug.apply(this._logger, arguments);
             }
 
             return this;
         },
-        info: function () {
+        info: function info() {
             if (!this._config.silent && this._config.debug) {
                 this._logger.info.apply(this._logger, arguments);
             }
 
             return this;
         },
-        warn: function () {
+        warn: function warn() {
             if (!this._config.silent) {
                 this._logger.warn.apply(this._logger, arguments);
             }
 
             return this;
         },
-        error: function () {
+        error: function error() {
             if (!this._config.silent) {
                 this._logger.error.apply(this._logger, arguments);
             }
@@ -60,10 +62,10 @@ var initLogger = function (config, logger) {
     };
 };
 
-var VueRender = function (logger) {
+var VueRender = function VueRender(logger) {
     logger = logger || log4js.getLogger('[VueServer]');
 
-    var VueRoot = function (instance) {
+    var VueRoot = function VueRoot(instance) {
         var that = this;
         var vm;
         var compileInProgress = false;
@@ -108,29 +110,26 @@ var VueRender = function (logger) {
             isComponent: true
         });
 
-        vm
-            .$on('_vueServer.tryBeginCompile', function () {
-                if (compileInProgress) {
-                    that.logger.error(
-                        'Building proccess gone wrong. Some VMs finished compilation after $root Ready'
-                    );
-                    return;
-                }
+        vm.$on('_vueServer.tryBeginCompile', function () {
+            if (compileInProgress) {
+                that.logger.error('Building proccess gone wrong. Some VMs finished compilation after $root Ready');
+                return;
+            }
 
-                compileInProgress = true;
-                this.$emit('_vueServer.readyToCompile');
-                this.$broadcast('_vueServer.readyToCompile');
+            compileInProgress = true;
+            this.$emit('_vueServer.readyToCompile');
+            this.$broadcast('_vueServer.readyToCompile');
+
+            process.nextTick(function () {
+                compilers.compile(this);
 
                 process.nextTick(function () {
-                    compilers.compile(this);
-
-                    process.nextTick(function () {
-                        var html = renders.render(this);
-                        this.$emit('vueServer.htmlReady', html);
-                    }.bind(this));
+                    var html = renders.render(this);
+                    this.$emit('vueServer.htmlReady', html);
                 }.bind(this));
-                // }
-            });
+            }.bind(this));
+            // }
+        });
 
         return vm;
     };
@@ -160,11 +159,7 @@ var VueRender = function (logger) {
 
     VueRoot.partial = function (id, partial) {
         if (partial) {
-            var result = asset.compileTemplate(
-                this.prototype.logger,
-                partial,
-                'Partial "' + id + '"'
-            );
+            var result = asset.compileTemplate(this.prototype.logger, partial, 'Partial "' + id + '"');
 
             this.prototype.partials[id] = result;
         }

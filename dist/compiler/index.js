@@ -1,8 +1,11 @@
+'use strict';
+
 var Entities = require('html-entities').AllHtmlEntities;
 var entities = new Entities();
 
 var htmlparser = require('htmlparser2');
 var utils = require('./../utils.js');
+var _ = require('underscore');
 var strFnObj = require('../serializer');
 var log4js = require('log4js');
 var logger = log4js.getLogger('[VueServer Compile]');
@@ -25,18 +28,18 @@ var Vue = require('vue');
 Vue.config.silent = true;
 var parsers = Vue.parsers;
 
-var tokensToFn = function (tokens) {
+var tokensToFn = function tokensToFn(tokens) {
     var expr = parsers.text.tokensToExp(tokens);
     return parsers.expression.parse(expr).get;
 };
 
-var textToFn = function (text) {
+var textToFn = function textToFn(text) {
     var tokens = parsers.text.parse(text);
     var expr = parsers.text.tokensToExp(tokens);
     return parsers.expression.parse(expr).get;
 };
 
-var parseDirective = function (value) {
+var parseDirective = function parseDirective(value) {
     // Decoding entities.
     // Looks like browsers perfrom the operation automatically,
     // while we need to do it manually
@@ -61,13 +64,13 @@ var parseDirective = function (value) {
     return result;
 };
 
-var dashToCamelCase = function (value) {
+var dashToCamelCase = function dashToCamelCase(value) {
     return value.replace(/-(\w)/g, function (a, b) {
         return b.toUpperCase();
     });
 };
 
-var getMetaValue = function (value) {
+var getMetaValue = function getMetaValue(value) {
     // Decoding entities.
     // Looks like browsers perfrom the operation automatically,
     // while we need to do it manually
@@ -114,7 +117,6 @@ var getMetaValue = function (value) {
         } else {
             return result;
         }
-
     } else {
         if (value === 'true') {
             return true;
@@ -130,7 +132,7 @@ var getMetaValue = function (value) {
     }
 };
 
-var makeTxtNode = function (current, value) {
+var makeTxtNode = function makeTxtNode(current, value) {
     if (value) {
         current.inner.push({
             'type': 'text',
@@ -139,7 +141,7 @@ var makeTxtNode = function (current, value) {
     }
 };
 
-var getElementId = function () {
+var getElementId = function getElementId() {
     var result = '';
     var time = process.hrtime();
     return String(time[0]) + time[1];
@@ -154,7 +156,7 @@ var onArgRE = /[:|@](.*)$/;
 var vForValRE = /\((.+)\)/;
 
 // Converting raw HTML into special array-objects tree
-var Compile = function (template) {
+var Compile = function Compile(template) {
     if (template === undefined || template === null) {
         template = '';
     }
@@ -164,18 +166,19 @@ var Compile = function (template) {
         return template;
     }
 
-    var mass = {'inner': []},
+    var mass = { 'inner': [] },
         current = mass,
         preIsActive = false,
 
-        // v-pre directive dom tree depth count
-        // Necessary to detect the moment to turn preIsActive flag
-        preIsActiveDepth = 0;
+
+    // v-pre directive dom tree depth count
+    // Necessary to detect the moment to turn preIsActive flag
+    preIsActiveDepth = 0;
 
     var repeatItems = [];
 
     var parser = new htmlparser.Parser({
-        onopentag: function (name, attribs) {
+        onopentag: function onopentag(name, attribs) {
             var element;
 
             if ('v-pre' in attribs && !preIsActive) {
@@ -213,7 +216,6 @@ var Compile = function (template) {
                 tag += '>';
 
                 current.text += tag;
-
             } else {
 
                 // COMMON TAG - begin
@@ -315,16 +317,10 @@ var Compile = function (template) {
                     // v-for
                     if (name === 'v-for' && attribs['v-for']) {
                         (function () {
-                            var value = attribs['v-for'];
-                            var text = value.split(' in ');
+                            var text = attribs['v-for'].split(' in ');
                             var expression = text[1];
-                            if (!expression) {
-                                logger.warn('Invalid expression: "' + value + '"');
-                                return;
-                            }
                             var arg = text[0].match(vForValRE);
                             var index;
-                            var rawValue = parseDirective(expression);
 
                             if (arg) {
                                 arg = arg[1].replace(/ /g, '').split(',');
@@ -334,7 +330,9 @@ var Compile = function (template) {
                                 arg = text[0];
                             }
 
-                            if (arg && rawValue) {
+                            var rawValue = parseDirective(expression);
+
+                            if (arg && expression && rawValue) {
                                 rawValue = rawValue[0];
 
                                 element.dirs.for = {
@@ -352,11 +350,8 @@ var Compile = function (template) {
                                 }
 
                                 repeatItems.push(element);
-                            } else {
-                                logger.warn('Invalid expression: "' + value + '"');
                             }
                         })();
-
                     }
 
                     if (name === 'v-else') {
@@ -367,9 +362,7 @@ var Compile = function (template) {
                                     if (current.inner[i].dirs) {
                                         // v-if
                                         if (current.inner[i].dirs.if) {
-                                            var vIfDir = parseDirective(
-                                                '!(' + current.inner[i].dirs.if.value.expression + ')'
-                                            );
+                                            var vIfDir = parseDirective('!(' + current.inner[i].dirs.if.value.expression + ')');
                                             if (vIfDir) {
                                                 element.dirs.if = {
                                                     value: vIfDir[0]
@@ -381,9 +374,7 @@ var Compile = function (template) {
 
                                         // v-show
                                         if (current.inner[i].dirs.show) {
-                                            var vIfDir = parseDirective(
-                                                '!(' + current.inner[i].dirs.show.value.expression + ')'
-                                            );
+                                            var vIfDir = parseDirective('!(' + current.inner[i].dirs.show.value.expression + ')');
                                             if (vIfDir) {
                                                 element.dirs.show = {
                                                     value: vIfDir[0]
@@ -463,18 +454,13 @@ var Compile = function (template) {
 
                 utils.each(attribs, function (value, name) {
                     // Removing Vue-directives from tree except v-clock
-                    if (
-                        (!name.match(/^v-/) || name.match(/^v-cloak$/)) &&
-                        !name.match(/^:(.+)/) &&
-                        !name.match(onRE) &&
-                        attribsForExclude.indexOf(name) === -1
-                    ) {
+                    if ((!name.match(/^v-/) || name.match(/^v-cloak$/)) && !name.match(/^:(.+)/) && !name.match(onRE) && attribsForExclude.indexOf(name) === -1) {
                         element.attribs[name] = getMetaValue(value);
                     }
                 });
 
                 // If a <template> has no directives it means it should be rendered as real tag
-                if (element.name === 'template' && !utils.size(element.dirs) && !element.attribs.is) {
+                if (element.name === 'template' && !_.size(element.dirs) && !element.attribs.is) {
                     element.isMaterial = true;
                 }
 
@@ -483,23 +469,20 @@ var Compile = function (template) {
                 current = element;
                 // COMMON TAG - end
             }
-
         },
 
-        ontext: function (text) {
+        ontext: function ontext(text) {
             var caret;
 
             // If element is inside v-pre directive
             if (preIsActive) {
                 current.text += text;
-
             } else {
                 makeTxtNode(current, text.substring(caret, text.length));
             }
-
         },
 
-        onclosetag: function (name) {
+        onclosetag: function onclosetag(name) {
             var now;
 
             // If element is inside v-pre directive
@@ -524,11 +507,10 @@ var Compile = function (template) {
         },
 
         // Doctype
-        onprocessinginstruction: function (name, data) {
+        onprocessinginstruction: function onprocessinginstruction(name, data) {
             // If element is inside v-pre directive
             if (preIsActive) {
                 current.text += '<' + data + '>';
-
             } else {
                 current.inner.push({
                     'type': 'text',
@@ -538,7 +520,7 @@ var Compile = function (template) {
         },
 
         // Conditional comments
-        oncomment: function (data) {
+        oncomment: function oncomment(data) {
             if (preIsActive) {
                 current.text += '<!-- ' + data + ' -->';
             } else {
@@ -556,11 +538,10 @@ var Compile = function (template) {
             }
         },
 
-        onerror: function (error) {
+        onerror: function onerror(error) {
             logger.warn(error);
         }
-    },
-    {
+    }, {
         // xmlMode: true
         lowerCaseTags: false
     });
