@@ -3,7 +3,6 @@ entities = new Entities();
 
 var htmlparser = require('htmlparser2');
 var utils = require('./../utils.js');
-var _ = require('underscore');
 var strFnObj = require('../serializer');
 var log4js = require('log4js');
 var logger = log4js.getLogger('[VueServer Compile]');
@@ -324,10 +323,16 @@ var Compile = function (template) {
                     // v-for
                     if (name === 'v-for' && attribs['v-for']) {
                         (function () {
-                            var text = attribs['v-for'].split(' in ');
+                            var value = attribs['v-for'];
+                            var text = value.split(' in ');
                             var expression = text[1];
+                            if (!expression) {
+                                logger.warn('Invalid expression: "' + value + '"');
+                                return;
+                            }
                             var arg = text[0].match(vForValRE);
                             var index;
+                            var rawValue = parseDirective(expression);
 
                             if (arg) {
                                 arg = arg[1].replace(/ /g, '').split(',');
@@ -337,9 +342,7 @@ var Compile = function (template) {
                                 arg = text[0];
                             }
 
-                            var rawValue = parseDirective(expression);
-
-                            if (arg && expression && rawValue) {
+                            if (arg && rawValue) {
                                 rawValue = rawValue[0];
 
                                 element.dirs.for = {
@@ -357,6 +360,8 @@ var Compile = function (template) {
                                 }
 
                                 repeatItems.push(element);
+                            } else {
+                                logger.warn('Invalid expression: "' + value + '"');
                             }
                         })();
 
@@ -585,7 +590,7 @@ var Compile = function (template) {
                 }
 
                 // If a <template> has no directives it means it should be rendered as real tag
-                if (element.name === 'template' && !_.size(element.dirs)) {
+                if (element.name === 'template' && !utils.size(element.dirs)) {
                     element.isMaterial = true;
                 }
 

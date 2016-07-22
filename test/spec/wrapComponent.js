@@ -1,6 +1,6 @@
 var fs = require('fs');
 var cheerio = require('cheerio');
-var _ = require('underscore');
+var utils = require('./../../src/utils.js');
 var VueServer = require('../../index.js');
 var VueCompile = VueServer.compiler;
 var VueRender = VueServer.renderer;
@@ -27,7 +27,7 @@ module.exports = function (content, callback, config) {
     Vue.config.replace = false;
 
     if (config) {
-        _.extend(Vue.config, config);
+        utils.extend(Vue.config, config);
     }
 
     var vm = new Vue({
