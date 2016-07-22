@@ -8,10 +8,9 @@
     "email": "a.solodovnikov@office.ngs.ru"
   },
   "dependencies": {
-    "html-entities": "^1.1.2",
-    "htmlparser2": "^3.8.3",
-    "log4js": "^0.6.21",
-    "underscore": "^1.7.0",
+    "html-entities": "1.2.0",
+    "htmlparser2": "3.9.1",
+    "log4js": "0.6.21",
     "vue": "1.0.0-migration"
   },
   "repository": {
