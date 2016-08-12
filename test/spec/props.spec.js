@@ -171,7 +171,7 @@ describe('props should be able', function () {
 
     it('to use types checking', function () {
         expect($('#type-number').html()).toEqual(
-            '<i>object</i><i>undefined</i><i>number</i><i>undefined</i>'
+            '<i>undefined</i><i>undefined</i><i>number</i><i>undefined</i>'
         );
     });
 
@@ -214,7 +214,7 @@ describe('props should be able', function () {
 
     it('to use multiple types checking', function () {
         expect($('#types-multiple').html()).toEqual(
-            '<i>number</i><i>string</i><i>object</i><i>undefined</i><i>undefined</i>'
+            '<i>number</i><i>string</i><i>undefined</i><i>undefined</i><i>undefined</i>'
         );
     });
 });

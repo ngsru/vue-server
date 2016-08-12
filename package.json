@@ -1,6 +1,6 @@
 {
   "name": "vue-server",
-  "version": "0.4.13",
+  "version": "0.5.0-alpha.1",
   "description": "Vue.js server side version",
   "main": "index.js",
   "author": {
@@ -17,7 +17,7 @@
     "cheerio": "^0.19.0",
     "express": "^4.13.3",
     "html-minifier": "^1.0.0",
-    "jasmine": "^2.3.2",
+    "jasmine": "^2.4.1",
     "babel": "^6.3.26",
     "babel-core": "^6.4.0",
     "babel-preset-es2015": "^6.3.13",
@@ -33,9 +33,10 @@
     "type": "git",
     "url": "https://github.com/ngsru/vue-server.git"
   },
-  "license": "ISC",
+  "license": "MIT",
   "scripts": {
-    "test": "node test/index.js"
+    "test": "node test/index.js",
+    "dev": "node_modules/gulp/bin/gulp.js"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"

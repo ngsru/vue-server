@@ -4,7 +4,7 @@ var log4js = require('log4js');
 
 var Vue = require('vue');
 Vue.config.silent = true;
-var filtersGlobal = Vue.filters;
+var filtersGlobal = Vue.options.filters;
 
 var asset = require('./asset.js');
 var scope = require('./scope.js');

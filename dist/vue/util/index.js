@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", {
 var _lang = require('./lang');
 
 Object.keys(_lang).forEach(function (key) {
-  if (key === "default") return;
+  if (key === "default" || key === "__esModule") return;
   Object.defineProperty(exports, key, {
     enumerable: true,
     get: function get() {
@@ -19,7 +19,7 @@ Object.keys(_lang).forEach(function (key) {
 var _env = require('./env');
 
 Object.keys(_env).forEach(function (key) {
-  if (key === "default") return;
+  if (key === "default" || key === "__esModule") return;
   Object.defineProperty(exports, key, {
     enumerable: true,
     get: function get() {
@@ -31,7 +31,7 @@ Object.keys(_env).forEach(function (key) {
 var _dom = require('./dom');
 
 Object.keys(_dom).forEach(function (key) {
-  if (key === "default") return;
+  if (key === "default" || key === "__esModule") return;
   Object.defineProperty(exports, key, {
     enumerable: true,
     get: function get() {
@@ -43,7 +43,7 @@ Object.keys(_dom).forEach(function (key) {
 var _options = require('./options');
 
 Object.keys(_options).forEach(function (key) {
-  if (key === "default") return;
+  if (key === "default" || key === "__esModule") return;
   Object.defineProperty(exports, key, {
     enumerable: true,
     get: function get() {
@@ -55,7 +55,7 @@ Object.keys(_options).forEach(function (key) {
 var _component = require('./component');
 
 Object.keys(_component).forEach(function (key) {
-  if (key === "default") return;
+  if (key === "default" || key === "__esModule") return;
   Object.defineProperty(exports, key, {
     enumerable: true,
     get: function get() {
@@ -67,7 +67,7 @@ Object.keys(_component).forEach(function (key) {
 var _debug = require('./debug');
 
 Object.keys(_debug).forEach(function (key) {
-  if (key === "default") return;
+  if (key === "default" || key === "__esModule") return;
   Object.defineProperty(exports, key, {
     enumerable: true,
     get: function get() {
