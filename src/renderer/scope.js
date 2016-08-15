@@ -310,6 +310,7 @@ var scope = {
             scope.markKeyElement(vm);
         }
         vm.$children = [];
+        vm.__states.isBeingReseted = true;
         vm.__states.children = [];
         vm.__states.childrenReadyCount = 0;
         vm.__states.VMsDetached = vm.__states.VMs;
@@ -387,10 +388,6 @@ var scope = {
     setEventListeners: function (vm) {
         vm.$on('vueServer:action.rebuildComputed', function () {
             scope.buildComputedProps(vm);
-        });
-
-        vm.$on('_vueServer.stopBuilding', function () {
-            vm.$el.__buildingInterrupted = true;
         });
 
         vm.$on('_vueServer.readyToCompile', function () {
@@ -803,6 +800,7 @@ var scope = {
 
     initPrivateState: function (vm, extra) {
         vm.__states = utils.extend({
+            isBeingReseted: false,
             children: [],
             childrenReadyCount: 0,
             initialDataMirror: {},

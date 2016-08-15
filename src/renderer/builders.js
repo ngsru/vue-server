@@ -11,10 +11,12 @@ var builders = {
             return;
         }
 
+        vm.__states.isBeingReseted = false;
+
         process.nextTick(function () {
             // Case when VM rebuilding starts
-            // This option is passed through to stop building detached VMs
-            if (vm.$el.__buildingInterrupted) {
+            // This option is activated to stop building detached VMs
+            if (vm.__states.isBeingReseted) {
                 return;
             }
 
