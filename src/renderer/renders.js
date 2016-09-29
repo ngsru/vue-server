@@ -57,7 +57,7 @@ var renders = {
                 }
             }
 
-            tag += ' ' + attrName + '="' + attrVal + '"';
+            tag += ' ' + attrName + '="' + renders.escapeQuotes(attrVal) + '"';
         });
 
         tag += '>';
@@ -234,6 +234,14 @@ var renders = {
 
             callback(attrName, attrVal);
         }
+    },
+
+    escapeQuotes: function (str) {
+        if (typeof str === 'string') {
+            return str.replace(/"/g, '&quot;');
+        }
+
+        return str;
     }
 };
 

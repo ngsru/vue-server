@@ -1,6 +1,3 @@
-var Entities = require('html-entities').AllHtmlEntities;
-var entities = new Entities();
-
 var utils = require('./../utils.js');
 
 var common = {
@@ -55,10 +52,6 @@ var common = {
 
         if (config.isEscape) {
             value = this.escapeHtml(value);
-        }
-
-        if (config.isEscapeQuotes) {
-            value = this.escapeQuotes(value);
         }
 
         if (config.isClean) {
@@ -161,14 +154,6 @@ var common = {
     escapeHtml: function (str) {
         if (typeof str === 'string') {
             return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        }
-
-        return str;
-    },
-
-    escapeQuotes: function (str) {
-        if (typeof str === 'string') {
-            return str.replace(/"/g, '&quot;');
         }
 
         return str;

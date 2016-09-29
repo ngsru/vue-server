@@ -144,8 +144,7 @@ var compilers = {
             // Compile node attributes
             utils.each(element.attribs, function (item, key) {
                 element.attribs[key] = common.execute(vm, item, {
-                    isEscape: false,
-                    isEscapeQuotes: true
+                    isEscape: false
                 });
             });
 
@@ -161,8 +160,7 @@ var compilers = {
 
                     var value = common.execute(vm, {
                         value: item.value.get,
-                        filters: item.value.filters,
-                        isEscapeQuotes: true
+                        filters: item.value.filters
                     });
 
                     if (name === 'style') {
@@ -230,8 +228,7 @@ var compilers = {
                 (function () {
                     var value = common.execute(vm, {
                         value: element.dirs.bindMany.value.get,
-                        filters: element.dirs.bindMany.value.filters,
-                        isEscapeQuotes: true
+                        filters: element.dirs.bindMany.value.filters
                     });
 
                     utils.extend(element.attribs, value);

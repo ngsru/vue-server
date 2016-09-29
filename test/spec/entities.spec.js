@@ -29,6 +29,7 @@ var contentComponent = {
         '<div id="tag-attrib-two" title="{{tag}}"></div>',
         '<div id="tag-attrib-three" title="{{{tag}}}"></div>',
         '<div id="tag-attrib-dyn" :title="tag"></div>',
+        '<div id="tag-attrib-in-style" :style="{backgroundImage: bgImgVal}"></div>',
 
         // A compiler test for incorrect attribute with quotes
         '<div id="incorrect-attribute-1" on:"test"></div>'
@@ -38,7 +39,8 @@ var contentComponent = {
             arr: [10, 20],
             value: entity,
             value2: entityTag,
-            tag: '<img src="1.jpg"/>'
+            tag: '<img src="1.jpg"/>',
+            bgImgVal: 'url("1.jpg")'
         };
     },
 
@@ -132,6 +134,10 @@ describe('entities', function () {
             expect($('#tag-attrib-two').attr('title')).toEqual(result);
             expect($('#tag-attrib-three').attr('title')).toEqual(result);
             expect($('#tag-attrib-dyn').attr('title')).toEqual(result);
+
+            expect($('#tag-attrib-in-style').attr('style')).toEqual(
+                'background-image: url(&quot;1.jpg&quot;);'
+            );
         });
     });
 
