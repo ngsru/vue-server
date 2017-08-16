@@ -2,8 +2,8 @@ var log4js = require('log4js');
 
 var filtersGlobal = require('vue/src/filters');
 
+var getScope = require('./scope.js');
 var asset = require('./asset.js');
-var scope = require('./scope.js');
 var compilers = require('./compilers.js');
 var renders = require('./renders.js');
 
@@ -66,9 +66,6 @@ var VueRender = function (logger) {
         var vm;
         var compileInProgress = false;
 
-        scope.$logger = this.logger;
-        renders.$logger = this.logger;
-
         if (!instance) {
             this.logger.error('Can\'t initialize render: no root instance transmitted');
             return this;
@@ -87,15 +84,16 @@ var VueRender = function (logger) {
             }
         }
 
-        scope.globalPrototype = globalPrototype;
-        // -------------------------
+        var scope = getScope({
+            prototype: globalPrototype,
+            config: this.config,
+            filters: this.filters,
+            partials: this.partials,
+            components: this.components,
+            mixin: this.mixin || null
+        });
 
-        scope.config = this.config;
-
-        scope.filters = this.filters;
-        scope.partials = this.partials;
-        scope.components = this.components;
-        scope.mixin = this.mixin || null;
+        scope.$logger = this.logger;
 
         vm = scope.initViewModel({
             parent: null,
