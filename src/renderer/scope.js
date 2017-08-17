@@ -108,11 +108,12 @@ module.exports = function (globals) {
 
             this.markKeyElement(vm);
 
+            // Pull props data for the first time
+            // This is necessary for props values to be availble inside data function
+            this.pullPropsData(vm);
+
             // Init VM data from 'data' option
             this.initData(vm);
-
-            // Pull props data
-            this.pullPropsData(vm);
 
             if (contexts.repeatData) {
                 utils.extend(vm, contexts.repeatData);
@@ -503,7 +504,17 @@ module.exports = function (globals) {
                 result = ownData;
             }
 
-            utils.extend(vm, result);
+            [vm, result].reduce(function (prev, next) {
+                for (var name in next) {
+                    // Preventing rewrinting pulled props by data function results
+                    if (name in vm.__states.initialDataMirror) {
+                        continue;
+                    }
+                    prev[name] = next[name];
+                }
+
+                return prev;
+            });
         },
 
         initDataUnit: function (vm, data) {
@@ -660,21 +671,12 @@ module.exports = function (globals) {
                 } else {
                     // Data types
                     if (descriptor.type) {
-                        var hasTypeError = false;
-                        var type;
+                        var typeError = this.getPropTypeValidationError(value, descriptor);
 
-                        if (value === null || value === undefined) {
-                            hasTypeError = true;
-                            type = value;
-                        } else if (value.constructor !== descriptor.type) {
-                            hasTypeError = true;
-                            type = value.constructor.name;
-                        }
-
-                        if (hasTypeError) {
+                        if (typeError) {
                             vm.__states.$logger.warn(
                                 'Invalid prop: type check failed for "' + propName + '". Expected ' +
-                                    descriptor.type.name + ', got ' + type,
+                                    descriptor.type.name + ', got ' + typeError.type,
                                 common.onLogMessage(vm)
                             );
                             return;
@@ -696,6 +698,37 @@ module.exports = function (globals) {
             }
 
             vm[propName] = value;
+        },
+
+        getPropTypeValidationError: function (value, descriptor) {
+            if (value === null) {
+                return {
+                    type: 'Null'
+                };
+            }
+
+            if (value === undefined) {
+                return {
+                    type: 'Undefined'
+                };
+            }
+
+            // Making exception for objects ({}) made from custom contruction functions
+            // they should pass validation for type: Object
+            if (
+                descriptor.type === Object &&
+                (typeof value === 'object' || !Array.isArray(value))
+            ) {
+                return null;
+            }
+
+            if (value.constructor !== descriptor.type) {
+                return {
+                    type: value.constructor.name
+                };
+            }
+
+            return null;
         },
 
         inheritData: function (dataTo, dataFrom) {

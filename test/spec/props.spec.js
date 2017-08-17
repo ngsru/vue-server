@@ -3,9 +3,14 @@ var $;
 
 var contentComponent = {
     data: function () {
+        function SomeFn() {};
         return {
             transmit: 'value present',
-            bool: false
+            bool: false,
+            object: {},
+            objectConstructed: new SomeFn(),
+            array: [1, 2],
+            undef: undefined
         };
     },
     template: [
@@ -15,6 +20,9 @@ var contentComponent = {
             '<as-object id="v-bind" v-bind:value="transmit"></as-object>',
             '<type value="{{transmit}}"></type>',
             '<type-boolean value="{{bool}}"></type-boolean>',
+            '<type-object :value="object"></type-object>',
+            '<type-object-constructed :value="objectConstructed"></type-object-constructed>',
+            '<type-array :value="array"></type-array>',
             '<type-boolean-undefined value="{{nothing}}"></type-boolean-undefined>',
             '<type-default value="{{transmit}}"></type-default>',
             '<type-default-undefined value="{{nothing}}"></type-default-undefined>',
@@ -22,7 +30,10 @@ var contentComponent = {
             '<default-function></default-function>',
             '<validator value="{{transmit}}"></validator>',
             '<validator-default value="{{transmit}}"></validator-default>',
-            '<default-false></<default-false>',
+            '<default-false></default-false>',
+            '<props-inside-data :value="transmit"></props-inside-data>',
+            '<props-vs-data id="props-vs-data-passed" :herabora="undef"></props-vs-data>',
+            '<props-vs-data id="props-vs-data-not-passed"></props-vs-data>',
         '</div>'
     ].join(''),
 
@@ -54,6 +65,30 @@ var contentComponent = {
                 }
             },
             template: '<div>{{value === false}}</div>'
+        },
+        'type-object': {
+            props: {
+                value: {
+                    type: Object
+                }
+            },
+            template: '<div>{{value && typeof value === \'object\'}}</div>'
+        },
+        'type-object-constructed': {
+            props: {
+                value: {
+                    type: Object
+                }
+            },
+            template: '<div>{{value && typeof value === \'object\'}}</div>'
+        },
+        'type-array': {
+            props: {
+                value: {
+                    type: Array
+                }
+            },
+            template: '<div>{{typeof value === \'object\' && value.length}}</div>'
         },
         'type-default': {
             props: {
@@ -124,6 +159,30 @@ var contentComponent = {
             },
             template: '<div>{{typeof value}}</div>'
         },
+
+        'props-inside-data': {
+            props: {
+                value: null
+            },
+            data: function () {
+                return {
+                    otherValue: this.value
+                };
+            },
+            template: '<div>{{otherValue}}</div>'
+        },
+
+        'props-vs-data': {
+            props: {
+                herabora: null
+            },
+            data: function () {
+                return {
+                    herabora: 123
+                };
+            },
+            template: '<div>{{herabora}}</div>'
+        }
     }
 };
 
@@ -153,6 +212,18 @@ describe('props should be able', function () {
 
     it('to use type Boolean option correctly', function () {
         expect($('type-boolean > div').text()).toEqual('true');
+    });
+
+    it('to use type Object option correctly', function () {
+        expect($('type-object > div').text()).toEqual('true');
+    });
+
+    it('to use type Object option correctly with fn-constructed object', function () {
+        expect($('type-object-constructed > div').text()).toEqual('true');
+    });
+
+    it('to use type Array option correctly', function () {
+        expect($('type-array > div').text()).toEqual('2');
     });
 
     it('to handle undefined value in typed props', function () {
@@ -187,5 +258,13 @@ describe('props should be able', function () {
     it('to set default Boolean(false) as it is', function () {
         expect($('default-false > div').text()).toEqual('boolean');
     });
+
+    // it('1111111111', function () {
+    //     expect($('#props-vs-data-passed > div').text()).toEqual('');
+    // });
+    //
+    // it('22222222', function () {
+    //     expect($('#props-vs-data-not-passed > div').text()).toEqual('123');
+    // });
 
 });
