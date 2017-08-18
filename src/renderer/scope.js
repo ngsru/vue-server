@@ -221,7 +221,7 @@ module.exports = function (globals) {
             vm.$addChild = function (options) {
                 var newVm;
                 var presentVm;
-                var $target = self.getRealParent(vm);
+                var $target = self.getFirstPublicParent(vm);
 
                 if (this.__states.VMsDetached && options.component && !options.repeatData) {
                     presentVm = this.__states.VMsDetached[options.element.id + options.componentName];
@@ -462,9 +462,12 @@ module.exports = function (globals) {
             }
         },
 
-        isSystemProp: function (name, $parent) {
-            if ($parent && $parent.$options.methods && $parent.$options.methods[name]) {
-                return false;
+        isSystemProp: function (name, vm) {
+            if (vm) {
+                var realParent = this.getFirstPublicParent(vm);
+                if (realParent.$options.methods && realParent.$options.methods[name]) {
+                    return false;
+                }
             }
 
             var char = name.charAt(0);
@@ -798,9 +801,9 @@ module.exports = function (globals) {
             return vm;
         },
 
-        getRealParent: function (vm) {
+        getFirstPublicParent: function (vm) {
             if (vm.__states.notPublic) {
-                return this.getRealParent(vm.__states.parent);
+                return this.getFirstPublicParent(vm.__states.parent);
             }
 
             return vm;

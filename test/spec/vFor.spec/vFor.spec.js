@@ -197,6 +197,28 @@ var contentComponent = {
             compiledBe: function () {
                 this.value = true;
             }
+        },
+
+        deepIterate: {
+            template: [
+                '<div>',
+                    '<div v-for="item in [1]">',
+                        '<div v-for="am in [1]">',
+                            '<i v-for="it in [am]">{{getSome()}}</i>',
+                        '</div>',
+                    '</div>',
+                '</div>',
+            ].join(''),
+
+            methods: {
+                getSome: function () {
+                    return this._getSome();
+                },
+
+                _getSome: function () {
+                    return 123;
+                },
+            }
         }
     },
 
@@ -393,6 +415,10 @@ describe('v-for', function () {
 
     it('should rebuild instances if data is changed inside compiledBe hook', function () {
         expect($('#compiled-be-rebuild').html()).toEqual('<i><b>111</b></i>');
+    });
+
+    it('inside deep itertations private methods from parent component should be available', function () {
+        expect($('#deep-iterate i').text()).toEqual('123');
     });
 });
 
