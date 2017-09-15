@@ -59,7 +59,7 @@ Compatibility table
 
 | VueServer.js  | Vue.js          |
 | :------------ |:--------------- |
-| ^0.4.0        | 1.0.0-migration |
+| 0.4.x-0.5.x   | 1.0.0-migration |
 
 
 Restrictions
@@ -159,3 +159,6 @@ Vue.config.onLogMessage = function (vm) {
     }
 };
 ```
+
+## Custom options
+* `renderServer` - accepts compiled template (a function from `require('vue-server').compiler();`)

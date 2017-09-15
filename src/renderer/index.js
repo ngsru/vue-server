@@ -104,29 +104,27 @@ var VueRender = function (logger) {
             isComponent: true
         });
 
-        vm
-            .$on('_vueServer.tryBeginCompile', function () {
-                if (compileInProgress) {
-                    that.logger.error(
-                        'Building proccess gone wrong. Some VMs finished compilation after $root Ready'
-                    );
-                    return;
-                }
+        vm.$on('_vueServer.tryBeginCompile', function () {
+            if (compileInProgress) {
+                that.logger.error(
+                    'Building proccess gone wrong. Some VMs finished compilation after $root Ready'
+                );
+                return;
+            }
 
-                compileInProgress = true;
-                this.$emit('_vueServer.readyToCompile');
-                this.$broadcast('_vueServer.readyToCompile');
+            compileInProgress = true;
+            this.$emit('_vueServer.readyToCompile');
+            this.$broadcast('_vueServer.readyToCompile');
+
+            process.nextTick(function () {
+                compilers.compile(this);
 
                 process.nextTick(function () {
-                    compilers.compile(this);
-
-                    process.nextTick(function () {
-                        var html = renders.render(this);
-                        this.$emit('vueServer.htmlReady', html);
-                    }.bind(this));
+                    var html = renders.render(this);
+                    this.$emit('vueServer.htmlReady', html);
                 }.bind(this));
-                // }
-            });
+            }.bind(this));
+        });
 
         return vm;
     };

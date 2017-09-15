@@ -9,6 +9,7 @@ var excludeInstanceOptions = {
     'elementDirective': true,
     'parent': true,
     'template': true,
+    'renderServer': true,
     'replace': true,
     'created': true,
     'createdBe': true,
@@ -213,7 +214,11 @@ exports.composeComponent = function ($logger, component, globalMixin) {
 
     injectOptionsFromMixins(options);
 
-    options.template = exports.compileTemplate($logger, options.template, 'Component\'s template');
+    options.template = exports.compileTemplate(
+        $logger,
+        options.renderServer || options.template,
+        'Component\'s template'
+    );
 
     return Component;
 };
