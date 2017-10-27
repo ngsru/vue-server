@@ -59,7 +59,7 @@ Compatibility table
 
 | VueServer.js  | Vue.js          |
 | :------------ |:--------------- |
-| 0.4.x-0.5.x   | 1.0.0-migration |
+| 0.4.x-0.6.x   | 1.0.0-migration |
 
 
 Restrictions
