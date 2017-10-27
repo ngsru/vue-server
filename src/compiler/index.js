@@ -148,12 +148,6 @@ var makeTxtNode = function (current, value) {
     }
 };
 
-var getElementId = function () {
-    var result = '';
-    var time = process.hrtime();
-    return String(time[0]) + time[1];
-};
-
 var bindRE = /^:|^v-bind:/;
 var refRE = /^v-ref:/;
 var elRE = /^v-el:/;
@@ -173,13 +167,14 @@ var Compile = function (template) {
         return template;
     }
 
-    var mass = {'inner': []},
-        current = mass,
-        preIsActive = false,
+    var mass = {'inner': []};
+    var current = mass;
+    var preIsActive = false;
 
-        // v-pre directive dom tree depth count
-        // Necessary to detect the moment to turn preIsActive flag
-        preIsActiveDepth = 0;
+    // v-pre directive dom tree depth count
+    // Necessary to detect the moment to turn preIsActive flag
+    var preIsActiveDepth = 0;
+    var elementsCount = 0;
 
     var repeatItems = [];
 
@@ -227,7 +222,7 @@ var Compile = function (template) {
 
                 // COMMON TAG - begin
                 element = {
-                    'id': getElementId(),
+                    'id': elementsCount,
                     'type': 'tag',
                     'name': name,
                     'attribs': {},
@@ -237,6 +232,8 @@ var Compile = function (template) {
                     'close': true,
                     'pre': false
                 };
+
+                elementsCount++;
 
                 // Tags that do not need to have a closing tag
                 if (noCloseTags[element.name]) {
