@@ -28,6 +28,22 @@ var contentComponent = {
         itemVFor: {
             template: tools.getTpl(__dirname + '/item-v-for.html', true)
         },
+        componentVFor: {
+            template: tools.getTpl(__dirname + '/component-v-for.html', true),
+
+            data: function() {
+                return {
+                    title: 'test',
+                    value: [1]
+                };
+            },
+
+            components: {
+                test: {
+                    template: '<i><slot></slot></i>'
+                }
+            }
+        },
         itemComplex: {
             template: '<i><item2 v-for="n in 1">333</item2></i>',
             components: {
@@ -173,5 +189,25 @@ describe('<slot> API', function () {
         expect($('#v-show-on-component').html()).toEqual(
             '<div><h1>original</h1><i>123</i></div>'
         );
+    });
+
+    describe('slot inside v-for', function () {
+        it('when v-for is on component should use v-for data context', function () {
+            expect($('#component-v-for-1').html()).toEqual(
+                '<i>1</i>'
+            );
+        });
+
+        it('when v-for is on a tag with component inside should use v-for data context', function () {
+            expect($('#component-v-for-2').html()).toEqual(
+                '<div><i>1</i></div>'
+            );
+        });
+
+        it('when v-for is on component should use parent component data context', function () {
+            expect($('#component-v-for-3').html()).toEqual(
+                '<i>test</i>'
+            );
+        });
     });
 });

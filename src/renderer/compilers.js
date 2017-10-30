@@ -93,7 +93,7 @@ var compilers = {
                 (function () {
                     var content = slotContent.getContent(vm);
                     if (content) {
-                        compilers.compileElements(vm.$parent, content);
+                        compilers.compileElements(vm.__states.parent, content);
                         slotContent.insert(vm, element, content);
                     }
                 })();
