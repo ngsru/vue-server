@@ -89,7 +89,7 @@ module.exports = function (globals) {
             if (vm.__states.isComponent) {
                 var tpl = this.initTemplate(vm);
 
-                // That shoild be $root VM
+                // That should be $root VM
                 if (!vm.__states.parent) {
                     if (!tpl) {
                         vm.__states.$logger.error('There is no $root template. Can\'t start rendering');
@@ -97,6 +97,7 @@ module.exports = function (globals) {
                     vm.__states.notReadyCount = 0;
                     vm.__states.toRebuild = false;
                     vm.__states.mixin = globals.mixin;
+                    vm.__states.initName = '$root';
                 }
 
                 this.setKeyElementInner(vm, tpl);
@@ -186,6 +187,7 @@ module.exports = function (globals) {
                 } else if (vm.$options.activateBe) {
                     vm.__states.$logger.warn(
                         'activateBe can\'t be fired on "v-for"-ed or "v-repeat"-ed instances',
+                        common.getVmInitPath(vm),
                         common.onLogMessage(vm)
                     );
                 }
@@ -245,6 +247,8 @@ module.exports = function (globals) {
                     self.buildComputedProps(presentVm);
                     newVm = presentVm;
                 }
+
+                newVm.__states.initName = options.componentName;
 
                 // Needed for async component support
                 // Async component is not created immediately
@@ -535,7 +539,11 @@ module.exports = function (globals) {
                 if (dataType === 'function') {
                     result = data.call(vm) || {};
                 } else {
-                    vm.__states.$logger.warn('The "data" option type is not valid', common.onLogMessage(vm));
+                    vm.__states.$logger.warn(
+                        'The "data" option type is not valid',
+                        common.getVmInitPath(vm),
+                        common.onLogMessage(vm)
+                    );
                 }
             }
             return result;
@@ -667,7 +675,9 @@ module.exports = function (globals) {
                     // Required field
                     if (descriptor.required) {
                         vm.__states.$logger.warn(
-                            'Missing required prop: ' + propName, common.onLogMessage(vm)
+                            'Missing required prop: ' + propName,
+                            common.getVmInitPath(vm),
+                            common.onLogMessage(vm)
                         );
                         return;
                     }
@@ -680,6 +690,7 @@ module.exports = function (globals) {
                             vm.__states.$logger.warn(
                                 'Invalid prop: type check failed for "' + propName + '". Expected ' +
                                     descriptor.type.name + ', got ' + typeError.type,
+                                common.getVmInitPath(vm),
                                 common.onLogMessage(vm)
                             );
                             return;
@@ -688,8 +699,11 @@ module.exports = function (globals) {
 
                     // Data validation
                     if (rawValue && descriptor.validator && !descriptor.validator(value)) {
-                        vm.__states.$logger.warn('Invalid prop: custom validator check failed for "' + propName +
-                            '"', common.onLogMessage(vm));
+                        vm.__states.$logger.warn(
+                            'Invalid prop: custom validator check failed for "' + propName + '"',
+                            common.getVmInitPath(vm),
+                            common.onLogMessage(vm)
+                        );
                         return;
                     }
                 }
@@ -842,7 +856,8 @@ module.exports = function (globals) {
                 childrenReadyCount: 0,
                 initialDataMirror: {},
                 hasProps: false,
-                hasWithData: false
+                hasWithData: false,
+                initName: '_vm'
             }, extra);
         },
 

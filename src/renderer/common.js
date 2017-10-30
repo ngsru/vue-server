@@ -10,6 +10,7 @@ var common = {
             } catch (e) {
                 vm.__states.$logger.warn(
                     'Error executing expression: ' + value.toString() + ' [' + e.toString() + ']',
+                    common.getVmInitPath(vm),
                     common.onLogMessage(vm)
                 );
             }
@@ -43,7 +44,11 @@ var common = {
         try {
             value = this.applyFilters(vm, config.filters, value);
         } catch (e) {
-            vm.__states.$logger.warn('Error executing filter:', e.toString(), common.onLogMessage(vm));
+            vm.__states.$logger.warn(
+                'Error executing filter:', e.toString(),
+                common.getVmInitPath(vm),
+                common.onLogMessage(vm)
+            );
         }
 
         if (options) {
@@ -126,7 +131,11 @@ var common = {
         };
 
         if (!filter) {
-            vm.__states.$logger.warn('Unknown filter "' + meta.name + '"', common.onLogMessage(vm));
+            vm.__states.$logger.warn(
+                'Unknown filter "' + meta.name + '"',
+                common.getVmInitPath(vm),
+                common.onLogMessage(vm)
+            );
             filter = replacement;
         }
 
@@ -226,6 +235,19 @@ var common = {
         }
 
         return result;
+    },
+
+    getVmInitPath: function (vm, path) {
+        if (!path) {
+            path = vm.__states.initName;
+        } else {
+            path = vm.__states.initName + '/' + path;
+        }
+        if (vm.__states.parent) {
+            return this.getVmInitPath(vm.__states.parent, path);
+        } else {
+            return '[' + path + ']';
+        }
     }
 };
 
