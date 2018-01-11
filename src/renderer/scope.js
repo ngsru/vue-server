@@ -132,19 +132,12 @@ module.exports = function (globals) {
             this.buildComputedProps(vm);
 
             // Server Created mixins
-            this.callHookMixin(vm, 'createdBe', function () {
-                createdHookFired = true;
-            });
+            this.callHookMixin(vm, 'createdBe');
 
             // Server Created hook
             this.callHook(vm, 'createdBe');
 
             this.buildWithedData(vm, contexts);
-            if (createdHookFired) {
-                // Building computed properties for the second time
-                // If there was a possibility the data was modifed by hooks
-                this.buildComputedProps(vm);
-            }
 
             this.updateNotReadyCount(vm, +1);
             builders.build(vm, function () {
@@ -244,7 +237,6 @@ module.exports = function (globals) {
                     self.resetVmInstance(presentVm, options.element);
                     self.buildWithedData(presentVm, options);
                     self.pullPropsData(presentVm);
-                    self.buildComputedProps(presentVm);
                     newVm = presentVm;
                 }
 
@@ -559,34 +551,46 @@ module.exports = function (globals) {
 
         // Compute "computed" props
         buildComputedProps: function (vm) {
-            if (vm.$options.computed) {
-                var item;
-                for (var name in vm.$options.computed) {
-                    item = vm.$options.computed[name];
-
-                    if (typeof item === 'function') {
-                        try {
-                            vm[name] = item.call(vm);
-                        } catch (error) {
-                            vm.__states.$logger.debug(
-                                'Computed property "' + name + '" compilation error',
-                                common.onLogMessage(vm), '\n',
-                                error
-                            );
-                        }
-                    } else {
-                        try {
-                            vm[name] = item.get.call(vm);
-                        } catch (error) {
-                            vm.__states.$logger.debug(
-                                'Computed property "' + name + '" compilation error',
-                                common.onLogMessage(vm), '\n',
-                                error
-                            );
-                        }
-                    }
-                }
+            if (!vm.$options.computed) {
+                return;
             }
+
+            Object.keys(vm.$options.computed).forEach(function (name) {
+                var item = vm.$options.computed[name];
+                if (typeof item === 'function') {
+                    Object.defineProperty(vm, name, {
+                        get: function () {
+                            try {
+                                return item.call(vm)
+                            } catch (error) {
+                                vm.__states.$logger.debug(
+                                    'Computed property "' + name + '" compilation error',
+                                    common.onLogMessage(vm), '\n',
+                                    error
+                                );
+                            }
+                        },
+                        configurable: true,
+                        enumerable: true
+                    })
+                } else {
+                    Object.defineProperty(vm, name, {
+                        get: function () {
+                            try {
+                                return item.get.call(vm)
+                            } catch (error) {
+                                vm.__states.$logger.debug(
+                                    'Computed property "' + name + '" compilation error',
+                                    common.onLogMessage(vm), '\n',
+                                    error
+                                );
+                            }
+                        },
+                        configurable: true,
+                        enumerable: true
+                    });
+                }
+            });
 
             return this;
         },
