@@ -46,9 +46,12 @@ module.exports = {
             slot.filled = true;
         }
 
-        // Could create a linked copy of element
-        // May cause error in future
-        // Some sort of cloning proposed
-        slot.inner.push(item);
+        if (item.name === 'template') {
+            item.inner.forEach(function (itemInnerItem) {
+                slot.inner.push(itemInnerItem);
+            });
+        } else {
+            slot.inner.push(item);
+        }
     }
 };

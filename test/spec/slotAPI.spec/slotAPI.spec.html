@@ -98,5 +98,15 @@
     <div id="v-show-on-component">
         <item-one><dummy v-show="value"></dummy></item-one>
     </div>
-    <component-v-for/>
+    <component-v-for></component-v-for>
+
+    <div id="template-tag-nameless">
+        <template-tag><template>check</template></template-tag>
+    </div>
+    <div id="template-tag-named">
+        <template-tag><template slot="content">check</template></template-tag>
+    </div>
+    <div id="template-tag-mixed">
+        <template-tag><template>check</template><template slot="content">check</template></template-tag>
+    </div>
 </div>

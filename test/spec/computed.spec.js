@@ -97,9 +97,7 @@ var contentComponent = {
     },
 
     createdBe: function () {
-        console.log(1111, this.crecomp);
         this.cre = 88;
-        console.log(1111, this.crecomp);
     },
 
     activateBe: function (done) {

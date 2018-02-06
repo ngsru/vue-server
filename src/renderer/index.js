@@ -1,5 +1,4 @@
 var log4js = require('log4js');
-
 var filtersGlobal = require('vue/src/filters');
 
 var getScope = require('./scope.js');

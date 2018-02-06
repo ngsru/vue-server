@@ -63,6 +63,10 @@ var contentComponent = {
         },
         dummy: {
             template: '<i>123</i>'
+        },
+
+        templateTag: {
+            template: '<section><slot></slot>||<slot name="content"></slot></section>'
         }
     },
 
@@ -191,7 +195,7 @@ describe('<slot> API', function () {
         );
     });
 
-    describe('slot inside v-for', function () {
+    describe('inside v-for', function () {
         it('when v-for is on component should use v-for data context', function () {
             expect($('#component-v-for-1').html()).toEqual(
                 '<i>1</i>'
@@ -210,4 +214,25 @@ describe('<slot> API', function () {
             );
         });
     });
+
+    describe('with content from <template>', function () {
+        it('shound not render the tag in nameless slot', function () {
+            expect($('#template-tag-nameless').html()).toEqual(
+                '<section>check||</section>'
+            );
+        });
+
+        it('shound not render the tag in named slot', function () {
+            expect($('#template-tag-named').html()).toEqual(
+                '<section>||check</section>'
+            );
+        });
+
+        it('shound not render the tag in both nameless and named slots', function () {
+            expect($('#template-tag-mixed').html()).toEqual(
+                '<section>check||check</section>'
+            );
+        });
+    });
+
 });
