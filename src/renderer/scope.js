@@ -14,7 +14,7 @@ module.exports = function (globals) {
             if (contexts.isComponent) {
                 utils.extend(options, new contexts.component());
 
-            // Inherit data to v-repeat items contexts
+                // Inherit data to v-repeat items contexts
             } else if (contexts.isRepeat) {
                 utils.each(contexts.parent, function (item, key) {
                     if (!this.isSystemProp(key, contexts.parent) && !data[key]) {
@@ -365,7 +365,7 @@ module.exports = function (globals) {
                     if (!tpl[1]) {
                         vm.$el.name = '$merge';
 
-                    // If there are many top level elements
+                        // If there are many top level elements
                     } else {
                         vm.$el.name = 'template';
                     }
@@ -693,7 +693,7 @@ module.exports = function (globals) {
                         if (typeError) {
                             vm.__states.$logger.warn(
                                 'Invalid prop: type check failed for "' + propName + '". Expected ' +
-                                    descriptor.type.name + ', got ' + typeError.type,
+                                descriptor.type.name + ', got ' + typeError.type,
                                 common.getVmInitPath(vm),
                                 common.onLogMessage(vm)
                             );

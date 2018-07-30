@@ -1,7 +1,7 @@
-var toString     = ({}).toString,
-    def          = Object.defineProperty,
-    OBJECT       = 'object',
-    THIS_RE      = /[^\w]this[^\w]/,
+var toString = ({}).toString,
+    def = Object.defineProperty,
+    OBJECT = 'object',
+    THIS_RE = /[^\w]this[^\w]/,
     BRACKET_RE_S = /\['([^']+)'\]/g,
     BRACKET_RE_D = /\["([^"]+)"\]/g,
     ViewModel; // late def
@@ -13,7 +13,7 @@ function normalizeKeypath(key) {
     return key.indexOf('[') < 0 ?
         key
         : key.replace(BRACKET_RE_S, '.$1')
-             .replace(BRACKET_RE_D, '.$1');
+            .replace(BRACKET_RE_D, '.$1');
 }
 
 var utils = module.exports = {
@@ -206,6 +206,12 @@ var utils = module.exports = {
         tag += '>';
 
         return tag;
-    }
+    },
 
+    last: function (array) {
+        if (Array.isArray(array) && array.length) {
+            return array[array.length - 1];
+        }
+        return null
+    }
 };

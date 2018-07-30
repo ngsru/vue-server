@@ -135,7 +135,7 @@ function injectOptionsFromMixins(options) {
 
     if (options.mixins) {
         for (var i = 0; i < options.mixins.length; i++) {
-            injectOptionItemFromMixin(result,  options.mixins[i]);
+            injectOptionItemFromMixin(result, options.mixins[i]);
         }
 
         for (var name in result) {
@@ -161,8 +161,26 @@ function convertProps(props) {
     }
 }
 
+function getTemplate(options) {
+    var ownTemplate = options.renderServer || options.template;
+    if (ownTemplate) {
+        return ownTemplate;
+    }
+
+    if (options.mixins) {
+        var lastMixin = utils.last(options.mixins);
+        if (!lastMixin) {
+            return undefined;
+        }
+
+        return lastMixin.renderServer || lastMixin.template;
+    }
+
+    return undefined;
+}
+
 exports.composeComponent = function ($logger, component, globalMixin) {
-    var Component = function () {};
+    var Component = function () { };
     var options = Component.prototype;
     var toData = {};
     var instancePropsMap = objectUtils.getNames(component);
@@ -216,7 +234,7 @@ exports.composeComponent = function ($logger, component, globalMixin) {
 
     options.template = exports.compileTemplate(
         $logger,
-        options.renderServer || options.template,
+        getTemplate(options),
         'Component\'s template'
     );
 
