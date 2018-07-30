@@ -168,12 +168,17 @@ function getTemplate(options) {
     }
 
     if (options.mixins) {
-        var lastMixin = utils.last(options.mixins);
-        if (!lastMixin) {
-            return undefined;
+        var mixinTemplatesArray = [];
+        utils.every(options.mixins, function (item) {
+            var itemTpl = item.renderServer || item.template;
+            if (itemTpl) {
+                mixinTemplatesArray.push(itemTpl);
+            }
+        })
+        var lastTemplate = utils.last(mixinTemplatesArray);
+        if (lastTemplate) {
+            return lastTemplate;
         }
-
-        return lastMixin.renderServer || lastMixin.template;
     }
 
     return undefined;
